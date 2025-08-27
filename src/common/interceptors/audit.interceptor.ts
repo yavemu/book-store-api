@@ -13,8 +13,8 @@ import { AuditAction } from '../../modules/audit/enums/audit-action.enum';
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {
   constructor(
-    @Inject('IAuditLogService')
-    private readonly auditLogService: IAuditLogService
+    @Inject("IAuditLogService")
+    private readonly auditLogService: IAuditLogService,
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -22,87 +22,50 @@ export class AuditInterceptor implements NestInterceptor {
     const method = request.method;
     const url = request.url;
     const user = request.user;
+    const userId = user?.userId || "unknown";
 
     return next.handle().pipe(
       tap(async (response) => {
-        if (user && this.shouldAudit(method, url)) {
-          const action = this.getAuditAction(method);
-          const entityType = this.getEntityType(url);
-          const entityId = this.getEntityId(url, response);
-          const details = this.getDetails(method, url, response);
+        const action = this.getAuditAction(method);
+        const entityId = this.getEntityId(url, response);
+        const details = `${action} operation on endpoint ${url}`;
 
-          if (action && entityType && entityId) {
-            await this.auditLogService.logOperation(
-              user.userId,
-              entityId,
-              action,
-              details,
-              entityType,
-            );
-          }
-        }
+        await this.auditLogService.logOperation(userId, entityId, action, details, url);
       }),
     );
   }
 
-  private shouldAudit(method: string, url: string): boolean {
-    const auditablePaths = ['/auth/', '/users/'];
-    const auditableMethods = ['POST', 'PUT', 'DELETE'];
-    
-    return auditableMethods.includes(method) && 
-           auditablePaths.some(path => url.includes(path));
-  }
-
   private getAuditAction(method: string): AuditAction | null {
     switch (method) {
-      case 'POST':
+      case "POST":
         return AuditAction.CREATE;
-      case 'PUT':
+      case "PUT":
         return AuditAction.UPDATE;
-      case 'DELETE':
+      case "DELETE":
         return AuditAction.DELETE;
+      case "GET":
+        return AuditAction.READ;
       default:
         return null;
     }
   }
 
-  private getEntityType(url: string): string | null {
-    if (url.includes('/users/')) return 'User';
-    if (url.includes('/auth/')) return 'Auth';
-    return null;
-  }
-
   private getEntityId(url: string, response: any): string | null {
-    const urlParts = url.split('/');
+    const urlParts = url.split("/");
     const idFromUrl = urlParts[urlParts.length - 1];
-    
-    if (idFromUrl && idFromUrl !== 'register' && idFromUrl !== 'login') {
+
+    if (idFromUrl) {
       return idFromUrl;
     }
-    
+
     if (response && response.id) {
       return response.id;
     }
-    
+
     if (response && response.user && response.user.id) {
       return response.user.id;
     }
-    
-    return 'unknown';
-  }
 
-  private getDetails(method: string, url: string, response: any): string {
-    const action = method.toLowerCase();
-    const entity = this.getEntityType(url)?.toLowerCase() || 'entity';
-    
-    if (url.includes('/auth/register')) {
-      return `User registered: ${response?.user?.username || 'unknown'}`;
-    }
-    
-    if (url.includes('/auth/login')) {
-      return `User logged in: ${response?.user?.username || 'unknown'}`;
-    }
-    
-    return `${action} operation on ${entity}`;
+    return "unknown";
   }
 }
