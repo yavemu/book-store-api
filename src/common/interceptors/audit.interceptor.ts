@@ -3,15 +3,19 @@ import {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
+  Inject,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { AuditLogService } from '../../modules/audit/services/audit-log.service';
-import { AuditAction } from '../../modules/audit/entities/audit-log.entity';
+import { IAuditLogService } from '../../modules/audit/interfaces/audit-log.service.interface';
+import { AuditAction } from '../../modules/audit/enums/audit-action.enum';
 
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {
-  constructor(private readonly auditLogService: AuditLogService) {}
+  constructor(
+    @Inject('IAuditLogService')
+    private readonly auditLogService: IAuditLogService
+  ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();

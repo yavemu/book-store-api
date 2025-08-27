@@ -1,4 +1,5 @@
-import { AuditLog, AuditAction } from '../../modules/audit/entities/audit-log.entity';
+import { AuditLog } from '../../modules/audit/entities/audit-log.entity';
+import { AuditAction } from '../../modules/audit/enums/audit-action.enum';
 
 export class AuditLogMockFactory {
   static createOne(overrides?: Partial<AuditLog>): AuditLog {

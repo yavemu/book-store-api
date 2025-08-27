@@ -1,44 +1,39 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
-import { UserService } from '../../users/services/user.service';
-import { User } from '../../users/entities/user.entity';
-import { AuditLogService } from '../../audit/services/audit-log.service';
-import { AuditAction } from '../../audit/entities/audit-log.entity';
+import { Injectable, UnauthorizedException, Inject } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import * as bcrypt from "bcrypt";
+import { UserService } from "../../users/services/user.service";
+import { User } from "../../users/entities/user.entity";
+import { IAuditLogService } from "../../audit/interfaces/audit-log.service.interface";
+import { AuditAction } from "../../audit/enums/audit-action.enum";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
-    private readonly auditLogService: AuditLogService,
+    @Inject("IAuditLogService")
+    private readonly auditLogService: IAuditLogService,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<User | null> {
-    const user = await this.userService.findByUsername(username);
-    
-    if (user && await bcrypt.compare(password, user.password)) {
+  async validateUser(email: string, password: string): Promise<User | null> {
+    const user = await this.userService.findToLoginByEmail(email);
+
+    if (user && (await bcrypt.compare(password, user.password))) {
       return user;
     }
-    
+
     return null;
   }
 
   async login(user: User) {
-    const payload = { 
-      username: user.username, 
+    const payload = {
+      username: user.username,
       sub: user.id,
-      role: user.role 
+      role: user.role,
     };
 
-    await this.auditLogService.logOperation(
-      user.id,
-      user.id,
-      AuditAction.LOGIN,
-      `User logged in: ${user.username}`,
-      'Auth',
-    );
-    
+    await this.auditLogService.logOperation(user.id, user.id, AuditAction.LOGIN, `User logged in: ${user.username}`, "Auth");
+
     return {
       access_token: this.jwtService.sign(payload),
       user: {

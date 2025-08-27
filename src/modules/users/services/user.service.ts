@@ -1,32 +1,27 @@
 import { Injectable, Inject, ConflictException, NotFoundException } from '@nestjs/common';
 import { IUserRepository } from '../interfaces/user.repository.interface';
-import { User } from '../entities/user.entity';
-import { CreateUserDto } from '../dto/create-user.dto';
-import { UpdateUserDto } from '../dto/update-user.dto';
-import { BusinessException } from '../../../common/exceptions/business.exception';
-import { AuditLogService } from '../../audit/services/audit-log.service';
-import { AuditAction } from '../../audit/entities/audit-log.entity';
+import { IAuditLogService } from "../../audit/interfaces/audit-log.service.interface";
+import { User } from "../entities/user.entity";
+import { CreateUserDto } from "../dto/create-user.dto";
+import { UpdateUserDto } from "../dto/update-user.dto";
+import { BusinessException } from "../../../common/exceptions/business.exception";
+import { AuditAction } from "../../audit/enums/audit-action.enum";
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 @Injectable()
 export class UserService {
   constructor(
-    @Inject('IUserRepository')
+    @Inject("IUserRepository")
     private readonly userRepository: IUserRepository,
-    private readonly auditLogService: AuditLogService,
+    @Inject("IAuditLogService")
+    private readonly auditLogService: IAuditLogService,
   ) {}
 
   async create(createUserDto: CreateUserDto, createdBy?: string): Promise<User> {
     const user = await this.userRepository.registerUser(createUserDto);
 
     if (createdBy) {
-      await this.auditLogService.logOperation(
-        createdBy,
-        user.id,
-        AuditAction.CREATE,
-        `User created: ${user.username} (${user.email})`,
-        'User',
-      );
+      await this.auditLogService.logOperation(createdBy, user.id, AuditAction.CREATE, `User created: ${user.username} (${user.email})`, "User");
     }
 
     return user;
@@ -40,8 +35,8 @@ export class UserService {
     return this.userRepository.getUserProfile(id);
   }
 
-  async findByUsername(username: string): Promise<User | null> {
-    return this.userRepository.authenticateUser(username);
+  async findToLoginByEmail(email: string): Promise<User | null> {
+    return this.userRepository.authenticateUser(email);
   }
 
   async findByEmail(email: string): Promise<boolean> {
@@ -52,14 +47,10 @@ export class UserService {
     const updatedUser = await this.userRepository.updateUserProfile(id, updateUserDto);
 
     if (updatedBy) {
-      const changes = Object.keys(updateUserDto).map(key => `${key}: ${updateUserDto[key]}`).join(', ');
-      await this.auditLogService.logOperation(
-        updatedBy,
-        id,
-        AuditAction.UPDATE,
-        `User updated: ${changes}`,
-        'User',
-      );
+      const changes = Object.keys(updateUserDto)
+        .map((key) => `${key}: ${updateUserDto[key]}`)
+        .join(", ");
+      await this.auditLogService.logOperation(updatedBy, id, AuditAction.UPDATE, `User updated: ${changes}`, "User");
     }
 
     return updatedUser;
@@ -70,14 +61,7 @@ export class UserService {
     await this.userRepository.deactivateUser(id);
 
     if (deletedBy) {
-      await this.auditLogService.logOperation(
-        deletedBy,
-        id,
-        AuditAction.DELETE,
-        `User deleted: ${user.username} (${user.email})`,
-        'User',
-      );
+      await this.auditLogService.logOperation(deletedBy, id, AuditAction.DELETE, `User deleted: ${user.username} (${user.email})`, "User");
     }
   }
-
 }

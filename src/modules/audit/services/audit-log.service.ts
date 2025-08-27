@@ -1,10 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { IAuditLogRepository } from '../interfaces/audit-log.repository.interface';
-import { AuditLog, AuditAction } from '../entities/audit-log.entity';
+import { IAuditLogService } from '../interfaces/audit-log.service.interface';
+import { AuditLog } from '../entities/audit-log.entity';
+import { AuditAction } from '../enums/audit-action.enum';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 @Injectable()
-export class AuditLogService {
+export class AuditLogService implements IAuditLogService {
   constructor(
     @Inject('IAuditLogRepository')
     private readonly auditLogRepository: IAuditLogRepository,
@@ -24,6 +26,16 @@ export class AuditLogService {
       details,
       entityType,
     );
+  }
+
+  async log(
+    performedBy: string,
+    entityId: string,
+    action: AuditAction,
+    details: string,
+    entityType: string,
+  ): Promise<AuditLog> {
+    return this.logOperation(performedBy, entityId, action, details, entityType);
   }
 
   async getAuditTrail(pagination: PaginationDto): Promise<PaginatedResult<AuditLog>> {

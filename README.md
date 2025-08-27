@@ -23,11 +23,11 @@ Antes de comenzar, asegúrate de tener instalado lo siguiente en tu sistema:
    - Generalmente incluido con Docker Desktop
    - Verificar instalación: `docker-compose --version`
 
-4. **Node.js** (versión 18.0+) - _Opcional, solo necesario para ejecución individual_
+4. **Node.js** (versión 20.12+) - _Opcional, solo necesario para ejecución local
    - Descarga: https://nodejs.org/en/download/
    - Verificar instalación: `node --version` y `npm --version`
 
-### Requisitos del Sistema
+### Requisitos minimos del Sistema
 
 - **Sistema Operativo**: Windows 10+, macOS 10.14+, o Linux
 - **RAM**: Mínimo 4GB, recomendado 8GB+
@@ -98,29 +98,35 @@ cp book-store-api/.env.example book-store-api/.env
 cp book-store-web/.env.example book-store-web/.env
 ```
 
-Luego, edita el archivo .env para configurar las variables de entorno con tu propia configuración
+Luego, edita el archivo .env para configurar las variables de entorno con tu propia configuración. (estos valores pueden ser usados por Docker)
 
 ## Ejecución de la Aplicación con Docker Compose
 
 ### 📝 Scripts npm Disponibles para Docker
 
-| Script | Descripción | Equivalente Docker Compose |
-|--------|-------------|----------------------------|
-| `npm run docker:build` | Construir imagen | `docker-compose build` |
-| `npm run docker:up` | Ejecutar contenedores | `docker-compose up -d` |
-| `npm run docker:up:build` | Construir y ejecutar | `docker-compose up --build -d` |
-| `npm run docker:down` | Detener contenedores | `docker-compose down` |
-| `npm run docker:down:clean` | Detener y limpiar datos | `docker-compose down -v` |
-| `npm run docker:ps` | Ver estado | `docker-compose ps` |
-| `npm run docker:logs` | Ver todos los logs | `docker-compose logs -f` |
-| `npm run docker:logs:api` | Ver logs de API | `docker logs bookstore-api -f` |
-| `npm run docker:logs:db` | Ver logs de DB | `docker logs bookstore-postgres -f` |
-| `npm run docker:restart` | Reiniciar servicios | `docker-compose restart` |
-| `npm run docker:shell:api` | Shell de API | `docker exec -it bookstore-api /bin/sh` |
-| `npm run docker:shell:db` | Shell de PostgreSQL | `docker exec -it bookstore-postgres psql -U user -d bookstore_db` |
-| `npm run docker:clean` | Limpiar sistema | `docker-compose down && docker system prune -f` |
+Estos son los scripts personalizados que puedes usar con `npm run` para interactuar con Docker Compose.
 
-### 🚀 Comandos Principales
+| Script | Descripción | Equivalente Docker / Docker Compose |
+|--------|-------------|----------------------------|
+| `npm run docker:build` | Construye las imágenes de los servicios definidos en docker-compose.yml	| docker-compose build |
+| `npm run docker:up` | Inicia los contenedores en segundo plano (detached mode)	| docker-compose up -d |
+| `npm run docker:up:build` | Detiene contenedores, reconstruye imágenes y inicia servicios en segundo plano	| docker-compose down && docker-compose up --build -d |
+| `npm run docker:down` | Detiene y elimina los contenedores, redes y volúmenes definidos	| docker-compose down |
+| `npm run docker:down:clean` | Detiene contenedores y elimina volúmenes asociados (datos persistentes)	| docker-compose down -v |
+| `npm run docker:logs` | Muestra y sigue los logs de todos los servicios en tiempo real	| docker-compose logs -f |
+| `npm run docker:logs:api` | Muestra y sigue los logs del contenedor 'bookstore-api' en tiempo real | docker logs bookstore-api -f |
+| `npm run docker:logs:db` | Muestra y sigue los logs del contenedor 'bookstore-postgres' en tiempo real |	docker logs bookstore-postgres -f |
+| `npm run docker:ps` | Muestra el estado actual de los contenedores del proyecto	| docker-compose ps |
+| `npm run docker:restart` | Reinicia todos los servicios definidos en docker-compose	| docker-compose restart |
+| `npm run docker:shell:api` | Abre una shell interactiva (/bin/sh) en el contenedor 'bookstore-api' | docker exec -it bookstore-api /bin/sh |
+| `npm run docker:shell:db` | Conecta a la base de datos PostgreSQL con el cliente psql |	docker exec -it bookstore-postgres psql -U user -d bookstore_db |
+| `npm run docker:clean` | Detiene contenedores y limpia recursos no utilizados del sistema Docker	| docker-compose down && docker system prune -f |
+| `npm run docker:exec:build` | Ejecuta el comando 'npm run build' en el servicio 'api' sin terminal interactiva	| docker-compose exec -T api npm run build |
+| `npm run docker:exec:test` | Ejecuta el comando 'npm run test' en el servicio 'api' sin terminal interactiva	| docker-compose exec -T api npm run test |
+| `npm run docker:exec:test:cov` | Ejecuta el comando 'npm run test:cov' en el servicio 'api' sin terminal interactiva	| docker-compose exec -T api npm run test:cov |
+| `npm run docker:exec:lint` | Ejecuta el comando 'npm run lint' en el servicio 'api' sin terminal interactiva	| docker-compose exec -T api npm run lint |
+
+### Comandos Principales
 
 #### **Usando Scripts npm (Recomendado)**
 ```bash
@@ -182,6 +188,39 @@ docker-compose down -v         # Detener y limpiar volúmenes (ELIMINA DATOS)
 docker-compose down --rmi all -v # Detener, limpiar y remover imágenes
 ```
 
+### 🧪 Comandos de Desarrollo y Testing
+
+#### **Comandos de Testing y Build en Contenedores**
+```bash
+# Usando scripts npm (recomendado)
+npm run docker:exec:build       # Compilar aplicación dentro del contenedor
+npm run docker:exec:test        # Ejecutar tests unitarios
+npm run docker:exec:test:cov    # Ejecutar tests con reporte de cobertura
+npm run docker:exec:lint        # Verificar código con ESLint
+
+# Usando Docker directamente
+docker-compose exec bookstore-api npm run build
+docker-compose exec bookstore-api npm run test
+docker-compose exec bookstore-api npm run test:cov
+docker-compose exec bookstore-api npm run lint
+docker-compose exec bookstore-api npm run seed    # Ejecutar seeds de la DB
+```
+
+#### **Comandos para Verificación de Calidad**
+```bash
+# Verificar que el proyecto compila correctamente
+npm run docker:exec:build
+
+# Verificar cobertura de tests (objetivo: >80%)
+npm run docker:exec:test:cov
+
+# Verificar estándares de código (0 errores)
+npm run docker:exec:lint
+
+# Ejecutar secuencia completa de verificación
+npm run docker:exec:build && npm run docker:exec:test:cov && npm run docker:exec:lint
+```
+
 ### 🔧 Comandos de Desarrollo
 
 #### **Reconstruir y Reiniciar**
@@ -208,7 +247,13 @@ npm run docker:shell:db        # Acceder al shell de PostgreSQL
 docker exec -it bookstore-api /bin/sh # Acceder al shell del contenedor API
 docker exec -it bookstore-postgres psql -U user -d bookstore_db # Acceder a PostgreSQL
 
-# Ejecutar comandos npm dentro del contenedor API
+# Ejecutar comandos npm dentro del contenedor API usando scripts npm
+npm run docker:exec:test        # Ejecutar tests
+npm run docker:exec:build       # Construir aplicación
+npm run docker:exec:test:cov    # Tests con cobertura
+npm run docker:exec:lint        # Verificar código
+
+# O usando Docker directamente
 docker exec -it bookstore-api npm run test
 docker exec -it bookstore-api npm run build
 docker exec -it bookstore-api npm run seed

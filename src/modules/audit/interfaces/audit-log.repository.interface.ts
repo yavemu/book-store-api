@@ -1,4 +1,5 @@
-import { AuditLog, AuditAction } from '../entities/audit-log.entity';
+import { AuditLog } from '../entities/audit-log.entity';
+import { AuditAction } from '../enums/audit-action.enum';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 export interface IAuditLogRepository {

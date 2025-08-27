@@ -7,14 +7,13 @@ import {
   DeleteDateColumn,
   Index,
   BeforeInsert,
-  BeforeUpdate
+  BeforeUpdate,
+  ManyToOne,
+  JoinColumn
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-
-export enum UserRole {
-  ADMIN = 'admin',
-  USER = 'user',
-}
+import { UserRole } from '../enums/user-role.enum';
+import { Role } from '../../roles/entities/role.entity';
 
 @Entity('users')
 @Index(['username'], { unique: true, where: 'deleted_at IS NULL' })
@@ -57,14 +56,28 @@ export class User {
   email: string;
 
   @Column({
+    name: 'role_id',
+    type: 'uuid',
+    nullable: true,
+    comment: 'Foreign key to roles table'
+  })
+  roleId?: string;
+
+  // Keep the old enum column for backward compatibility
+  @Column({
     name: 'role',
     type: 'enum',
     enum: UserRole,
     default: UserRole.USER,
     nullable: false,
-    comment: 'User role for authorization (admin, user)'
+    comment: 'User role for authorization (admin, user) - legacy column'
   })
   role: UserRole;
+
+  // Relation to Role entity
+  @ManyToOne(() => Role, (role) => role.users, { nullable: true, lazy: true })
+  @JoinColumn({ name: 'role_id' })
+  roleEntity?: Role;
 
   @CreateDateColumn({
     name: 'created_at',

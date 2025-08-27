@@ -1,0 +1,1 @@
+export * from './publishing-house.repository.interface';

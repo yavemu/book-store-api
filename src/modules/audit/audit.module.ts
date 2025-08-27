@@ -9,12 +9,15 @@ import { AuditController } from './audit.controller';
   imports: [TypeOrmModule.forFeature([AuditLog])],
   controllers: [AuditController],
   providers: [
-    AuditLogService,
+    {
+      provide: 'IAuditLogService',
+      useClass: AuditLogService,
+    },
     {
       provide: 'IAuditLogRepository',
       useClass: AuditLogRepository,
     },
   ],
-  exports: [AuditLogService, 'IAuditLogRepository'],
+  exports: ['IAuditLogService', 'IAuditLogRepository'],
 })
 export class AuditModule {}

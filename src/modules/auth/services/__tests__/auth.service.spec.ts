@@ -3,22 +3,23 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthService } from '../auth.service';
 import { UserService } from '../../../users/services/user.service';
 import { AuditLogService } from '../../../audit/services/audit-log.service';
-import { User, UserRole } from '../../../users/entities/user.entity';
-import * as bcrypt from 'bcrypt';
+import { User } from "../../../users/entities/user.entity";
+import { UserRole } from "../../../users/enums/user-role.enum";
+import * as bcrypt from "bcrypt";
 
-jest.mock('bcrypt');
+jest.mock("bcrypt");
 
-describe('AuthService', () => {
+describe("AuthService", () => {
   let service: AuthService;
   let userService: jest.Mocked<UserService>;
   let jwtService: jest.Mocked<JwtService>;
   let auditLogService: any;
 
   const mockUser: User = {
-    id: '123e4567-e89b-12d3-a456-426614174000',
-    username: 'testuser',
-    email: 'test@example.com',
-    password: 'hashedpassword',
+    id: "123e4567-e89b-12d3-a456-426614174000",
+    username: "testuser",
+    email: "test@example.com",
+    password: "hashedpassword",
     role: UserRole.USER,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -30,7 +31,7 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     const mockUserService = {
-      findByUsername: jest.fn(),
+      findToLoginByEmail: jest.fn(),
       findById: jest.fn(),
     };
 
@@ -66,39 +67,39 @@ describe('AuthService', () => {
     auditLogService = module.get(AuditLogService);
   });
 
-  describe('validateUser', () => {
-    it('should return user when credentials are valid', async () => {
-      userService.findByUsername.mockResolvedValue(mockUser);
+  describe("validateUser", () => {
+    it("should return user when credentials are valid", async () => {
+      userService.findToLoginByEmail.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      const result = await service.validateUser('testuser', 'password');
+      const result = await service.validateUser("testuser", "password");
 
-      expect(userService.findByUsername).toHaveBeenCalledWith('testuser');
-      expect(bcrypt.compare).toHaveBeenCalledWith('password', mockUser.password);
+      expect(userService.findToLoginByEmail).toHaveBeenCalledWith("testuser");
+      expect(bcrypt.compare).toHaveBeenCalledWith("password", mockUser.password);
       expect(result).toEqual(mockUser);
     });
 
-    it('should return null when user not found', async () => {
-      userService.findByUsername.mockResolvedValue(null);
+    it("should return null when user not found", async () => {
+      userService.findToLoginByEmail.mockResolvedValue(null);
 
-      const result = await service.validateUser('nonexistent', 'password');
+      const result = await service.validateUser("nonexistent", "password");
 
       expect(result).toBeNull();
     });
 
-    it('should return null when password is incorrect', async () => {
-      userService.findByUsername.mockResolvedValue(mockUser);
+    it("should return null when password is incorrect", async () => {
+      userService.findToLoginByEmail.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      const result = await service.validateUser('testuser', 'wrongpassword');
+      const result = await service.validateUser("testuser", "wrongpassword");
 
       expect(result).toBeNull();
     });
   });
 
-  describe('login', () => {
-    it('should return access token and user data', async () => {
-      const mockToken = 'jwt.token.here';
+  describe("login", () => {
+    it("should return access token and user data", async () => {
+      const mockToken = "jwt.token.here";
       jwtService.sign.mockReturnValue(mockToken);
       auditLogService.logOperation.mockResolvedValue(undefined);
 
@@ -122,8 +123,8 @@ describe('AuthService', () => {
     });
   });
 
-  describe('getProfile', () => {
-    it('should return user profile', async () => {
+  describe("getProfile", () => {
+    it("should return user profile", async () => {
       userService.findById.mockResolvedValue(mockUser);
 
       const result = await service.getProfile(mockUser.id);

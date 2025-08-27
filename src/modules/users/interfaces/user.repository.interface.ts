@@ -6,7 +6,7 @@ import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.d
 export interface IUserRepository {
   // Public business logic methods
   registerUser(createUserDto: CreateUserDto): Promise<User>;
-  authenticateUser(username: string): Promise<User | null>;
+  authenticateUser(email: string): Promise<User | null>;
   getUserProfile(userId: string): Promise<User>;
   updateUserProfile(userId: string, updateUserDto: UpdateUserDto): Promise<User>;
   deactivateUser(userId: string): Promise<void>;

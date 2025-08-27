@@ -1,55 +1,54 @@
-import { DataSource } from 'typeorm';
-import { User, UserRole } from '../../modules/users/entities/user.entity';
-import * as bcrypt from 'bcrypt';
+// user.seed.ts
+import { DataSource, Repository } from "typeorm";
+import { User } from "../../modules/users/entities/user.entity";
+import { Role } from "../../modules/roles/entities/role.entity";
+import { UserRole } from "../../modules/users/enums/user-role.enum";
 
 export class UserSeed {
-  public async run(dataSource: DataSource): Promise<void> {
-    const userRepository = dataSource.getRepository(User);
+  private userRepository: Repository<User>;
+  private roleRepository: Repository<Role>;
 
-    const existingAdmin = await userRepository.findOne({
-      where: { username: 'admin' },
-    });
+  async run(dataSource: DataSource): Promise<void> {
+    this.userRepository = dataSource.getRepository(User);
+    this.roleRepository = dataSource.getRepository(Role);
 
-    if (!existingAdmin) {
-      const hashedPassword = await bcrypt.hash('admin123', 10);
+    console.log("👤 Creando usuarios...");
 
-      const adminUser = userRepository.create({
-        username: 'admin',
-        email: 'admin@bookstore.com',
-        password: hashedPassword,
-        role: UserRole.ADMIN,
-      });
+    // Obtener los roles
+    const adminRole = await this.roleRepository.findOne({ where: { name: UserRole.ADMIN } });
+    const userRole = await this.roleRepository.findOne({ where: { name: UserRole.USER } });
 
-      await userRepository.save(adminUser);
-      console.log('✅ Admin user created successfully');
-      console.log('Username: admin');
-      console.log('Password: admin123');
-      console.log('Email: admin@bookstore.com');
-    } else {
-      console.log('ℹ️  Admin user already exists');
+    if (!adminRole || !userRole) {
+      throw new Error("Roles no encontrados. Ejecuta primero el seed de roles.");
     }
 
-    const existingUser = await userRepository.findOne({
-      where: { username: 'user' },
-    });
-
-    if (!existingUser) {
-      const hashedPassword = await bcrypt.hash('user123', 10);
-
-      const regularUser = userRepository.create({
-        username: 'user',
-        email: 'user@bookstore.com',
-        password: hashedPassword,
+    const users = [
+      {
+        username: "admin",
+        password: "demodemo",
+        email: "admin@demo.com",
+        role: UserRole.ADMIN,
+      },
+      {
+        username: "user",
+        password: "demodemo",
+        email: "user@demo.com",
         role: UserRole.USER,
+      },
+    ];
+
+    for (const userData of users) {
+      const existingUser = await this.userRepository.findOne({
+        where: [{ username: userData.username }, { email: userData.email }],
       });
 
-      await userRepository.save(regularUser);
-      console.log('✅ Regular user created successfully');
-      console.log('Username: user');
-      console.log('Password: user123');
-      console.log('Email: user@bookstore.com');
-    } else {
-      console.log('ℹ️  Regular user already exists');
+      if (!existingUser) {
+        const user = this.userRepository.create(userData);
+        await this.userRepository.save(user);
+        console.log(`✅ Usuario ${userData.username} creado`);
+      } else {
+        console.log(`⚠️  Usuario ${userData.username} ya existe`);
+      }
     }
   }
 }

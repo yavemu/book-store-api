@@ -1,7 +1,8 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindManyOptions, ILike } from 'typeorm';
-import { AuditLog, AuditAction } from '../entities/audit-log.entity';
+import { AuditLog } from '../entities/audit-log.entity';
+import { AuditAction } from '../enums/audit-action.enum';
 import { IAuditLogRepository } from '../interfaces/audit-log.repository.interface';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import { BaseRepository } from '../../../common/repositories/base.repository';

@@ -1,4 +1,5 @@
-import { User, UserRole } from '../../modules/users/entities/user.entity';
+import { User } from '../../modules/users/entities/user.entity';
+import { UserRole } from '../../modules/users/enums/user-role.enum';
 
 export class UserMockFactory {
   // Mock para 1 resultado

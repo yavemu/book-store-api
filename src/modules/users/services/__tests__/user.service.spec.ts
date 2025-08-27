@@ -6,7 +6,7 @@ import { AuditLogService } from '../../../audit/services/audit-log.service';
 import { UserMockFactory, userMockData } from '../../../../common/mocks/user.mock';
 import { CreateUserDto } from '../../dto/create-user.dto';
 import { UpdateUserDto } from '../../dto/update-user.dto';
-import { UserRole } from '../../entities/user.entity';
+import { UserRole } from "../../enums/user-role.enum";
 import { PaginationDto } from '../../../../common/dto/pagination.dto';
 
 describe('UserService', () => {
@@ -151,21 +151,21 @@ describe('UserService', () => {
     });
   });
 
-  describe('findByUsername', () => {
-    it('should return user when found', async () => {
+  describe("findToLoginByEmail", () => {
+    it("should return user when found", async () => {
       const mockUser = UserMockFactory.createRegularUser();
       userRepository.authenticateUser.mockResolvedValue(mockUser);
 
-      const result = await service.findByUsername('testuser');
+      const result = await service.findToLoginByEmail("testuser");
 
-      expect(userRepository.authenticateUser).toHaveBeenCalledWith('testuser');
+      expect(userRepository.authenticateUser).toHaveBeenCalledWith("testuser");
       expect(result).toEqual(mockUser);
     });
 
-    it('should return null when not found', async () => {
+    it("should return null when not found", async () => {
       userRepository.authenticateUser.mockResolvedValue(null);
 
-      const result = await service.findByUsername('nonexistent');
+      const result = await service.findToLoginByEmail("nonexistent");
 
       expect(result).toBeNull();
     });
