@@ -51,7 +51,6 @@ export class BookGenresController {
   @Auth(UserRole.ADMIN)
   @ApiDeleteGenre()
   async softDelete(@Param("id") id: string, @Request() req) {
-    await this.genreService.softDelete(id, req.user.userId);
-    return { message: "Genre deleted successfully" };
+    return this.genreService.softDelete(id, req.user.userId);
   }
 }

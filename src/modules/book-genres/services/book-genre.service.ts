@@ -1,28 +1,20 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { IBookGenreRepository } from '../interfaces/book-genre.repository.interface';
 import { IBookGenreService } from '../interfaces/book-genre.service.interface';
-import { IAuditLogService } from '../../audit/interfaces';
 import { BookGenre } from '../entities/book-genre.entity';
 import { CreateBookGenreDto } from '../dto/create-book-genre.dto';
 import { UpdateBookGenreDto } from '../dto/update-book-genre.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
-import { AuditAction } from '../../audit/enums/audit-action.enum';
 
 @Injectable()
 export class BookGenreService implements IBookGenreService {
   constructor(
     @Inject('IBookGenreRepository')
     private readonly genreRepository: IBookGenreRepository,
-    @Inject('IAuditLogService')
-    private readonly auditService: IAuditLogService,
   ) {}
 
   async create(createBookGenreDto: CreateBookGenreDto, performedBy: string): Promise<BookGenre> {
-    const genre = await this.genreRepository.registerGenre(createBookGenreDto);
-    
-    await this.auditService.log(performedBy, genre.id, AuditAction.CREATE, `Created book genre: ${genre.name}`, "BookGenre");
-
-    return genre;
+    return await this.genreRepository.registerGenre(createBookGenreDto, performedBy);
   }
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<BookGenre>> {
@@ -34,18 +26,12 @@ export class BookGenreService implements IBookGenreService {
   }
 
   async update(id: string, updateBookGenreDto: UpdateBookGenreDto, performedBy: string): Promise<BookGenre> {
-    const genre = await this.genreRepository.updateGenreProfile(id, updateBookGenreDto);
-    
-    await this.auditService.log(performedBy, genre.id, AuditAction.UPDATE, `Updated book genre: ${genre.name}`, "BookGenre");
-
-    return genre;
+    return await this.genreRepository.updateGenreProfile(id, updateBookGenreDto, performedBy);
   }
 
-  async softDelete(id: string, performedBy: string): Promise<void> {
-    const genre = await this.genreRepository.getGenreProfile(id);
-    await this.genreRepository.deactivateGenre(id);
-    
-    await this.auditService.log(performedBy, id, AuditAction.DELETE, `Deleted book genre: ${genre.name}`, "BookGenre");
+  async softDelete(id: string, performedBy: string): Promise<{ message: string }> {
+    await this.genreRepository.deactivateGenre(id, performedBy);
+    return { message: "Genre deleted successfully" };
   }
 
   async search(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookGenre>> {

@@ -1,16 +1,33 @@
 import { Repository, FindManyOptions } from 'typeorm';
-import { HttpException, HttpStatus, ConflictException } from '@nestjs/common';
+import { HttpException, HttpStatus, ConflictException, Inject, Injectable } from '@nestjs/common';
 import { PaginationDto, PaginatedResult } from '../dto/pagination.dto';
+import { IAuditLogService } from '../../modules/audit/interfaces/audit-log.service.interface';
+import { AuditAction } from '../../modules/audit/enums/audit-action.enum';
 
 export abstract class BaseRepository<T> {
-  constructor(protected readonly repository: Repository<T>) {}
+  constructor(
+    protected readonly repository: Repository<T>,
+    @Inject('IAuditLogService')
+    protected readonly auditLogService?: IAuditLogService
+  ) {}
 
   // ========== MÉTODOS PRIVADOS COMUNES ==========
 
-  protected async _createEntity(data: Partial<T>): Promise<T> {
+  protected async _createEntity(
+    data: Partial<T>,
+    performedBy?: string,
+    entityName?: string,
+    getDescription?: (entity: T) => string
+  ): Promise<T> {
     try {
       const entity = this.repository.create(data as any);
-      return await this.repository.save(entity as T);
+      const savedEntity = await this.repository.save(entity as T);
+      
+      if (performedBy && entityName) {
+        await this._logAudit(AuditAction.CREATE, (savedEntity as any).id, performedBy, entityName, getDescription);
+      }
+      
+      return savedEntity;
     } catch (error) {
       throw new HttpException("Failed to create entity", HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -62,17 +79,38 @@ export abstract class BaseRepository<T> {
     }
   }
 
-  protected async _updateEntity(id: string, data: Partial<T>): Promise<void> {
+  protected async _updateEntity(
+    id: string,
+    data: Partial<T>,
+    performedBy?: string,
+    entityName?: string,
+    getDescription?: (entity: T) => string
+  ): Promise<void> {
     try {
       await this.repository.update({ id } as any, data as any);
+      
+      if (performedBy && entityName) {
+        await this._logAudit(AuditAction.UPDATE, id, performedBy, entityName, getDescription);
+      }
     } catch (error) {
       throw new HttpException("Failed to update entity", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  protected async _softDelete(id: string): Promise<void> {
+  protected async _softDelete(
+    id: string,
+    performedBy?: string,
+    entityName?: string,
+    getDescription?: (entity: T) => string
+  ): Promise<void> {
     try {
+      const entity = performedBy && entityName && getDescription ? await this._findById(id) : null;
       await this.repository.softDelete({ id } as any);
+      
+      if (performedBy && entityName) {
+        const description = entity && getDescription ? getDescription(entity) : undefined;
+        await this._logAudit(AuditAction.DELETE, id, performedBy, entityName, description ? () => description : undefined);
+      }
     } catch (error) {
       throw new HttpException("Failed to delete entity", HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -144,6 +182,35 @@ export abstract class BaseRepository<T> {
         }
         throw new HttpException(`Failed to validate unique constraints: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
       }
+    }
+  }
+
+  // ========== MÉTODO CENTRALIZADO DE AUDITORÍA ==========
+
+  protected async _logAudit(
+    action: AuditAction,
+    entityId: string,
+    performedBy: string,
+    entityName: string,
+    getDescription?: (entity: T) => string
+  ): Promise<void> {
+    if (this.auditLogService) {
+      let description: string;
+      
+      if (getDescription && action !== AuditAction.DELETE) {
+        const entity = await this._findById(entityId);
+        description = entity ? getDescription(entity) : `${action.toLowerCase()} ${entityName}`;
+      } else {
+        description = getDescription ? getDescription({} as T) : `${action.toLowerCase()} ${entityName}`;
+      }
+      
+      await this.auditLogService.logOperation(
+        performedBy,
+        entityId,
+        action,
+        description,
+        entityName
+      );
     }
   }
 }

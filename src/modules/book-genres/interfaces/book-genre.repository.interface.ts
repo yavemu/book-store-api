@@ -4,10 +4,10 @@ import { UpdateBookGenreDto } from '../dto/update-book-genre.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 export interface IBookGenreRepository {
-  registerGenre(createBookGenreDto: CreateBookGenreDto): Promise<BookGenre>;
+  registerGenre(createBookGenreDto: CreateBookGenreDto, performedBy?: string): Promise<BookGenre>;
   getGenreProfile(genreId: string): Promise<BookGenre>;
-  updateGenreProfile(genreId: string, updateBookGenreDto: UpdateBookGenreDto): Promise<BookGenre>;
-  deactivateGenre(genreId: string): Promise<void>;
+  updateGenreProfile(genreId: string, updateBookGenreDto: UpdateBookGenreDto, performedBy?: string): Promise<BookGenre>;
+  deactivateGenre(genreId: string, performedBy?: string): Promise<void>;
   searchGenres(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookGenre>>;
   getAllGenres(pagination: PaginationDto): Promise<PaginatedResult<BookGenre>>;
   checknameExists(name: string): Promise<boolean>;

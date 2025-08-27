@@ -56,7 +56,6 @@ export class UsersController {
   @Auth(UserRole.ADMIN)
   @ApiDeleteUser()
   async remove(@Param("id") id: string) {
-    await this.userService.softDelete(id);
-    return { message: "User deleted successfully" };
+    return this.userService.softDelete(id);
   }
 }

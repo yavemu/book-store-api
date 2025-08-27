@@ -8,9 +8,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./services/auth.service";
-import { UserService } from "../users/services/user.service";
 import { LoginDto } from "./dto";
-import { CreateUserDto } from "../users/dto/create-user.dto";
 import { Public, Auth } from "../../common/decorators/auth.decorator";
 import { UserRole } from "../users/enums/user-role.enum";
 import { ERROR_MESSAGES } from "../../common/exceptions";
@@ -20,7 +18,7 @@ import { RegisterUserDto } from "../users/dto/register-user.dto";
 @ApiTags("Authentication")
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService, private readonly userService: UserService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post("login")
   @Public()
@@ -39,30 +37,13 @@ export class AuthController {
   @Public()
   @ApiRegister()
   async register(@Body() registerUserDto: RegisterUserDto) {
-    const user = await this.userService.register(registerUserDto);
-    return {
-      message: "Usuario creado exitosamente",
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-      },
-    };
+    return this.authService.register(registerUserDto);
   }
 
   @Get("me")
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetProfile()
   async getProfile(@Request() req) {
-    const user = await this.authService.getProfile(req.user.userId);
-    return {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      role: user.role,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
+    return this.authService.getProfile(req.user.userId);
   }
 }

@@ -15,5 +15,5 @@ export interface IBookCatalogService {
   findByGenre(genreId: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
   findByPublisher(publisherId: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
   findAvailableBooks(pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
-  checkIsbnExists(isbn: string): Promise<boolean>;
+  checkIsbnExists(isbn: string): Promise<{ exists: boolean }>;
 }

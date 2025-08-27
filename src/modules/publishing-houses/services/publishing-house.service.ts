@@ -1,34 +1,20 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { IPublishingHouseRepository } from '../interfaces/publishing-house.repository.interface';
 import { IPublishingHouseService } from '../interfaces/publishing-house.service.interface';
-import { IAuditLogService } from '../../audit/interfaces';
 import { PublishingHouse } from '../entities/publishing-house.entity';
 import { CreatePublishingHouseDto } from '../dto/create-publishing-house.dto';
 import { UpdatePublishingHouseDto } from '../dto/update-publishing-house.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
-import { AuditAction } from '../../audit/enums/audit-action.enum';
 
 @Injectable()
 export class PublishingHouseService implements IPublishingHouseService {
   constructor(
     @Inject('IPublishingHouseRepository')
     private readonly publishingHouseRepository: IPublishingHouseRepository,
-    @Inject('IAuditLogService')
-    private readonly auditService: IAuditLogService,
   ) {}
 
   async create(createPublishingHouseDto: CreatePublishingHouseDto, performedBy: string): Promise<PublishingHouse> {
-    const publishingHouse = await this.publishingHouseRepository.registerPublisher(createPublishingHouseDto);
-    
-    await this.auditService.log(
-      performedBy,
-      publishingHouse.id,
-      AuditAction.CREATE,
-      `Created publishing house: ${publishingHouse.name}`,
-      "PublishingHouse",
-    );
-
-    return publishingHouse;
+    return await this.publishingHouseRepository.registerPublisher(createPublishingHouseDto, performedBy);
   }
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<PublishingHouse>> {
@@ -40,24 +26,11 @@ export class PublishingHouseService implements IPublishingHouseService {
   }
 
   async update(id: string, updatePublishingHouseDto: UpdatePublishingHouseDto, performedBy: string): Promise<PublishingHouse> {
-    const publishingHouse = await this.publishingHouseRepository.updatePublisherProfile(id, updatePublishingHouseDto);
-    
-    await this.auditService.log(
-      performedBy,
-      publishingHouse.id,
-      AuditAction.UPDATE,
-      `Updated publishing house: ${publishingHouse.name}`,
-      "PublishingHouse",
-    );
-
-    return publishingHouse;
+    return await this.publishingHouseRepository.updatePublisherProfile(id, updatePublishingHouseDto, performedBy);
   }
 
   async softDelete(id: string, performedBy: string): Promise<void> {
-    const publishingHouse = await this.publishingHouseRepository.getPublisherProfile(id);
-    await this.publishingHouseRepository.deactivatePublisher(id);
-    
-    await this.auditService.log(performedBy, id, AuditAction.DELETE, `Deleted publishing house: ${publishingHouse.name}`, "PublishingHouse");
+    await this.publishingHouseRepository.deactivatePublisher(id, performedBy);
   }
 
   async search(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<PublishingHouse>> {

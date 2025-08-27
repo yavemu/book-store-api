@@ -1,18 +1,15 @@
-import { Injectable, UnauthorizedException, Inject } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { UserService } from "../../users/services/user.service";
 import { User } from "../../users/entities/user.entity";
-import { IAuditLogService } from "../../audit/interfaces/audit-log.service.interface";
-import { AuditAction } from "../../audit/enums/audit-action.enum";
+import { RegisterUserDto } from "../../users/dto/register-user.dto";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
-    @Inject("IAuditLogService")
-    private readonly auditLogService: IAuditLogService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<User | null> {
@@ -32,8 +29,6 @@ export class AuthService {
       role: user.role,
     };
 
-    await this.auditLogService.logOperation(user.id, user.id, AuditAction.LOGIN, `User logged in: ${user.username}`, "Auth");
-
     return {
       access_token: this.jwtService.sign(payload),
       user: {
@@ -45,7 +40,28 @@ export class AuthService {
     };
   }
 
-  async getProfile(userId: string): Promise<User> {
-    return this.userService.findById(userId);
+  async register(registerUserDto: RegisterUserDto) {
+    const user = await this.userService.register(registerUserDto);
+    return {
+      message: "Usuario creado exitosamente",
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
+    };
+  }
+
+  async getProfile(userId: string) {
+    const user = await this.userService.findById(userId);
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
   }
 }

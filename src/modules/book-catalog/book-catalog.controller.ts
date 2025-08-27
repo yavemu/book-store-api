@@ -109,8 +109,7 @@ export class BookCatalogController {
   @Auth(UserRole.ADMIN)
   @ApiCheckIsbn()
   async checkIsbn(@Param('isbn') isbn: string) {
-    const exists = await this.bookCatalogService.checkIsbnExists(isbn);
-    return { exists };
+    return this.bookCatalogService.checkIsbnExists(isbn);
   }
 
   @Get(':id')

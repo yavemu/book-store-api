@@ -8,6 +8,6 @@ export interface IBookGenreService {
   findAll(pagination: PaginationDto): Promise<PaginatedResult<BookGenre>>;
   findById(id: string): Promise<BookGenre>;
   update(id: string, updateBookGenreDto: UpdateBookGenreDto, performedBy: string): Promise<BookGenre>;
-  softDelete(id: string, performedBy: string): Promise<void>;
+  softDelete(id: string, performedBy: string): Promise<{ message: string }>;
   search(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookGenre>>;
 }

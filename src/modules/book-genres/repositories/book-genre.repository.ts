@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException, HttpException, HttpStatus } from "@nestjs/common";
+import { Injectable, NotFoundException, ConflictException, HttpException, HttpStatus, Inject } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, FindManyOptions, ILike } from "typeorm";
 import { BookGenre } from "../entities/book-genre.entity";
@@ -19,24 +19,23 @@ export class BookGenreRepository extends BaseRepository<BookGenre> implements IB
 
   // Public business logic methods
 
-  async registerGenre(createBookGenreDto: CreateBookGenreDto): Promise<BookGenre> {
+  async registerGenre(createBookGenreDto: CreateBookGenreDto, performedBy?: string): Promise<BookGenre> {
     try {
       // Validate uniqueness using inherited method with specific configuration
       await this._validateUniqueConstraints(createBookGenreDto, undefined, [
         {
-          field: 'name',
-          message: 'Genre name already exists',
-          transform: (value: string) => value.trim()
-        }
+          field: "name",
+          message: "Genre name already exists",
+          transform: (value: string) => value.trim(),
+        },
       ]);
 
-      // Use inherited method from BaseRepository
       return await this._createEntity(createBookGenreDto);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Failed to register genre', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException("Failed to register genre", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -44,21 +43,21 @@ export class BookGenreRepository extends BaseRepository<BookGenre> implements IB
     try {
       const genre = await this._findById(genreId);
       if (!genre) {
-        throw new NotFoundException('Genre not found');
+        throw new NotFoundException("Genre not found");
       }
       return genre;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Failed to get genre profile', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException("Failed to get genre profile", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async updateGenreProfile(genreId: string, updateBookGenreDto: UpdateBookGenreDto): Promise<BookGenre> {
+  async updateGenreProfile(genreId: string, updateBookGenreDto: UpdateBookGenreDto, performedBy?: string): Promise<BookGenre> {
     try {
       const genre = await this.getGenreProfile(genreId);
-      
+
       // Validate uniqueness using inherited method with specific configuration
       await this._validateUniqueConstraints(updateBookGenreDto, genreId, [
         {
@@ -68,14 +67,26 @@ export class BookGenreRepository extends BaseRepository<BookGenre> implements IB
         },
       ]);
 
-      // Use inherited method from BaseRepository
-      await this._updateEntity(genreId, updateBookGenreDto);
+      if (performedBy) {
+        // Use inherited method with audit from BaseRepository
+        await this._updateEntityWithAudit(
+          genreId,
+          updateBookGenreDto,
+          performedBy,
+          "BookGenre",
+          (entity: BookGenre) => `Updated book genre: ${entity.name}`,
+        );
+      } else {
+        // Use inherited method from BaseRepository without audit
+        await this._updateEntity(genreId, updateBookGenreDto);
+      }
+
       return await this._findById(genreId);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Failed to update genre profile', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException("Failed to update genre profile", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -88,7 +99,7 @@ export class BookGenreRepository extends BaseRepository<BookGenre> implements IB
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Failed to deactivate genre', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException("Failed to deactivate genre", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -103,7 +114,7 @@ export class BookGenreRepository extends BaseRepository<BookGenre> implements IB
 
       return await this._findManyWithPagination(options, pagination);
     } catch (error) {
-      throw new HttpException('Failed to search genres', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException("Failed to search genres", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -117,7 +128,7 @@ export class BookGenreRepository extends BaseRepository<BookGenre> implements IB
 
       return await this._findManyWithPagination(options, pagination);
     } catch (error) {
-      throw new HttpException('Failed to get all genres', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException("Failed to get all genres", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -127,8 +138,7 @@ export class BookGenreRepository extends BaseRepository<BookGenre> implements IB
         where: { name: name.trim() },
       });
     } catch (error) {
-      throw new HttpException('Failed to check genre name existence', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException("Failed to check genre name existence", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
 }

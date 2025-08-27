@@ -81,8 +81,7 @@ export class BookAuthorAssignmentsController {
     @Param('bookId') bookId: string,
     @Param('authorId') authorId: string,
   ) {
-    const exists = await this.bookAuthorAssignmentService.checkAssignmentExists(bookId, authorId);
-    return { exists };
+    return this.bookAuthorAssignmentService.checkAssignmentExists(bookId, authorId);
   }
 
   @Get(':id')

@@ -11,5 +11,5 @@ export interface IBookAuthorAssignmentService {
   softDelete(id: string, performedBy: string): Promise<void>;
   findByBook(bookId: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthorAssignment>>;
   findByAuthor(authorId: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthorAssignment>>;
-  checkAssignmentExists(bookId: string, authorId: string): Promise<boolean>;
+  checkAssignmentExists(bookId: string, authorId: string): Promise<{ exists: boolean }>;
 }

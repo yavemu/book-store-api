@@ -1,11 +1,8 @@
-import { Injectable, Inject, ConflictException, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IUserRepository } from '../interfaces/user.repository.interface';
-import { IAuditLogService } from "../../audit/interfaces/audit-log.service.interface";
 import { User } from "../entities/user.entity";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { UpdateUserDto } from "../dto/update-user.dto";
-import { BusinessException } from "../../../common/exceptions/business.exception";
-import { AuditAction } from "../../audit/enums/audit-action.enum";
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import { RegisterUserDto } from "../dto";
 
@@ -14,28 +11,14 @@ export class UserService {
   constructor(
     @Inject("IUserRepository")
     private readonly userRepository: IUserRepository,
-    @Inject("IAuditLogService")
-    private readonly auditLogService: IAuditLogService,
   ) {}
 
   async create(createUserDto: CreateUserDto, createdBy?: string): Promise<User> {
-    const user = await this.userRepository.registerUser(createUserDto);
-
-    if (createdBy) {
-      await this.auditLogService.logOperation(createdBy, user.id, AuditAction.CREATE, `User created: ${user.username} (${user.email})`, "User");
-    }
-
-    return user;
+    return await this.userRepository.registerUser(createUserDto, createdBy);
   }
 
   async register(registerUser: RegisterUserDto, createdBy?: string): Promise<User> {
-    const user = await this.userRepository.registerUser({ ...registerUser, roleId: "null" });
-
-    if (createdBy) {
-      await this.auditLogService.logOperation(createdBy, user.id, AuditAction.CREATE, `User created: ${user.username} (${user.email})`, "User");
-    }
-
-    return user;
+    return await this.userRepository.registerUser({ ...registerUser, roleId: "null" }, createdBy);
   }
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<User>> {
@@ -55,24 +38,11 @@ export class UserService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto, updatedBy?: string): Promise<User> {
-    const updatedUser = await this.userRepository.updateUserProfile(id, updateUserDto);
-
-    if (updatedBy) {
-      const changes = Object.keys(updateUserDto)
-        .map((key) => `${key}: ${updateUserDto[key]}`)
-        .join(", ");
-      await this.auditLogService.logOperation(updatedBy, id, AuditAction.UPDATE, `User updated: ${changes}`, "User");
-    }
-
-    return updatedUser;
+    return await this.userRepository.updateUserProfile(id, updateUserDto, updatedBy);
   }
 
-  async softDelete(id: string, deletedBy?: string): Promise<void> {
-    const user = await this.findById(id);
-    await this.userRepository.deactivateUser(id);
-
-    if (deletedBy) {
-      await this.auditLogService.logOperation(deletedBy, id, AuditAction.DELETE, `User deleted: ${user.username} (${user.email})`, "User");
-    }
+  async softDelete(id: string, deletedBy?: string): Promise<{ message: string }> {
+    await this.userRepository.deactivateUser(id, deletedBy);
+    return { message: "User deleted successfully" };
   }
 }
