@@ -67,19 +67,14 @@ export class BookGenreRepository extends BaseRepository<BookGenre> implements IB
         },
       ]);
 
-      if (performedBy) {
-        // Use inherited method with audit from BaseRepository
-        await this._updateEntityWithAudit(
-          genreId,
-          updateBookGenreDto,
-          performedBy,
-          "BookGenre",
-          (entity: BookGenre) => `Updated book genre: ${entity.name}`,
-        );
-      } else {
-        // Use inherited method from BaseRepository without audit
-        await this._updateEntity(genreId, updateBookGenreDto);
-      }
+      // Use inherited method with audit from BaseRepository
+      await this._updateEntity(
+        genreId,
+        updateBookGenreDto,
+        performedBy,
+        "BookGenre",
+        (entity: BookGenre) => `Updated book genre: ${entity.name}`,
+      );
 
       return await this._findById(genreId);
     } catch (error) {

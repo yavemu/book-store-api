@@ -4,10 +4,10 @@ import { UpdateBookAuthorDto } from '../dto/update-book-author.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 export interface IBookAuthorRepository {
-  registerAuthor(createBookAuthorDto: CreateBookAuthorDto): Promise<BookAuthor>;
+  registerAuthor(createBookAuthorDto: CreateBookAuthorDto, performedBy?: string): Promise<BookAuthor>;
   getAuthorProfile(authorId: string): Promise<BookAuthor>;
-  updateAuthorProfile(authorId: string, updateBookAuthorDto: UpdateBookAuthorDto): Promise<BookAuthor>;
-  deactivateAuthor(authorId: string): Promise<void>;
+  updateAuthorProfile(authorId: string, updateBookAuthorDto: UpdateBookAuthorDto, performedBy?: string): Promise<BookAuthor>;
+  deactivateAuthor(authorId: string, performedBy?: string): Promise<void>;
   searchAuthors(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>>;
   getAllAuthors(pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>>;
   getAuthorsByNationality(nationality: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>>;

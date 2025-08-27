@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength, MaxLength, IsInt } from "class-validator";
+import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength, MaxLength, IsUUID } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class RegisterUserDto {
@@ -30,4 +30,12 @@ export class RegisterUserDto {
   })
   @IsEmail({}, { message: "Debe proporcionar un email válido" })
   email: string;
+
+  @ApiPropertyOptional({
+    description: "ID del rol del usuario en el sistema (UUID). Si no se especifica, se asigna rol USER por defecto",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @IsOptional()
+  @IsUUID('4', { message: "El roleId debe ser un UUID válido" })
+  roleId?: string;
 }

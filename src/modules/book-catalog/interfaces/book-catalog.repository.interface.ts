@@ -5,10 +5,10 @@ import { BookFiltersDto } from '../dto/book-filters.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 export interface IBookCatalogRepository {
-  registerBook(createBookCatalogDto: CreateBookCatalogDto): Promise<BookCatalog>;
+  registerBook(createBookCatalogDto: CreateBookCatalogDto, performedBy?: string): Promise<BookCatalog>;
   getBookProfile(bookId: string): Promise<BookCatalog>;
-  updateBookProfile(bookId: string, updateBookCatalogDto: UpdateBookCatalogDto): Promise<BookCatalog>;
-  deactivateBook(bookId: string): Promise<void>;
+  updateBookProfile(bookId: string, updateBookCatalogDto: UpdateBookCatalogDto, performedBy?: string): Promise<BookCatalog>;
+  deactivateBook(bookId: string, performedBy?: string): Promise<void>;
   searchBooks(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
   getAllBooks(pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
   findBooksWithFilters(filters: BookFiltersDto, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;

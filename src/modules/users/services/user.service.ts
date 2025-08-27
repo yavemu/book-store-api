@@ -18,7 +18,7 @@ export class UserService {
   }
 
   async register(registerUser: RegisterUserDto, createdBy?: string): Promise<User> {
-    return await this.userRepository.registerUser({ ...registerUser, roleId: "null" }, createdBy);
+    return await this.userRepository.registerUser(registerUser, createdBy);
   }
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<User>> {

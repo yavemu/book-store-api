@@ -5,11 +5,11 @@ import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.d
 
 export interface IUserRepository {
   // Public business logic methods
-  registerUser(createUserDto: CreateUserDto): Promise<User>;
+  registerUser(createUserDto: CreateUserDto, performedBy?: string): Promise<User>;
   authenticateUser(email: string): Promise<User | null>;
   getUserProfile(userId: string): Promise<User>;
-  updateUserProfile(userId: string, updateUserDto: UpdateUserDto): Promise<User>;
-  deactivateUser(userId: string): Promise<void>;
+  updateUserProfile(userId: string, updateUserDto: UpdateUserDto, performedBy?: string): Promise<User>;
+  deactivateUser(userId: string, performedBy?: string): Promise<void>;
   // getUsersByRole(role: string, pagination: PaginationDto): Promise<PaginatedResult<User>>;
   searchUsers(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<User>>;
   getAllUsers(pagination: PaginationDto): Promise<PaginatedResult<User>>;

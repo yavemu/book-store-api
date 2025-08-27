@@ -1,26 +1,30 @@
-import { Injectable, NotFoundException, ConflictException, HttpException, HttpStatus } from "@nestjs/common";
+import { Injectable, NotFoundException, ConflictException, HttpException, HttpStatus, Inject } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, FindManyOptions, ILike } from "typeorm";
 import { User } from "../entities/user.entity";
+import { Role } from "../../roles/entities/role.entity";
 import { UserRole } from "../enums/user-role.enum";
 import { IUserRepository } from "../interfaces/user.repository.interface";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { UpdateUserDto } from "../dto/update-user.dto";
 import { PaginationDto, PaginatedResult } from "../../../common/dto/pagination.dto";
 import { BaseRepository } from "../../../common/repositories/base.repository";
+import { IAuditLogService } from "../../audit/interfaces/audit-log.service.interface";
 
 @Injectable()
 export class UserRepository extends BaseRepository<User> implements IUserRepository {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
   ) {
     super(userRepository);
   }
 
   // Public business logic methods
 
-  async registerUser(createUserDto: CreateUserDto): Promise<User> {
+  async registerUser(createUserDto: CreateUserDto, performedBy?: string): Promise<User> {
     try {
       // Validate uniqueness using inherited method with specific configuration
       await this._validateUniqueConstraints(createUserDto, undefined, [
@@ -36,8 +40,23 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
         },
       ]);
 
-      // Use inherited method from BaseRepository
-      return await this._createEntity(createUserDto);
+      // If no roleId provided, assign USER role by default
+      if (!createUserDto.roleId) {
+        const userRole = await this.roleRepository.findOne({ 
+          where: { name: UserRole.USER.toLowerCase(), isActive: true }
+        });
+        if (userRole) {
+          createUserDto.roleId = userRole.id;
+        }
+      }
+
+      // Use inherited method from BaseRepository with audit
+      return await this._createEntity(
+        createUserDto,
+        performedBy,
+        "User",
+        (user) => `User created: ${user.username} (${user.email})`
+      );
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -72,7 +91,7 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
     }
   }
 
-  async updateUserProfile(userId: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async updateUserProfile(userId: string, updateUserDto: UpdateUserDto, performedBy?: string): Promise<User> {
     try {
       const user = await this.getUserProfile(userId);
 
@@ -96,8 +115,19 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
         }
       }
 
-      // Use inherited method from BaseRepository
-      await this._updateEntity(userId, updateUserDto);
+      // Use inherited method from BaseRepository with audit
+      await this._updateEntity(
+        userId,
+        updateUserDto,
+        performedBy,
+        "User",
+        (user) => {
+          const changes = Object.keys(updateUserDto)
+            .map((key) => `${key}: ${updateUserDto[key]}`)
+            .join(", ");
+          return `User updated: ${changes}`;
+        }
+      );
       return await this._findById(userId);
     } catch (error) {
       if (error instanceof HttpException) {
@@ -107,11 +137,16 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
     }
   }
 
-  async deactivateUser(userId: string): Promise<void> {
+  async deactivateUser(userId: string, performedBy?: string): Promise<void> {
     try {
-      await this.getUserProfile(userId); // Verify user exists
-      // Use inherited method from BaseRepository
-      await this._softDelete(userId);
+      const user = await this.getUserProfile(userId); // Verify user exists
+      // Use inherited method from BaseRepository with audit
+      await this._softDelete(
+        userId,
+        performedBy,
+        "User",
+        () => `User deleted: ${user.username} (${user.email})`
+      );
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;

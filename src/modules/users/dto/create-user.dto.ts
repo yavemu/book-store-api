@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength, MaxLength, IsInt } from "class-validator";
+import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength, MaxLength, IsUUID } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { UserRole } from "../enums/user-role.enum";
 
@@ -33,11 +33,10 @@ export class CreateUserDto {
   email: string;
 
   @ApiPropertyOptional({
-    description: "Rol del usuario en el sistema",
-    example: "aasfasf-asfa",
-    default: "434f4f4f-4f4f-4f4f-4f4f-4f4f4f4f4f4f",
+    description: "ID del rol del usuario en el sistema (UUID). Si no se especifica, se asigna rol USER por defecto",
+    example: "123e4567-e89b-12d3-a456-426614174000",
   })
   @IsOptional()
-  @IsInt({ message: "El rol id debe ser un entero" })
-  roleId: string;
+  @IsUUID('4', { message: "El roleId debe ser un UUID válido" })
+  roleId?: string;
 }
