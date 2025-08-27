@@ -1,51 +1,51 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class BookAuthorResponseDto {
-  @ApiProperty({ 
-    description: 'ID único del autor', 
-    example: '550e8400-e29b-41d4-a716-446655440000' 
+  @ApiProperty({
+    description: "ID único del autor",
+    example: "550e8400-e29b-41d4-a716-446655440000",
   })
   id: string;
 
-  @ApiProperty({ 
-    description: 'Nombre del autor', 
-    example: 'Stephen' 
+  @ApiProperty({
+    description: "Nombre del autor",
+    example: "Stephen",
   })
-  authorFirstName: string;
+  firstName: string;
 
-  @ApiProperty({ 
-    description: 'Apellido del autor', 
-    example: 'King' 
+  @ApiProperty({
+    description: "Apellido del autor",
+    example: "King",
   })
-  authorLastName: string;
+  lastName: string;
 
-  @ApiPropertyOptional({ 
-    description: 'Nacionalidad del autor', 
-    example: 'Estadounidense' 
+  @ApiPropertyOptional({
+    description: "Nacionalidad del autor",
+    example: "Estadounidense",
   })
   nationality?: string;
 
-  @ApiPropertyOptional({ 
-    description: 'Fecha de nacimiento del autor', 
-    example: '1947-09-21T00:00:00.000Z' 
+  @ApiPropertyOptional({
+    description: "Fecha de nacimiento del autor",
+    example: "1947-09-21T00:00:00.000Z",
   })
   birthDate?: Date;
 
-  @ApiPropertyOptional({ 
-    description: 'Biografía del autor', 
-    example: 'Stephen Edwin King es un escritor estadounidense de novelas de terror, ficción sobrenatural, suspenso, ciencia ficción y fantasía.' 
+  @ApiPropertyOptional({
+    description: "Biografía del autor",
+    example: "Stephen Edwin King es un escritor estadounidense de novelas de terror, ficción sobrenatural, suspenso, ciencia ficción y fantasía.",
   })
   biography?: string;
 
-  @ApiProperty({ 
-    description: 'Fecha de creación del registro', 
-    example: '2024-01-01T00:00:00.000Z' 
+  @ApiProperty({
+    description: "Fecha de creación del registro",
+    example: "2024-01-01T00:00:00.000Z",
   })
   createdAt: Date;
 
-  @ApiProperty({ 
-    description: 'Fecha de última actualización del registro', 
-    example: '2024-01-02T00:00:00.000Z' 
+  @ApiProperty({
+    description: "Fecha de última actualización del registro",
+    example: "2024-01-02T00:00:00.000Z",
   })
   updatedAt: Date;
 }

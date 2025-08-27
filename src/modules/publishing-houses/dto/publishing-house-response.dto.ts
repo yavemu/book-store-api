@@ -1,39 +1,39 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class PublishingHouseResponseDto {
-  @ApiProperty({ 
-    description: 'ID único de la editorial', 
-    example: '550e8400-e29b-41d4-a716-446655440000' 
+  @ApiProperty({
+    description: "ID único de la editorial",
+    example: "550e8400-e29b-41d4-a716-446655440000",
   })
   id: string;
 
-  @ApiProperty({ 
-    description: 'Nombre de la editorial', 
-    example: 'Penguin Random House' 
+  @ApiProperty({
+    description: "Nombre de la editorial",
+    example: "Penguin Random House",
   })
-  publisherName: string;
+  name: string;
 
-  @ApiPropertyOptional({ 
-    description: 'País donde se ubica la editorial', 
-    example: 'Estados Unidos' 
+  @ApiPropertyOptional({
+    description: "País donde se ubica la editorial",
+    example: "Estados Unidos",
   })
   country?: string;
 
-  @ApiPropertyOptional({ 
-    description: 'URL del sitio web oficial de la editorial', 
-    example: 'https://www.penguinrandomhouse.com' 
+  @ApiPropertyOptional({
+    description: "URL del sitio web oficial de la editorial",
+    example: "https://www.penguinrandomhouse.com",
   })
   websiteUrl?: string;
 
-  @ApiProperty({ 
-    description: 'Fecha de creación del registro', 
-    example: '2024-01-01T00:00:00.000Z' 
+  @ApiProperty({
+    description: "Fecha de creación del registro",
+    example: "2024-01-01T00:00:00.000Z",
   })
   createdAt: Date;
 
-  @ApiProperty({ 
-    description: 'Fecha de última actualización del registro', 
-    example: '2024-01-02T00:00:00.000Z' 
+  @ApiProperty({
+    description: "Fecha de última actualización del registro",
+    example: "2024-01-02T00:00:00.000Z",
   })
   updatedAt: Date;
 }

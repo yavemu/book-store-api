@@ -24,8 +24,8 @@ export class PublishingHouseService implements IPublishingHouseService {
       performedBy,
       publishingHouse.id,
       AuditAction.CREATE,
-      `Created publishing house: ${publishingHouse.publisherName}`,
-      'PublishingHouse'
+      `Created publishing house: ${publishingHouse.name}`,
+      "PublishingHouse",
     );
 
     return publishingHouse;
@@ -46,8 +46,8 @@ export class PublishingHouseService implements IPublishingHouseService {
       performedBy,
       publishingHouse.id,
       AuditAction.UPDATE,
-      `Updated publishing house: ${publishingHouse.publisherName}`,
-      'PublishingHouse'
+      `Updated publishing house: ${publishingHouse.name}`,
+      "PublishingHouse",
     );
 
     return publishingHouse;
@@ -57,13 +57,7 @@ export class PublishingHouseService implements IPublishingHouseService {
     const publishingHouse = await this.publishingHouseRepository.getPublisherProfile(id);
     await this.publishingHouseRepository.deactivatePublisher(id);
     
-    await this.auditService.log(
-      performedBy,
-      id,
-      AuditAction.DELETE,
-      `Deleted publishing house: ${publishingHouse.publisherName}`,
-      'PublishingHouse'
-    );
+    await this.auditService.log(performedBy, id, AuditAction.DELETE, `Deleted publishing house: ${publishingHouse.name}`, "PublishingHouse");
   }
 
   async search(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<PublishingHouse>> {

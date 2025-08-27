@@ -24,8 +24,8 @@ export class BookAuthorService implements IBookAuthorService {
       performedBy,
       author.id,
       AuditAction.CREATE,
-      `Created book author: ${author.authorFirstName} ${author.authorLastName}`,
-      'BookAuthor'
+      `Created book author: ${author.firstName} ${author.lastName}`,
+      "BookAuthor",
     );
 
     return author;
@@ -46,8 +46,8 @@ export class BookAuthorService implements IBookAuthorService {
       performedBy,
       author.id,
       AuditAction.UPDATE,
-      `Updated book author: ${author.authorFirstName} ${author.authorLastName}`,
-      'BookAuthor'
+      `Updated book author: ${author.firstName} ${author.lastName}`,
+      "BookAuthor",
     );
 
     return author;
@@ -57,13 +57,7 @@ export class BookAuthorService implements IBookAuthorService {
     const author = await this.bookAuthorRepository.getAuthorProfile(id);
     await this.bookAuthorRepository.deactivateAuthor(id);
     
-    await this.auditService.log(
-      performedBy,
-      id,
-      AuditAction.DELETE,
-      `Deleted book author: ${author.authorFirstName} ${author.authorLastName}`,
-      'BookAuthor'
-    );
+    await this.auditService.log(performedBy, id, AuditAction.DELETE, `Deleted book author: ${author.firstName} ${author.lastName}`, "BookAuthor");
   }
 
   async search(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {

@@ -15,6 +15,7 @@ import { Public, Auth } from "../../common/decorators/auth.decorator";
 import { UserRole } from "../users/enums/user-role.enum";
 import { ERROR_MESSAGES } from "../../common/exceptions";
 import { ApiLogin, ApiRegister, ApiGetProfile } from "./decorators";
+import { RegisterUserDto } from "../users/dto/register-user.dto";
 
 @ApiTags("Authentication")
 @Controller("auth")
@@ -37,8 +38,8 @@ export class AuthController {
   @Post("register")
   @Public()
   @ApiRegister()
-  async register(@Body() createUserDto: CreateUserDto) {
-    const user = await this.userService.create(createUserDto);
+  async register(@Body() registerUserDto: RegisterUserDto) {
+    const user = await this.userService.register(registerUserDto);
     return {
       message: "Usuario creado exitosamente",
       user: {

@@ -7,6 +7,7 @@ import { UpdateUserDto } from "../dto/update-user.dto";
 import { BusinessException } from "../../../common/exceptions/business.exception";
 import { AuditAction } from "../../audit/enums/audit-action.enum";
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { RegisterUserDto } from "../dto";
 
 @Injectable()
 export class UserService {
@@ -19,6 +20,16 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto, createdBy?: string): Promise<User> {
     const user = await this.userRepository.registerUser(createUserDto);
+
+    if (createdBy) {
+      await this.auditLogService.logOperation(createdBy, user.id, AuditAction.CREATE, `User created: ${user.username} (${user.email})`, "User");
+    }
+
+    return user;
+  }
+
+  async register(registerUser: RegisterUserDto, createdBy?: string): Promise<User> {
+    const user = await this.userRepository.registerUser({ ...registerUser, roleId: "null" });
 
     if (createdBy) {
       await this.auditLogService.logOperation(createdBy, user.id, AuditAction.CREATE, `User created: ${user.username} (${user.email})`, "User");

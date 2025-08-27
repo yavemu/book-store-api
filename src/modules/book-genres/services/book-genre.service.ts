@@ -20,13 +20,7 @@ export class BookGenreService implements IBookGenreService {
   async create(createBookGenreDto: CreateBookGenreDto, performedBy: string): Promise<BookGenre> {
     const genre = await this.genreRepository.registerGenre(createBookGenreDto);
     
-    await this.auditService.log(
-      performedBy,
-      genre.id,
-      AuditAction.CREATE,
-      `Created book genre: ${genre.genreName}`,
-      'BookGenre'
-    );
+    await this.auditService.log(performedBy, genre.id, AuditAction.CREATE, `Created book genre: ${genre.name}`, "BookGenre");
 
     return genre;
   }
@@ -42,13 +36,7 @@ export class BookGenreService implements IBookGenreService {
   async update(id: string, updateBookGenreDto: UpdateBookGenreDto, performedBy: string): Promise<BookGenre> {
     const genre = await this.genreRepository.updateGenreProfile(id, updateBookGenreDto);
     
-    await this.auditService.log(
-      performedBy,
-      genre.id,
-      AuditAction.UPDATE,
-      `Updated book genre: ${genre.genreName}`,
-      'BookGenre'
-    );
+    await this.auditService.log(performedBy, genre.id, AuditAction.UPDATE, `Updated book genre: ${genre.name}`, "BookGenre");
 
     return genre;
   }
@@ -57,13 +45,7 @@ export class BookGenreService implements IBookGenreService {
     const genre = await this.genreRepository.getGenreProfile(id);
     await this.genreRepository.deactivateGenre(id);
     
-    await this.auditService.log(
-      performedBy,
-      id,
-      AuditAction.DELETE,
-      `Deleted book genre: ${genre.genreName}`,
-      'BookGenre'
-    );
+    await this.auditService.log(performedBy, id, AuditAction.DELETE, `Deleted book genre: ${genre.name}`, "BookGenre");
   }
 
   async search(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookGenre>> {

@@ -99,12 +99,8 @@ export class BookCatalogRepository extends BaseRepository<BookCatalog> implement
   async searchBooks(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>> {
     try {
       const options: FindManyOptions<BookCatalog> = {
-        where: [
-          { bookTitle: ILike(`%${searchTerm}%`) },
-          { isbnCode: ILike(`%${searchTerm}%`) },
-          { bookSummary: ILike(`%${searchTerm}%`) },
-        ],
-        relations: ['genre', 'publisher'],
+        where: [{ title: ILike(`%${searchTerm}%`) }, { isbnCode: ILike(`%${searchTerm}%`) }, { summary: ILike(`%${searchTerm}%`) }],
+        relations: ["genre", "publisher"],
         order: { [pagination.sortBy]: pagination.sortOrder },
         skip: pagination.offset,
         take: pagination.limit,
@@ -139,7 +135,7 @@ export class BookCatalogRepository extends BaseRepository<BookCatalog> implement
 
       // Apply filters
       if (filters.title) {
-        queryBuilder.andWhere('book.bookTitle ILIKE :title', { title: `%${filters.title}%` });
+        queryBuilder.andWhere("book.title ILIKE :title", { title: `%${filters.title}%` });
       }
 
       if (filters.genreId) {
@@ -155,21 +151,22 @@ export class BookCatalogRepository extends BaseRepository<BookCatalog> implement
       }
 
       if (filters.minPrice !== undefined && filters.maxPrice !== undefined) {
-        queryBuilder.andWhere('book.bookPrice BETWEEN :minPrice AND :maxPrice', {
+        queryBuilder.andWhere("book.price BETWEEN :minPrice AND :maxPrice", {
           minPrice: filters.minPrice,
-          maxPrice: filters.maxPrice
+          maxPrice: filters.maxPrice,
         });
       } else if (filters.minPrice !== undefined) {
-        queryBuilder.andWhere('book.bookPrice >= :minPrice', { minPrice: filters.minPrice });
+        queryBuilder.andWhere("book.price >= :minPrice", { minPrice: filters.minPrice });
       } else if (filters.maxPrice !== undefined) {
-        queryBuilder.andWhere('book.bookPrice <= :maxPrice', { maxPrice: filters.maxPrice });
+        queryBuilder.andWhere("book.price <= :maxPrice", { maxPrice: filters.maxPrice });
       }
 
       if (filters.author) {
-        queryBuilder.leftJoin('book_author_assignments', 'baa', 'baa.book_id = book.id')
-          .leftJoin('book_authors', 'author', 'author.id = baa.author_id')
-          .andWhere('(author.authorFirstName ILIKE :author OR author.authorLastName ILIKE :author)', {
-            author: `%${filters.author}%`
+        queryBuilder
+          .leftJoin("book_author_assignments", "baa", "baa.book_id = book.id")
+          .leftJoin("book_authors", "author", "author.id = baa.author_id")
+          .andWhere("(author.firstName ILIKE :author OR author.lastName ILIKE :author)", {
+            author: `%${filters.author}%`,
           });
       }
 

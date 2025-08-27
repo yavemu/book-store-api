@@ -24,7 +24,7 @@ export class BookGenreRepository extends BaseRepository<BookGenre> implements IB
       // Validate uniqueness using inherited method with specific configuration
       await this._validateUniqueConstraints(createBookGenreDto, undefined, [
         {
-          field: 'genreName',
+          field: 'name',
           message: 'Genre name already exists',
           transform: (value: string) => value.trim()
         }
@@ -62,10 +62,10 @@ export class BookGenreRepository extends BaseRepository<BookGenre> implements IB
       // Validate uniqueness using inherited method with specific configuration
       await this._validateUniqueConstraints(updateBookGenreDto, genreId, [
         {
-          field: 'genreName',
-          message: 'Genre name already exists',
-          transform: (value: string) => value.trim()
-        }
+          field: "name",
+          message: "Genre name already exists",
+          transform: (value: string) => value.trim(),
+        },
       ]);
 
       // Use inherited method from BaseRepository
@@ -95,10 +95,7 @@ export class BookGenreRepository extends BaseRepository<BookGenre> implements IB
   async searchGenres(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookGenre>> {
     try {
       const options: FindManyOptions<BookGenre> = {
-        where: [
-          { genreName: ILike(`%${searchTerm}%`) },
-          { genreDescription: ILike(`%${searchTerm}%`) },
-        ],
+        where: [{ name: ILike(`%${searchTerm}%`) }, { description: ILike(`%${searchTerm}%`) }],
         order: { [pagination.sortBy]: pagination.sortOrder },
         skip: pagination.offset,
         take: pagination.limit,
@@ -124,10 +121,10 @@ export class BookGenreRepository extends BaseRepository<BookGenre> implements IB
     }
   }
 
-  async checkGenreNameExists(genreName: string): Promise<boolean> {
+  async checknameExists(name: string): Promise<boolean> {
     try {
-      return await this._exists({ 
-        where: { genreName: genreName.trim() } 
+      return await this._exists({
+        where: { name: name.trim() },
       });
     } catch (error) {
       throw new HttpException('Failed to check genre name existence', HttpStatus.INTERNAL_SERVER_ERROR);

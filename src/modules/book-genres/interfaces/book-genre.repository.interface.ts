@@ -10,5 +10,5 @@ export interface IBookGenreRepository {
   deactivateGenre(genreId: string): Promise<void>;
   searchGenres(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookGenre>>;
   getAllGenres(pagination: PaginationDto): Promise<PaginatedResult<BookGenre>>;
-  checkGenreNameExists(genreName: string): Promise<boolean>;
+  checknameExists(name: string): Promise<boolean>;
 }

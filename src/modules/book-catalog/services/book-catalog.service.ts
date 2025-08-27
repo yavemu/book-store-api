@@ -21,13 +21,7 @@ export class BookCatalogService implements IBookCatalogService {
   async create(createBookCatalogDto: CreateBookCatalogDto, performedBy: string): Promise<BookCatalog> {
     const book = await this.bookCatalogRepository.registerBook(createBookCatalogDto);
     
-    await this.auditService.log(
-      performedBy,
-      book.id,
-      AuditAction.CREATE,
-      `Created book: ${book.bookTitle}`,
-      'BookCatalog'
-    );
+    await this.auditService.log(performedBy, book.id, AuditAction.CREATE, `Created book: ${book.title}`, "BookCatalog");
 
     return book;
   }
@@ -43,13 +37,7 @@ export class BookCatalogService implements IBookCatalogService {
   async update(id: string, updateBookCatalogDto: UpdateBookCatalogDto, performedBy: string): Promise<BookCatalog> {
     const book = await this.bookCatalogRepository.updateBookProfile(id, updateBookCatalogDto);
     
-    await this.auditService.log(
-      performedBy,
-      book.id,
-      AuditAction.UPDATE,
-      `Updated book: ${book.bookTitle}`,
-      'BookCatalog'
-    );
+    await this.auditService.log(performedBy, book.id, AuditAction.UPDATE, `Updated book: ${book.title}`, "BookCatalog");
 
     return book;
   }
@@ -58,13 +46,7 @@ export class BookCatalogService implements IBookCatalogService {
     const book = await this.bookCatalogRepository.getBookProfile(id);
     await this.bookCatalogRepository.deactivateBook(id);
     
-    await this.auditService.log(
-      performedBy,
-      id,
-      AuditAction.DELETE,
-      `Deleted book: ${book.bookTitle}`,
-      'BookCatalog'
-    );
+    await this.auditService.log(performedBy, id, AuditAction.DELETE, `Deleted book: ${book.title}`, "BookCatalog");
   }
 
   async search(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>> {

@@ -24,10 +24,10 @@ export class BookAuthorRepository extends BaseRepository<BookAuthor> implements 
       // Validate uniqueness using inherited method with specific configuration
       await this._validateUniqueConstraints(createBookAuthorDto, undefined, [
         {
-          field: ['authorFirstName', 'authorLastName'],
-          message: 'Author with this full name already exists',
-          transform: (value: string) => value.trim()
-        }
+          field: ["firstName", "lastName"],
+          message: "Author with this full name already exists",
+          transform: (value: string) => value.trim(),
+        },
       ]);
 
       // Use inherited method from BaseRepository
@@ -61,17 +61,17 @@ export class BookAuthorRepository extends BaseRepository<BookAuthor> implements 
       
       // Create combined DTO with existing values for validation
       const validationDto = {
-        authorFirstName: updateBookAuthorDto.authorFirstName || author.authorFirstName,
-        authorLastName: updateBookAuthorDto.authorLastName || author.authorLastName
+        firstName: updateBookAuthorDto.firstName || author.firstName,
+        lastName: updateBookAuthorDto.lastName || author.lastName,
       };
       
       // Validate uniqueness using inherited method with specific configuration
       await this._validateUniqueConstraints(validationDto, authorId, [
         {
-          field: ['authorFirstName', 'authorLastName'],
-          message: 'Author with this full name already exists',
-          transform: (value: string) => value.trim()
-        }
+          field: ["firstName", "lastName"],
+          message: "Author with this full name already exists",
+          transform: (value: string) => value.trim(),
+        },
       ]);
 
       // Use inherited method from BaseRepository
@@ -101,11 +101,7 @@ export class BookAuthorRepository extends BaseRepository<BookAuthor> implements 
   async searchAuthors(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
     try {
       const options: FindManyOptions<BookAuthor> = {
-        where: [
-          { authorFirstName: ILike(`%${searchTerm}%`) },
-          { authorLastName: ILike(`%${searchTerm}%`) },
-          { nationality: ILike(`%${searchTerm}%`) },
-        ],
+        where: [{ firstName: ILike(`%${searchTerm}%`) }, { lastName: ILike(`%${searchTerm}%`) }, { nationality: ILike(`%${searchTerm}%`) }],
         order: { [pagination.sortBy]: pagination.sortOrder },
         skip: pagination.offset,
         take: pagination.limit,
@@ -148,11 +144,11 @@ export class BookAuthorRepository extends BaseRepository<BookAuthor> implements 
 
   async checkAuthorFullNameExists(firstName: string, lastName: string): Promise<boolean> {
     try {
-      return await this._exists({ 
-        where: { 
-          authorFirstName: firstName.trim(), 
-          authorLastName: lastName.trim() 
-        } 
+      return await this._exists({
+        where: {
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+        },
       });
     } catch (error) {
       throw new HttpException('Failed to check author full name existence', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -161,11 +157,11 @@ export class BookAuthorRepository extends BaseRepository<BookAuthor> implements 
 
   async validateUniqueAuthorName(firstName: string, lastName: string): Promise<BookAuthor> {
     try {
-      const author = await this._findOne({ 
-        where: { 
-          authorFirstName: firstName.trim(), 
-          authorLastName: lastName.trim() 
-        } 
+      const author = await this._findOne({
+        where: {
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+        },
       });
       if (!author) {
         throw new NotFoundException('Author not found');

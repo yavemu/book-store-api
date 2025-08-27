@@ -5,19 +5,20 @@ export class CreateBookGenreDto {
   @IsString()
   @IsNotEmpty()
   @Length(2, 50)
-  @ApiProperty({ 
-    description: 'Name of the book genre',
-    example: 'Science Fiction',
+  @ApiProperty({
+    description: "Name of the book genre",
+    example: "Science Fiction",
     minLength: 2,
-    maxLength: 50
+    maxLength: 50,
   })
-  genreName: string;
+  name: string;
 
   @IsString()
   @IsOptional()
-  @ApiPropertyOptional({ 
-    description: 'Detailed description of the book genre',
-    example: 'Fiction that deals with futuristic concepts, advanced science and technology, space exploration, time travel, parallel universes, and extraterrestrial life.'
+  @ApiPropertyOptional({
+    description: "Detailed description of the book genre",
+    example:
+      "Fiction that deals with futuristic concepts, advanced science and technology, space exploration, time travel, parallel universes, and extraterrestrial life.",
   })
-  genreDescription?: string;
+  description?: string;
 }

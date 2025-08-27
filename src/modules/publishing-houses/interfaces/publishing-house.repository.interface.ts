@@ -11,5 +11,5 @@ export interface IPublishingHouseRepository {
   searchPublishers(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<PublishingHouse>>;
   getAllPublishers(pagination: PaginationDto): Promise<PaginatedResult<PublishingHouse>>;
   getPublishersByCountry(country: string, pagination: PaginationDto): Promise<PaginatedResult<PublishingHouse>>;
-  checkPublisherNameExists(publisherName: string): Promise<boolean>;
+  checknameExists(name: string): Promise<boolean>;
 }

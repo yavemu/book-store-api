@@ -8,56 +8,56 @@ import { PublishingHouseListResponseDto } from '../dto';
 
 export function ApiGetPublishingHouses() {
   return applyDecorators(
-    ApiOperation({ 
-      summary: 'Obtener lista de editoriales',
-      description: 'Obtiene una lista paginada de todas las editoriales registradas con filtros opcionales. Endpoint público.' 
+    ApiOperation({
+      summary: "Obtener lista de editoriales",
+      description: "Obtiene una lista paginada de todas las editoriales registradas con filtros opcionales. Endpoint público.",
     }),
     ApiQuery({
-      name: 'page',
+      name: "page",
       required: false,
       type: Number,
-      description: 'Número de página para la paginación',
-      example: 1
+      description: "Número de página para la paginación",
+      example: 1,
     }),
     ApiQuery({
-      name: 'limit',
+      name: "limit",
       required: false,
       type: Number,
-      description: 'Número de elementos por página (máximo 100)',
-      example: 10
+      description: "Número de elementos por página (máximo 100)",
+      example: 10,
     }),
     ApiQuery({
-      name: 'sortBy',
+      name: "sortBy",
       required: false,
       type: String,
-      description: 'Campo por el cual ordenar los resultados',
-      example: 'publisherName'
+      description: "Campo por el cual ordenar los resultados",
+      example: "name",
     }),
     ApiQuery({
-      name: 'sortOrder',
+      name: "sortOrder",
       required: false,
-      enum: ['ASC', 'DESC'],
-      description: 'Orden de clasificación ascendente o descendente',
-      example: 'ASC'
+      enum: ["ASC", "DESC"],
+      description: "Orden de clasificación ascendente o descendente",
+      example: "ASC",
     }),
     ApiQuery({
-      name: 'search',
-      required: false,
-      type: String,
-      description: 'Término de búsqueda para filtrar por nombre de la editorial',
-      example: 'Penguin'
-    }),
-    ApiQuery({
-      name: 'country',
+      name: "search",
       required: false,
       type: String,
-      description: 'País para filtrar editoriales',
-      example: 'Estados Unidos'
+      description: "Término de búsqueda para filtrar por nombre de la editorial",
+      example: "Penguin",
     }),
-    ApiResponse({ 
-      status: 200, 
-      description: 'Lista de editoriales obtenida exitosamente',
-      type: PublishingHouseListResponseDto
-    })
+    ApiQuery({
+      name: "country",
+      required: false,
+      type: String,
+      description: "País para filtrar editoriales",
+      example: "Estados Unidos",
+    }),
+    ApiResponse({
+      status: 200,
+      description: "Lista de editoriales obtenida exitosamente",
+      type: PublishingHouseListResponseDto,
+    }),
   );
 }

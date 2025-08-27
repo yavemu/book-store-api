@@ -24,7 +24,7 @@ export class PublishingHouseRepository extends BaseRepository<PublishingHouse> i
       // Validate uniqueness using inherited method with specific configuration
       await this._validateUniqueConstraints(createPublishingHouseDto, undefined, [
         {
-          field: 'publisherName',
+          field: 'name',
           message: 'Publisher name already exists',
           transform: (value: string) => value.trim()
         }
@@ -62,10 +62,10 @@ export class PublishingHouseRepository extends BaseRepository<PublishingHouse> i
       // Validate uniqueness using inherited method with specific configuration
       await this._validateUniqueConstraints(updatePublishingHouseDto, publisherId, [
         {
-          field: 'publisherName',
-          message: 'Publisher name already exists',
-          transform: (value: string) => value.trim()
-        }
+          field: "name",
+          message: "Publisher name already exists",
+          transform: (value: string) => value.trim(),
+        },
       ]);
 
       // Use inherited method from BaseRepository
@@ -95,10 +95,7 @@ export class PublishingHouseRepository extends BaseRepository<PublishingHouse> i
   async searchPublishers(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<PublishingHouse>> {
     try {
       const options: FindManyOptions<PublishingHouse> = {
-        where: [
-          { publisherName: ILike(`%${searchTerm}%`) },
-          { country: ILike(`%${searchTerm}%`) },
-        ],
+        where: [{ name: ILike(`%${searchTerm}%`) }, { country: ILike(`%${searchTerm}%`) }],
         order: { [pagination.sortBy]: pagination.sortOrder },
         skip: pagination.offset,
         take: pagination.limit,
@@ -139,10 +136,10 @@ export class PublishingHouseRepository extends BaseRepository<PublishingHouse> i
     }
   }
 
-  async checkPublisherNameExists(publisherName: string): Promise<boolean> {
+  async checknameExists(name: string): Promise<boolean> {
     try {
-      return await this._exists({ 
-        where: { publisherName: publisherName.trim() } 
+      return await this._exists({
+        where: { name: name.trim() },
       });
     } catch (error) {
       throw new HttpException('Failed to check publisher name existence', HttpStatus.INTERNAL_SERVER_ERROR);
