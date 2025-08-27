@@ -13,7 +13,7 @@ export function ApiCreateUser() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Crear nuevo usuario',
+      summary: 'Crear nuevo usuario - Acceso: ADMIN',
       description: 'Crea un nuevo usuario en el sistema. Solo accesible para administradores.' 
     }),
     ApiResponse({ 

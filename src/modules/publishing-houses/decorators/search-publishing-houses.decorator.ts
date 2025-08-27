@@ -10,7 +10,7 @@ import { PublishingHouseListResponseDto } from '../dto';
 export function ApiSearchPublishingHouses() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Buscar editoriales',
+      summary: 'Buscar editoriales - Acceso: ADMIN, USER',
       description: 'Busca editoriales por término en nombre, descripción o país.' 
     }),
     ApiQuery({

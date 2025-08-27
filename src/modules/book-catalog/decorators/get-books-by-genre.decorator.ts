@@ -11,7 +11,7 @@ import { BookCatalogListResponseDto } from '../dto';
 export function ApiGetBooksByGenre() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Obtener libros por género',
+      summary: 'Obtener libros por género - Acceso: ADMIN, USER',
       description: 'Obtiene una lista paginada de libros filtrados por un género específico.' 
     }),
     ApiParam({

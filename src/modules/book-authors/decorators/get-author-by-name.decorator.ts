@@ -11,7 +11,7 @@ import { BookAuthorResponseDto } from '../dto';
 export function ApiGetAuthorByName() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Obtener autor por nombre completo',
+      summary: 'Obtener autor por nombre completo - Acceso: ADMIN, USER',
       description: 'Obtiene un autor específico utilizando su nombre y apellido.' 
     }),
     ApiParam({

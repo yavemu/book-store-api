@@ -10,7 +10,7 @@ import {
 export function ApiCheckIsbn() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Verificar existencia de ISBN',
+      summary: 'Verificar existencia de ISBN - Acceso: ADMIN',
       description: 'Verifica si un ISBN específico ya existe en el catálogo de libros. Solo accesible para administradores.' 
     }),
     ApiParam({

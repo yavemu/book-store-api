@@ -9,7 +9,7 @@ import {
 export function ApiCheckAssignment() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Verificar existencia de asignación',
+      summary: 'Verificar existencia de asignación - Acceso: ADMIN, USER',
       description: 'Verifica si existe una asignación entre un libro y un autor específicos.' 
     }),
     ApiParam({

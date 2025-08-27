@@ -10,7 +10,7 @@ import { BookCatalogListResponseDto } from '../dto';
 export function ApiSearchBooks() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Buscar libros',
+      summary: 'Buscar libros - Acceso: ADMIN, USER',
       description: 'Busca libros en el catálogo por término de búsqueda en título, descripción o autor.' 
     }),
     ApiQuery({

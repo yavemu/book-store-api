@@ -16,7 +16,7 @@ export function ApiUpdateUser() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Actualizar información de usuario',
+      summary: 'Actualizar información de usuario - Acceso: ADMIN',
       description: 'Actualiza la información de un usuario existente. Los usuarios pueden actualizar su propio perfil, los administradores pueden actualizar cualquier usuario.' 
     }),
     ApiParam({

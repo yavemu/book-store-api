@@ -9,7 +9,7 @@ import { BookAuthorListResponseDto } from '../dto';
 export function ApiGetAuthors() {
   return applyDecorators(
     ApiOperation({
-      summary: "Obtener lista de autores",
+      summary: "Obtener lista de autores - Acceso: ADMIN, USER",
       description: "Obtiene una lista paginada de todos los autores registrados con filtros opcionales. Endpoint público.",
     }),
     ApiQuery({

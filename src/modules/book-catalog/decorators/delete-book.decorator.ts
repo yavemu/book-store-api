@@ -14,7 +14,7 @@ export function ApiDeleteBook() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Eliminar libro del catálogo',
+      summary: 'Eliminar libro del catálogo - Acceso: ADMIN',
       description: 'Elimina un libro del catálogo del sistema (eliminación lógica). Solo accesible para administradores.' 
     }),
     ApiParam({

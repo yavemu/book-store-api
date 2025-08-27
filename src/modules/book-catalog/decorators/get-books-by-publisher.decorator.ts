@@ -11,7 +11,7 @@ import { BookCatalogListResponseDto } from '../dto';
 export function ApiGetBooksByPublisher() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Obtener libros por editorial',
+      summary: 'Obtener libros por editorial - Acceso: ADMIN, USER',
       description: 'Obtiene una lista paginada de libros filtrados por una editorial específica.' 
     }),
     ApiParam({

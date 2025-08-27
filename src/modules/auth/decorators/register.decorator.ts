@@ -10,7 +10,7 @@ import { RegisterResponseDto } from '../dto';
 export function ApiRegister() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Registrar nuevo usuario',
+      summary: 'Registrar nuevo usuario - Acceso: Público',
       description: 'Crea una nueva cuenta de usuario en el sistema' 
     }),
     ApiResponse({ 

@@ -14,7 +14,7 @@ export function ApiGetUserById() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Obtener usuario por ID',
+      summary: 'Obtener usuario por ID - Acceso: ADMIN',
       description: 'Obtiene la información detallada de un usuario específico por su ID único.' 
     }),
     ApiParam({

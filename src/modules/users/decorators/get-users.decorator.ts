@@ -13,7 +13,7 @@ export function ApiGetUsers() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Obtener lista de usuarios',
+      summary: 'Obtener lista de usuarios - Acceso: ADMIN',
       description: 'Obtiene una lista paginada de todos los usuarios del sistema. Solo accesible para administradores.' 
     }),
     ApiQuery({

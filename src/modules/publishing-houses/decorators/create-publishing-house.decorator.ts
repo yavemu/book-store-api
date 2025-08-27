@@ -14,7 +14,7 @@ export function ApiCreatePublishingHouse() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Crear nueva editorial',
+      summary: 'Crear nueva editorial - Acceso: ADMIN',
       description: 'Crea una nueva editorial en el sistema. Solo accesible para administradores.' 
     }),
     ApiResponse({ 

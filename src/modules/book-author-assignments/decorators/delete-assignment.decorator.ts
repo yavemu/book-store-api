@@ -11,7 +11,7 @@ import {
 export function ApiDeleteAssignment() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Eliminar asignación autor-libro',
+      summary: 'Eliminar asignación autor-libro - Acceso: ADMIN',
       description: 'Elimina (soft delete) una asignación entre un libro y un autor. Solo accesible para administradores.' 
     }),
     ApiParam({

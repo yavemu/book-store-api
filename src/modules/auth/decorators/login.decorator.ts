@@ -10,7 +10,7 @@ const INPUT_DATA = {
 export function ApiLogin() {
   return applyDecorators(
     ApiOperation({
-      summary: "Iniciar sesión de usuario",
+      summary: "Iniciar sesión de usuario - Acceso: Público",
       description: "Autentica al usuario con credenciales y devuelve un token JWT",
     }),
     ApiBody({

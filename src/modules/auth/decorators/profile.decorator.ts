@@ -11,7 +11,7 @@ export function ApiGetProfile() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Obtener perfil del usuario actual',
+      summary: 'Obtener perfil del usuario actual - Acceso: ADMIN, USER',
       description: 'Obtiene la información del perfil del usuario autenticado' 
     }),
     ApiResponse({ 

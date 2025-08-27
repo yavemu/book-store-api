@@ -9,7 +9,7 @@ import {
 export function ApiGetAssignments() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Obtener asignaciones autor-libro',
+      summary: 'Obtener asignaciones autor-libro - Acceso: ADMIN, USER',
       description: 'Obtiene una lista paginada de todas las asignaciones entre libros y autores.' 
     }),
     ApiQuery({

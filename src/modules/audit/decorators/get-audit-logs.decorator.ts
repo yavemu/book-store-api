@@ -13,7 +13,7 @@ export function ApiGetAuditLogs() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Obtener registros de auditoría',
+      summary: 'Obtener registros de auditoría - Acceso: ADMIN',
       description: 'Obtiene una lista paginada de todos los registros de auditoría del sistema. Solo accesible para administradores.' 
     }),
     ApiQuery({

@@ -10,7 +10,7 @@ import { BookAuthorResponseDto } from '../dto';
 export function ApiGetAuthorById() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Obtener autor por ID',
+      summary: 'Obtener autor por ID - Acceso: ADMIN, USER',
       description: 'Obtiene los detalles completos de un autor específico usando su ID único. Endpoint público.' 
     }),
     ApiParam({

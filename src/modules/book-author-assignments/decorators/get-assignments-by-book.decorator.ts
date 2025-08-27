@@ -10,7 +10,7 @@ import {
 export function ApiGetAssignmentsByBook() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Obtener asignaciones por libro',
+      summary: 'Obtener asignaciones por libro - Acceso: ADMIN, USER',
       description: 'Obtiene todas las asignaciones de autores para un libro específico.' 
     }),
     ApiParam({

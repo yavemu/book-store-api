@@ -14,7 +14,7 @@ export function ApiCreateBook() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Crear nuevo libro en el catálogo',
+      summary: 'Crear nuevo libro en el catálogo - Acceso: ADMIN',
       description: 'Crea un nuevo libro en el catálogo del sistema. Solo accesible para administradores.' 
     }),
     ApiResponse({ 

@@ -10,7 +10,7 @@ import { BookCatalogResponseDto } from '../dto';
 export function ApiGetBookById() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Obtener libro por ID',
+      summary: 'Obtener libro por ID - Acceso: ADMIN, USER',
       description: 'Obtiene los detalles completos de un libro específico del catálogo usando su ID único. Endpoint público.' 
     }),
     ApiParam({

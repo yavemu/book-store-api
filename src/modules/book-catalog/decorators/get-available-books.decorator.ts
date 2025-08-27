@@ -10,7 +10,7 @@ import { BookCatalogListResponseDto } from '../dto';
 export function ApiGetAvailableBooks() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Obtener libros disponibles',
+      summary: 'Obtener libros disponibles - Acceso: ADMIN, USER',
       description: 'Obtiene una lista paginada de libros disponibles para compra en el catálogo.' 
     }),
     ApiQuery({

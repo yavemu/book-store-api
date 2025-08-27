@@ -14,7 +14,7 @@ import { UpdateBookAuthorAssignmentDto } from '../dto';
 export function ApiUpdateAssignment() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Actualizar asignación autor-libro',
+      summary: 'Actualizar asignación autor-libro - Acceso: ADMIN',
       description: 'Actualiza una asignación existente entre un libro y un autor. Solo accesible para administradores.' 
     }),
     ApiParam({

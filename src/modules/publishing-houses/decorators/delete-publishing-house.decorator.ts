@@ -14,7 +14,7 @@ export function ApiDeletePublishingHouse() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Eliminar editorial del sistema',
+      summary: 'Eliminar editorial del sistema - Acceso: ADMIN',
       description: 'Elimina una editorial del sistema (eliminación lógica). Solo accesible para administradores.' 
     }),
     ApiParam({

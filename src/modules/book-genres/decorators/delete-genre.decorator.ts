@@ -11,7 +11,7 @@ import {
 export function ApiDeleteGenre() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Eliminar género de libro',
+      summary: 'Eliminar género de libro - Acceso: ADMIN',
       description: 'Elimina (soft delete) un género de libro del sistema. Solo accesible para administradores.' 
     }),
     ApiParam({

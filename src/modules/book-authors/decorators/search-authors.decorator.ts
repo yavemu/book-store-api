@@ -10,7 +10,7 @@ import { BookAuthorListResponseDto } from '../dto';
 export function ApiSearchAuthors() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Buscar autores',
+      summary: 'Buscar autores - Acceso: ADMIN, USER',
       description: 'Busca autores por término en nombre, apellido o biografía.' 
     }),
     ApiQuery({

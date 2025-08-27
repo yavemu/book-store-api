@@ -10,7 +10,7 @@ import { PublishingHouseResponseDto } from '../dto';
 export function ApiGetPublishingHouseById() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Obtener editorial por ID',
+      summary: 'Obtener editorial por ID - Acceso: ADMIN, USER',
       description: 'Obtiene los detalles completos de una editorial específica usando su ID único. Endpoint público.' 
     }),
     ApiParam({

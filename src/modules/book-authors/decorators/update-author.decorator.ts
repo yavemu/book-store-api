@@ -16,7 +16,7 @@ export function ApiUpdateAuthor() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Actualizar información del autor',
+      summary: 'Actualizar información del autor - Acceso: ADMIN',
       description: 'Actualiza la información de un autor existente. Solo accesible para administradores.' 
     }),
     ApiParam({

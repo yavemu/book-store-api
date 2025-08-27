@@ -12,7 +12,7 @@ export function ApiCreateBookGenre() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Crear nuevo género de libro',
+      summary: 'Crear nuevo género de libro - Acceso: ADMIN',
       description: 'Crea un nuevo género de libro en el catálogo. Solo accesible para administradores.' 
     }),
     ApiResponse({ 

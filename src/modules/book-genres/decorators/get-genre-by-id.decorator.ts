@@ -10,7 +10,7 @@ import {
 export function ApiGetGenreById() {
   return applyDecorators(
     ApiOperation({
-      summary: "Obtener género por ID",
+      summary: "Obtener género por ID - Acceso: ADMIN, USER",
       description: "Obtiene un género específico de libros utilizando su ID único.",
     }),
     ApiParam({

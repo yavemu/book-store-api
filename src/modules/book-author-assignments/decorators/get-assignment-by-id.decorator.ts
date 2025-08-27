@@ -10,7 +10,7 @@ import {
 export function ApiGetAssignmentById() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Obtener asignación por ID',
+      summary: 'Obtener asignación por ID - Acceso: ADMIN, USER',
       description: 'Obtiene una asignación específica entre libro y autor por su ID.' 
     }),
     ApiParam({

@@ -11,7 +11,7 @@ import { BookCatalogListResponseDto, BookFiltersDto } from '../dto';
 export function ApiFilterBooks() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Filtrar libros con criterios avanzados',
+      summary: 'Filtrar libros con criterios avanzados - Acceso: ADMIN, USER',
       description: 'Filtra libros del catálogo utilizando criterios avanzados como género, precio, disponibilidad, etc.' 
     }),
     ApiBody({

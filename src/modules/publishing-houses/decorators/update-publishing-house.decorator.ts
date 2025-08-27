@@ -16,7 +16,7 @@ export function ApiUpdatePublishingHouse() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Actualizar información de la editorial',
+      summary: 'Actualizar información de la editorial - Acceso: ADMIN',
       description: 'Actualiza la información de una editorial existente. Solo accesible para administradores.' 
     }),
     ApiParam({

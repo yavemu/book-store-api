@@ -14,7 +14,7 @@ export function ApiGetAuditByAction() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Obtener registros de auditoría por acción',
+      summary: 'Obtener registros de auditoría por acción - Acceso: ADMIN',
       description: 'Obtiene una lista paginada de registros de auditoría filtrados por tipo de acción. Solo accesible para administradores.' 
     }),
     ApiParam({

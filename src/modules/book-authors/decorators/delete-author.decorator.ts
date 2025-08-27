@@ -14,7 +14,7 @@ export function ApiDeleteAuthor() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Eliminar autor del sistema',
+      summary: 'Eliminar autor del sistema - Acceso: ADMIN',
       description: 'Elimina un autor del sistema (eliminación lógica). Solo accesible para administradores.' 
     }),
     ApiParam({

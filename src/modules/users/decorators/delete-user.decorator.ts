@@ -14,7 +14,7 @@ export function ApiDeleteUser() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Eliminar usuario del sistema',
+      summary: 'Eliminar usuario del sistema - Acceso: ADMIN',
       description: 'Realiza una eliminación lógica (soft delete) de un usuario del sistema. Solo accesible para administradores.' 
     }),
     ApiParam({

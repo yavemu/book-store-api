@@ -12,7 +12,7 @@ import { CreateBookAuthorAssignmentDto } from '../dto';
 export function ApiCreateAssignment() {
   return applyDecorators(
     ApiOperation({ 
-      summary: 'Crear asignación autor-libro',
+      summary: 'Crear asignación autor-libro - Acceso: ADMIN',
       description: 'Crea una nueva asignación entre un libro y un autor. Solo accesible para administradores.' 
     }),
     ApiBody({

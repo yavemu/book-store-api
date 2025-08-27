@@ -14,7 +14,7 @@ export function ApiCreateAuthor() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Crear nuevo autor',
+      summary: 'Crear nuevo autor - Acceso: ADMIN',
       description: 'Crea un nuevo autor en el sistema. Solo accesible para administradores.' 
     }),
     ApiResponse({ 

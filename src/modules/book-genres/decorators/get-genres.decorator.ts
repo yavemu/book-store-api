@@ -9,7 +9,7 @@ import {
 export function ApiGetGenres() {
   return applyDecorators(
     ApiOperation({
-      summary: "Obtener géneros de libros",
+      summary: "Obtener géneros de libros - Acceso: ADMIN, USER",
       description: "Obtiene una lista paginada de todos los géneros de libros disponibles en el sistema.",
     }),
     ApiQuery({

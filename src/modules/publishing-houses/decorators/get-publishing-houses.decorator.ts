@@ -9,7 +9,7 @@ import { PublishingHouseListResponseDto } from '../dto';
 export function ApiGetPublishingHouses() {
   return applyDecorators(
     ApiOperation({
-      summary: "Obtener lista de editoriales",
+      summary: "Obtener lista de editoriales - Acceso: ADMIN, USER",
       description: "Obtiene una lista paginada de todas las editoriales registradas con filtros opcionales. Endpoint público.",
     }),
     ApiQuery({

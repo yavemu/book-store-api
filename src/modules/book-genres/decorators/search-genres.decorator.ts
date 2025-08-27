@@ -9,7 +9,7 @@ import {
 export function ApiSearchGenres() {
   return applyDecorators(
     ApiOperation({
-      summary: "Buscar géneros de libros",
+      summary: "Buscar géneros de libros - Acceso: ADMIN, USER",
       description: "Busca géneros de libros por término en nombre o descripción.",
     }),
     ApiQuery({

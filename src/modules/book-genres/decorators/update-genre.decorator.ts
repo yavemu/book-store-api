@@ -14,7 +14,7 @@ import { UpdateBookGenreDto } from '../dto';
 export function ApiUpdateGenre() {
   return applyDecorators(
     ApiOperation({
-      summary: "Actualizar género de libro",
+      summary: "Actualizar género de libro - Acceso: ADMIN",
       description: "Actualiza un género de libro existente. Solo accesible para administradores.",
     }),
     ApiParam({

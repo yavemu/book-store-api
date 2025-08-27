@@ -16,7 +16,7 @@ export function ApiUpdateBook() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Actualizar libro del catálogo',
+      summary: 'Actualizar libro del catálogo - Acceso: ADMIN',
       description: 'Actualiza la información de un libro existente en el catálogo. Solo accesible para administradores.' 
     }),
     ApiParam({

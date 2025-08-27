@@ -13,7 +13,7 @@ export function ApiSearchAuditLogs() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({ 
-      summary: 'Buscar registros de auditoría',
+      summary: 'Buscar registros de auditoría - Acceso: ADMIN',
       description: 'Busca registros de auditoría por término en el campo de detalles. Solo accesible para administradores.' 
     }),
     ApiQuery({
