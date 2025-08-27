@@ -102,43 +102,195 @@ Luego, edita el archivo .env para configurar las variables de entorno con tu pro
 
 ## Ejecución de la Aplicación con Docker Compose
 
-Ejecuta API y Web por separado usando sus archivos Docker Compose individuales.
+### 📝 Scripts npm Disponibles para Docker
 
-#### Paso 1: Ejecutar API (con Base de Datos)
+| Script | Descripción | Equivalente Docker Compose |
+|--------|-------------|----------------------------|
+| `npm run docker:build` | Construir imagen | `docker-compose build` |
+| `npm run docker:up` | Ejecutar contenedores | `docker-compose up -d` |
+| `npm run docker:up:build` | Construir y ejecutar | `docker-compose up --build -d` |
+| `npm run docker:down` | Detener contenedores | `docker-compose down` |
+| `npm run docker:down:clean` | Detener y limpiar datos | `docker-compose down -v` |
+| `npm run docker:ps` | Ver estado | `docker-compose ps` |
+| `npm run docker:logs` | Ver todos los logs | `docker-compose logs -f` |
+| `npm run docker:logs:api` | Ver logs de API | `docker logs bookstore-api -f` |
+| `npm run docker:logs:db` | Ver logs de DB | `docker logs bookstore-postgres -f` |
+| `npm run docker:restart` | Reiniciar servicios | `docker-compose restart` |
+| `npm run docker:shell:api` | Shell de API | `docker exec -it bookstore-api /bin/sh` |
+| `npm run docker:shell:db` | Shell de PostgreSQL | `docker exec -it bookstore-postgres psql -U user -d bookstore_db` |
+| `npm run docker:clean` | Limpiar sistema | `docker-compose down && docker system prune -f` |
 
+### 🚀 Comandos Principales
+
+#### **Usando Scripts npm (Recomendado)**
 ```bash
-# Navegar al directorio de API
+# Navegar al directorio de la API
 cd book-store/book-store-api
 
-# Iniciar API y su base de datos
-docker-compose up -d
+# Construir y ejecutar contenedores
+npm run docker:up:build
 
-# Acceder a API en: http://localhost:3000
-# Documentación de API: http://localhost:3000/apidoc
+# Solo ejecutar (si ya están construidos)
+npm run docker:up
+
+# Ver estado de contenedores
+npm run docker:ps
+
+# URLs disponibles:
+# 🌐 API: http://localhost:3000
+# 📚 Documentación Swagger: http://localhost:3000/apidoc
+# 🗄️ Base de datos: localhost:5433 (puerto externo)
 ```
 
-#### Paso 2: Ejecutar Web
-
+#### **Usando Docker Compose Directamente**
 ```bash
-# Navegar al directorio Web
-cd book-store/book-store-web
-
-# Iniciar aplicación Web
-docker-compose up -d
-
-# Acceder a Web en: http://localhost:3001
-```
-
-#### Detener Servicios
-
-```bash
-# Detener API
+# Navegar al directorio de la API
 cd book-store/book-store-api
-docker-compose down
 
-# Detener Web
-cd book-store/book-store-web
+# Construir y ejecutar contenedores en modo detached
+docker-compose up --build -d
+
+# Ver estado de los contenedores
+docker-compose ps
+```
+
+#### **Monitorear la Aplicación**
+```bash
+# Usando scripts npm (recomendado)
+npm run docker:ps              # Ver estado de contenedores
+npm run docker:logs            # Ver logs de todos los servicios
+npm run docker:logs:api        # Ver logs solo de la API
+npm run docker:logs:db         # Ver logs solo de la base de datos
+
+# Usando Docker Compose directamente
+docker-compose ps              # Ver estado de los contenedores
+docker logs bookstore-api -f   # Ver logs en tiempo real (API)
+docker logs bookstore-postgres -f # Ver logs en tiempo real (Base de datos)
+docker-compose logs -f         # Ver logs de todos los servicios
+```
+
+#### **Detener la Aplicación**
+```bash
+# Usando scripts npm (recomendado)
+npm run docker:down            # Detener contenedores (mantiene datos)
+npm run docker:down:clean      # Detener y limpiar volúmenes (ELIMINA DATOS)
+npm run docker:clean           # Detener y limpiar sistema Docker
+
+# Usando Docker Compose directamente
+docker-compose down            # Detener contenedores (mantiene datos)
+docker-compose down -v         # Detener y limpiar volúmenes (ELIMINA DATOS)
+docker-compose down --rmi all -v # Detener, limpiar y remover imágenes
+```
+
+### 🔧 Comandos de Desarrollo
+
+#### **Reconstruir y Reiniciar**
+```bash
+# Usando scripts npm (recomendado)
+npm run docker:build           # Reconstruir imagen
+npm run docker:up:build        # Reconstruir y ejecutar
+npm run docker:restart         # Reiniciar todos los servicios
+
+# Usando Docker Compose directamente
+docker-compose build --no-cache # Reconstruir imagen sin cache
+docker-compose up --build -d   # Reconstruir y ejecutar
+docker-compose restart api     # Reiniciar solo la API
+docker-compose restart postgres # Reiniciar solo PostgreSQL
+```
+
+#### **Acceso a Contenedores**
+```bash
+# Usando scripts npm (recomendado)
+npm run docker:shell:api       # Acceder al shell del contenedor API
+npm run docker:shell:db        # Acceder al shell de PostgreSQL
+
+# Usando Docker directamente
+docker exec -it bookstore-api /bin/sh # Acceder al shell del contenedor API
+docker exec -it bookstore-postgres psql -U user -d bookstore_db # Acceder a PostgreSQL
+
+# Ejecutar comandos npm dentro del contenedor API
+docker exec -it bookstore-api npm run test
+docker exec -it bookstore-api npm run build
+docker exec -it bookstore-api npm run seed
+```
+
+### 📋 Comandos de Base de Datos
+
+#### **Gestión de Base de Datos**
+```bash
+# Acceder a la base de datos desde el contenedor
+docker exec -it bookstore-postgres psql -U postgres
+
+# Conectarse a la base de datos de la aplicación
+docker exec -it bookstore-postgres psql -U user -d bookstore_db
+
+# Hacer backup de la base de datos
+docker exec bookstore-postgres pg_dump -U user bookstore_db > backup.sql
+
+# Restaurar base de datos desde backup
+docker exec -i bookstore-postgres psql -U user -d bookstore_db < backup.sql
+```
+
+### 🔍 Comandos de Troubleshooting
+
+#### **Diagnóstico y Resolución de Problemas**
+```bash
+# Ver todos los contenedores (incluyendo detenidos)
+docker ps -a
+
+# Inspeccionar red de Docker
+docker network ls
+docker network inspect book-store-api_bookstore-network
+
+# Ver uso de recursos
+docker stats
+
+# Limpiar sistema Docker (CUIDADO: afecta todo Docker)
+docker system prune -f
+
+# Limpiar solo contenedores detenidos
+docker container prune -f
+
+# Ver logs específicos con filtros
+docker logs bookstore-api --since=1h
+docker logs bookstore-api --tail=100
+```
+
+#### **Solución de Problemas Específicos**
+```bash
+# Si hay problemas con la red Docker
 docker-compose down
+docker network prune -f
+docker-compose up --build -d
+
+# Si hay conflictos de puerto
+docker-compose down
+sudo lsof -i :3000  # Ver qué usa el puerto
+docker-compose up -d
+
+# Si la base de datos no inicia
+docker-compose down -v  # ELIMINA DATOS
+docker volume prune -f
+docker-compose up --build -d
+```
+
+### 📊 Comandos de Información
+
+#### **Ver Información del Sistema**
+```bash
+# Ver información de volúmenes
+docker volume ls
+docker volume inspect book-store-api_postgres_data
+
+# Ver información de imágenes
+docker images
+
+# Ver uso de espacio
+docker system df
+
+# Información detallada de contenedor
+docker inspect bookstore-api
+docker inspect bookstore-postgres
 ```
 
 ## Solución de Problemas
