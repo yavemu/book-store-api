@@ -27,13 +27,13 @@ export class UserSeed {
         username: "admin",
         password: "demodemo",
         email: "admin@demo.com",
-        role: UserRole.ADMIN,
+        roleId: adminRole.id,
       },
       {
         username: "user",
         password: "demodemo",
         email: "user@demo.com",
-        role: UserRole.USER,
+        roleId: userRole.id,
       },
     ];
 

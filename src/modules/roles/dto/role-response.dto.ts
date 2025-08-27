@@ -19,13 +19,6 @@ export class RoleResponseDto {
   })
   description?: string;
 
-  @ApiPropertyOptional({ 
-    description: 'Permisos asignados al rol',
-    example: ['books:read', 'books:write', 'users:read'],
-    type: [String]
-  })
-  permissions?: string[];
-
   @ApiProperty({ 
     description: 'Estado del rol (activo/inactivo)', 
     example: true 

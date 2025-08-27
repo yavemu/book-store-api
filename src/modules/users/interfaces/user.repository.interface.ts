@@ -10,7 +10,7 @@ export interface IUserRepository {
   getUserProfile(userId: string): Promise<User>;
   updateUserProfile(userId: string, updateUserDto: UpdateUserDto): Promise<User>;
   deactivateUser(userId: string): Promise<void>;
-  getUsersByRole(role: string, pagination: PaginationDto): Promise<PaginatedResult<User>>;
+  // getUsersByRole(role: string, pagination: PaginationDto): Promise<PaginatedResult<User>>;
   searchUsers(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<User>>;
   getAllUsers(pagination: PaginationDto): Promise<PaginatedResult<User>>;
   checkUsernameExists(username: string): Promise<boolean>;

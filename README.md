@@ -100,6 +100,23 @@ cp book-store-web/.env.example book-store-web/.env
 
 Luego, edita el archivo .env para configurar las variables de entorno con tu propia configuración. (estos valores pueden ser usados por Docker)
 
+### Paso 4: Ejecutar seeds de la Base de Datos
+
+```bash
+# Asegúrate de estar en el directorio book-store-api
+pwd  # Debería mostrar: /ruta/hacia/tu/book-store/book-store-api
+
+# Construir contenedores de la API y Base de Datos
+npm run docker:up:build
+
+# Ejecutar seeds
+npm run docker:exec:seed
+```
+
+Confirma en tu base de datos que se hayan ejecutado los seeds correctamente.
+- **Usuarios**: `SELECT * FROM users;` (el usuario `admin` y `user` debe estar presente y su contraseña `demodemo`)
+- **Roles**: `SELECT * FROM roles;`
+
 ## Ejecución de la Aplicación con Docker Compose
 
 ### 📝 Scripts npm Disponibles para Docker

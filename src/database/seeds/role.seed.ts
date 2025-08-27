@@ -14,13 +14,11 @@ export class RoleSeed {
       {
         name: UserRole.ADMIN,
         description: "Administrator role with full access",
-        permissions: ["create", "read", "update", "delete", "manage_users"],
         isActive: true,
       },
       {
         name: "USER",
         description: "Standard user role with basic access",
-        permissions: ["read", "update_own"],
         isActive: true,
       },
     ];

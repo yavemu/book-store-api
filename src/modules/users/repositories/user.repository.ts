@@ -120,20 +120,20 @@ export class UserRepository extends BaseRepository<User> implements IUserReposit
     }
   }
 
-  async getUsersByRole(role: string, pagination: PaginationDto): Promise<PaginatedResult<User>> {
-    try {
-      const options: FindManyOptions<User> = {
-        where: { role: role as UserRole },
-        order: { [pagination.sortBy]: pagination.sortOrder },
-        skip: pagination.offset,
-        take: pagination.limit,
-      };
+  // async getUsersByRole(role: string, pagination: PaginationDto): Promise<PaginatedResult<User>> {
+  //   try {
+  //     const options: FindManyOptions<User> = {
+  //       where: { role: role as UserRole },
+  //       order: { [pagination.sortBy]: pagination.sortOrder },
+  //       skip: pagination.offset,
+  //       take: pagination.limit,
+  //     };
 
-      return await this._findManyWithPagination(options, pagination);
-    } catch (error) {
-      throw new HttpException("Failed to get users by role", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
+  //     return await this._findManyWithPagination(options, pagination);
+  //   } catch (error) {
+  //     throw new HttpException("Failed to get users by role", HttpStatus.INTERNAL_SERVER_ERROR);
+  //   }
+  // }
 
   async searchUsers(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<User>> {
     try {

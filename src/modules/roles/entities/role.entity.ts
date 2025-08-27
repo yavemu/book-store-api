@@ -40,15 +40,6 @@ export class Role {
   description?: string;
 
   @Column({
-    name: "permissions",
-    type: "jsonb",
-    nullable: true,
-    comment: "Permissions array for role",
-    default: () => "'[]'",
-  })
-  permissions?: string[];
-
-  @Column({
     name: "is_active",
     type: "boolean",
     default: true,
