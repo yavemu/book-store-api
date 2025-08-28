@@ -10,7 +10,7 @@ import {
   ApiExtraModels,
 } from "@nestjs/swagger";
 import { AuditLogListResponseDto } from "../dto/audit-response.dto";
-import { PaginationDto } from "../../../common/dto/pagination.dto";
+import { PaginationDto } from '../../../common/dto';
 
 export function ApiGetAuditByUser() {
   return applyDecorators(

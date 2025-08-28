@@ -31,7 +31,11 @@ export class BookAuthorRepository extends BaseRepository<BookAuthor> implements 
       ]);
 
       // Use inherited method from BaseRepository
-      return await this._createEntity(createBookAuthorDto);
+      const entityData = {
+        ...createBookAuthorDto,
+        birthDate: new Date(createBookAuthorDto.birthDate),
+      };
+      return await this._createEntity(entityData);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -75,7 +79,11 @@ export class BookAuthorRepository extends BaseRepository<BookAuthor> implements 
       ]);
 
       // Use inherited method from BaseRepository
-      await this._updateEntity(authorId, updateBookAuthorDto);
+      const entityData = {
+        ...updateBookAuthorDto,
+        ...(updateBookAuthorDto.birthDate && { birthDate: new Date(updateBookAuthorDto.birthDate) }),
+      };
+      await this._updateEntity(authorId, entityData);
       return await this._findById(authorId);
     } catch (error) {
       if (error instanceof HttpException) {

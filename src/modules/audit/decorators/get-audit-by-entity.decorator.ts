@@ -9,7 +9,7 @@ import {
   ApiParam,
 } from "@nestjs/swagger";
 import { AuditLogListResponseDto } from "../dto/audit-response.dto";
-import { PaginationDto } from "../../../common/dto/pagination.dto";
+import { PaginationDto } from '../../../common/dto';
 import { ApiExtraModels } from "@nestjs/swagger";
 
 export function ApiGetAuditByEntity() {

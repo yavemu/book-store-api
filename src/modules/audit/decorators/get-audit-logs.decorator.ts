@@ -1,7 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiUnauthorizedResponse, ApiForbiddenResponse, ApiBearerAuth, ApiExtraModels } from "@nestjs/swagger";
 import { AuditLogListResponseDto } from '../dto/audit-response.dto';
-import { PaginationDto } from "src/common/dto";
+import { PaginationDto } from '../../../common/dto';
 
 export function ApiGetAuditLogs() {
   return applyDecorators(

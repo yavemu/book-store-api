@@ -1,0 +1,146 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { AuthService } from '../auth.service';
+import { UserService } from '../../../users/services/user.service';
+import { JwtService } from '@nestjs/jwt';
+import { User } from '../../../users/entities/user.entity';
+import * as bcrypt from 'bcrypt';
+import { Role } from '../../../roles/entities/role.entity';
+
+jest.mock('bcrypt');
+
+const mockRole: Role = {
+  id: '1',
+  name: 'user',
+  description: 'user role',
+  isActive: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  deletedAt: null,
+  users: [],
+  normalizeRoleName: jest.fn(),
+};
+
+const mockUser: User = {
+  id: '1',
+  username: 'test',
+  password: 'hashedpassword',
+  email: 'test@test.com',
+  roleId: '1',
+  role: mockRole,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  deletedAt: null,
+  hashPassword: jest.fn(),
+  normalizeEmail: jest.fn(),
+  normalizeUsername: jest.fn(),
+};
+
+describe('AuthService', () => {
+  let service: AuthService;
+  let userService: UserService;
+  let jwtService: JwtService;
+
+  const mockUserService = {
+    findToLoginByEmail: jest.fn(),
+    register: jest.fn(),
+    findById: jest.fn(),
+  };
+
+  const mockJwtService = {
+    sign: jest.fn(),
+  };
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        {
+          provide: UserService,
+          useValue: mockUserService,
+        },
+        {
+          provide: JwtService,
+          useValue: mockJwtService,
+        },
+      ],
+    }).compile();
+
+    service = module.get<AuthService>(AuthService);
+    userService = module.get<UserService>(UserService);
+    jwtService = module.get<JwtService>(JwtService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+
+  describe('validateUser', () => {
+    it('should return user if validation is successful', async () => {
+      mockUserService.findToLoginByEmail.mockResolvedValue(mockUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      const result = await service.validateUser('test@test.com', 'password');
+      expect(result).toEqual(mockUser);
+    });
+
+    it('should return null if user not found', async () => {
+      mockUserService.findToLoginByEmail.mockResolvedValue(null);
+      const result = await service.validateUser('test@test.com', 'password');
+      expect(result).toBeNull();
+    });
+
+    it('should return null if password does not match', async () => {
+      mockUserService.findToLoginByEmail.mockResolvedValue(mockUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+      const result = await service.validateUser('test@test.com', 'password');
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('login', () => {
+    it('should return an access token', async () => {
+      mockJwtService.sign.mockReturnValue('token');
+
+      const result = await service.login(mockUser);
+      expect(result.access_token).toEqual('token');
+      expect(result.user).toEqual({
+        id: mockUser.id,
+        username: mockUser.username,
+        email: mockUser.email,
+        role: mockUser.role,
+      });
+    });
+  });
+
+  describe('register', () => {
+    it('should register a user', async () => {
+      mockUserService.register.mockResolvedValue(mockUser);
+
+      const result = await service.register({} as any);
+      expect(result.message).toEqual('Usuario creado exitosamente');
+      expect(result.user).toEqual({
+        id: mockUser.id,
+        username: mockUser.username,
+        email: mockUser.email,
+        role: mockUser.role,
+      });
+    });
+  });
+
+  describe('getProfile', () => {
+    it('should return user profile', async () => {
+      mockUserService.findById.mockResolvedValue(mockUser);
+
+      const result = await service.getProfile('1');
+      expect(result).toEqual({
+        id: mockUser.id,
+        username: mockUser.username,
+        email: mockUser.email,
+        role: mockUser.role,
+        createdAt: mockUser.createdAt,
+        updatedAt: mockUser.updatedAt,
+      });
+    });
+  });
+});
