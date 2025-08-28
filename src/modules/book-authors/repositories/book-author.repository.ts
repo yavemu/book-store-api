@@ -7,6 +7,8 @@ import { CreateBookAuthorDto } from "../dto/create-book-author.dto";
 import { UpdateBookAuthorDto } from "../dto/update-book-author.dto";
 import { PaginationDto, PaginatedResult } from "../../../common/dto/pagination.dto";
 import { BaseRepository } from "../../../common/repositories/base.repository";
+import { SuccessResponseDto } from "../../../common/dto/success-response.dto";
+import { SUCCESS_MESSAGES } from "../../../common/exceptions/success-messages";
 
 @Injectable()
 export class BookAuthorRepository extends BaseRepository<BookAuthor> implements IBookAuthorRepository {
@@ -19,13 +21,15 @@ export class BookAuthorRepository extends BaseRepository<BookAuthor> implements 
 
   // Public business logic methods
 
-  async registerAuthor(createBookAuthorDto: CreateBookAuthorDto): Promise<BookAuthor> {
+  async registerAuthor(
+    createBookAuthorDto: CreateBookAuthorDto,
+  ): Promise<SuccessResponseDto<BookAuthor>> {
     try {
       // Validate uniqueness using inherited method with specific configuration
       await this._validateUniqueConstraints(createBookAuthorDto, undefined, [
         {
-          field: ["firstName", "lastName"],
-          message: "Author with this full name already exists",
+          field: ['firstName', 'lastName'],
+          message: 'Author with this full name already exists',
           transform: (value: string) => value.trim(),
         },
       ]);
@@ -35,45 +39,63 @@ export class BookAuthorRepository extends BaseRepository<BookAuthor> implements 
         ...createBookAuthorDto,
         birthDate: new Date(createBookAuthorDto.birthDate),
       };
-      return await this._createEntity(entityData);
+      return await this._createEntity(
+        entityData,
+        SUCCESS_MESSAGES.BOOK_AUTHORS.CREATED,
+      );
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Failed to register author', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to register author',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  async getAuthorProfile(authorId: string): Promise<BookAuthor> {
+  async getAuthorProfile(
+    authorId: string,
+  ): Promise<SuccessResponseDto<BookAuthor>> {
     try {
       const author = await this._findById(authorId);
       if (!author) {
         throw new NotFoundException('Author not found');
       }
-      return author;
+      return new SuccessResponseDto(
+        SUCCESS_MESSAGES.BOOK_AUTHORS.FOUND_ONE,
+        author,
+      );
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Failed to get author profile', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to get author profile',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  async updateAuthorProfile(authorId: string, updateBookAuthorDto: UpdateBookAuthorDto): Promise<BookAuthor> {
+  async updateAuthorProfile(
+    authorId: string,
+    updateBookAuthorDto: UpdateBookAuthorDto,
+  ): Promise<SuccessResponseDto<BookAuthor>> {
     try {
-      const author = await this.getAuthorProfile(authorId);
-      
+      const authorResponse = await this.getAuthorProfile(authorId);
+      const author = authorResponse.data;
+
       // Create combined DTO with existing values for validation
       const validationDto = {
         firstName: updateBookAuthorDto.firstName || author.firstName,
         lastName: updateBookAuthorDto.lastName || author.lastName,
       };
-      
+
       // Validate uniqueness using inherited method with specific configuration
       await this._validateUniqueConstraints(validationDto, authorId, [
         {
-          field: ["firstName", "lastName"],
-          message: "Author with this full name already exists",
+          field: ['firstName', 'lastName'],
+          message: 'Author with this full name already exists',
           transform: (value: string) => value.trim(),
         },
       ]);
@@ -81,47 +103,82 @@ export class BookAuthorRepository extends BaseRepository<BookAuthor> implements 
       // Use inherited method from BaseRepository
       const entityData = {
         ...updateBookAuthorDto,
-        ...(updateBookAuthorDto.birthDate && { birthDate: new Date(updateBookAuthorDto.birthDate) }),
+        ...(updateBookAuthorDto.birthDate && {
+          birthDate: new Date(updateBookAuthorDto.birthDate),
+        }),
       };
-      await this._updateEntity(authorId, entityData);
-      return await this._findById(authorId);
+      return await this._updateEntity(
+        authorId,
+        entityData,
+        SUCCESS_MESSAGES.BOOK_AUTHORS.UPDATED,
+      );
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Failed to update author profile', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to update author profile',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  async deactivateAuthor(authorId: string): Promise<void> {
+  async deactivateAuthor(
+    authorId: string,
+  ): Promise<SuccessResponseDto<{ id: string }>> {
     try {
       await this.getAuthorProfile(authorId); // Verify author exists
       // Use inherited method from BaseRepository
-      await this._softDelete(authorId);
+      return await this._softDelete(
+        authorId,
+        SUCCESS_MESSAGES.BOOK_AUTHORS.DELETED,
+      );
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Failed to deactivate author', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to deactivate author',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  async searchAuthors(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
+  async searchAuthors(
+    searchTerm: string,
+    pagination: PaginationDto,
+  ): Promise<SuccessResponseDto<PaginatedResult<BookAuthor>>> {
     try {
       const options: FindManyOptions<BookAuthor> = {
-        where: [{ firstName: ILike(`%${searchTerm}%`) }, { lastName: ILike(`%${searchTerm}%`) }, { nationality: ILike(`%${searchTerm}%`) }],
+        where: [
+          { firstName: ILike(`%${searchTerm}%`) },
+          { lastName: ILike(`%${searchTerm}%`) },
+          { nationality: ILike(`%${searchTerm}%`) },
+        ],
         order: { [pagination.sortBy]: pagination.sortOrder },
         skip: pagination.offset,
         take: pagination.limit,
       };
 
-      return await this._findManyWithPagination(options, pagination);
+      const paginatedResult = await this._findManyWithPagination(
+        options,
+        pagination,
+      );
+      return new SuccessResponseDto(
+        SUCCESS_MESSAGES.BOOK_AUTHORS.FOUND_ALL,
+        paginatedResult,
+      );
     } catch (error) {
-      throw new HttpException('Failed to search authors', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to search authors',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  async getAllAuthors(pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
+  async getAllAuthors(
+    pagination: PaginationDto,
+  ): Promise<SuccessResponseDto<PaginatedResult<BookAuthor>>> {
     try {
       const options: FindManyOptions<BookAuthor> = {
         order: { [pagination.sortBy]: pagination.sortOrder },
@@ -129,13 +186,26 @@ export class BookAuthorRepository extends BaseRepository<BookAuthor> implements 
         take: pagination.limit,
       };
 
-      return await this._findManyWithPagination(options, pagination);
+      const paginatedResult = await this._findManyWithPagination(
+        options,
+        pagination,
+      );
+      return new SuccessResponseDto(
+        SUCCESS_MESSAGES.BOOK_AUTHORS.FOUND_ALL,
+        paginatedResult,
+      );
     } catch (error) {
-      throw new HttpException('Failed to get all authors', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to get all authors',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  async getAuthorsByNationality(nationality: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
+  async getAuthorsByNationality(
+    nationality: string,
+    pagination: PaginationDto,
+  ): Promise<SuccessResponseDto<PaginatedResult<BookAuthor>>> {
     try {
       const options: FindManyOptions<BookAuthor> = {
         where: { nationality },
@@ -144,9 +214,19 @@ export class BookAuthorRepository extends BaseRepository<BookAuthor> implements 
         take: pagination.limit,
       };
 
-      return await this._findManyWithPagination(options, pagination);
+      const paginatedResult = await this._findManyWithPagination(
+        options,
+        pagination,
+      );
+      return new SuccessResponseDto(
+        SUCCESS_MESSAGES.BOOK_AUTHORS.FOUND_ALL,
+        paginatedResult,
+      );
     } catch (error) {
-      throw new HttpException('Failed to get authors by nationality', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to get authors by nationality',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 

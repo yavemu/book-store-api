@@ -3,6 +3,7 @@ import { HttpException, HttpStatus, ConflictException, Inject, Injectable } from
 import { PaginationDto, PaginatedResult } from '../dto/pagination.dto';
 import { IAuditLogService } from '../../modules/audit/interfaces/audit-log.service.interface';
 import { AuditAction } from '../../modules/audit/enums/audit-action.enum';
+import { SuccessResponseDto } from '../dto/success-response.dto';
 
 export abstract class BaseRepository<T> {
   constructor(
@@ -15,21 +16,31 @@ export abstract class BaseRepository<T> {
 
   protected async _createEntity(
     data: Partial<T>,
+    successMessage: string,
     performedBy?: string,
     entityName?: string,
-    getDescription?: (entity: T) => string
-  ): Promise<T> {
+    getDescription?: (entity: T) => string,
+  ): Promise<SuccessResponseDto<T>> {
     try {
       const entity = this.repository.create(data as any);
       const savedEntity = await this.repository.save(entity as T);
-      
+
       if (performedBy && entityName) {
-        await this._logAudit(AuditAction.CREATE, (savedEntity as any).id, performedBy, entityName, getDescription);
+        await this._logAudit(
+          AuditAction.CREATE,
+          (savedEntity as any).id,
+          performedBy,
+          entityName,
+          getDescription,
+        );
       }
-      
-      return savedEntity;
+
+      return new SuccessResponseDto(successMessage, savedEntity);
     } catch (error) {
-      throw new HttpException("Failed to create entity", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to create entity',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -82,37 +93,64 @@ export abstract class BaseRepository<T> {
   protected async _updateEntity(
     id: string,
     data: Partial<T>,
+    successMessage: string,
     performedBy?: string,
     entityName?: string,
-    getDescription?: (entity: T) => string
-  ): Promise<void> {
+    getDescription?: (entity: T) => string,
+  ): Promise<SuccessResponseDto<T>> {
     try {
       await this.repository.update({ id } as any, data as any);
-      
+
       if (performedBy && entityName) {
-        await this._logAudit(AuditAction.UPDATE, id, performedBy, entityName, getDescription);
+        await this._logAudit(
+          AuditAction.UPDATE,
+          id,
+          performedBy,
+          entityName,
+          getDescription,
+        );
       }
+      const updatedEntity = await this._findById(id);
+      return new SuccessResponseDto(successMessage, updatedEntity);
     } catch (error) {
-      throw new HttpException("Failed to update entity", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to update entity',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   protected async _softDelete(
     id: string,
+    successMessage: string,
     performedBy?: string,
     entityName?: string,
-    getDescription?: (entity: T) => string
-  ): Promise<void> {
+    getDescription?: (entity: T) => string,
+  ): Promise<SuccessResponseDto<{ id: string }>> {
     try {
-      const entity = performedBy && entityName && getDescription ? await this._findById(id) : null;
+      const entity =
+        performedBy && entityName && getDescription
+          ? await this._findById(id)
+          : null;
       await this.repository.softDelete({ id } as any);
-      
+
       if (performedBy && entityName) {
-        const description = entity && getDescription ? getDescription(entity) : undefined;
-        await this._logAudit(AuditAction.DELETE, id, performedBy, entityName, description ? () => description : undefined);
+        const description =
+          entity && getDescription ? getDescription(entity) : undefined;
+        await this._logAudit(
+          AuditAction.DELETE,
+          id,
+          performedBy,
+          entityName,
+          description ? () => description : undefined,
+        );
       }
+      return new SuccessResponseDto(successMessage, { id });
     } catch (error) {
-      throw new HttpException("Failed to delete entity", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to delete entity',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
