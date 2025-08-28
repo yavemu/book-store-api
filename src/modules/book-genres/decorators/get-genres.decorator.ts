@@ -1,10 +1,6 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
-  ApiQuery,
-  ApiUnauthorizedResponse
-} from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiUnauthorizedResponse, ApiExtraModels } from "@nestjs/swagger";
+import { PaginationDto } from "../../../common/dto";
 
 export function ApiGetGenres() {
   return applyDecorators(
@@ -12,20 +8,7 @@ export function ApiGetGenres() {
       summary: "Obtener géneros de libros - Acceso: ADMIN, USER",
       description: "Obtiene una lista paginada de todos los géneros de libros disponibles en el sistema.",
     }),
-    ApiQuery({
-      name: "page",
-      required: false,
-      type: Number,
-      description: "Número de página para la paginación",
-      example: 1,
-    }),
-    ApiQuery({
-      name: "limit",
-      required: false,
-      type: Number,
-      description: "Número de elementos por página (máximo 100)",
-      example: 10,
-    }),
+    ApiExtraModels(PaginationDto),
     ApiResponse({
       status: 200,
       description: "Géneros de libros obtenidos exitosamente",

@@ -9,7 +9,7 @@ import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.d
 @Injectable()
 export class BookGenreService implements IBookGenreService {
   constructor(
-    @Inject('IBookGenreRepository')
+    @Inject("IBookGenreRepository")
     private readonly genreRepository: IBookGenreRepository,
   ) {}
 

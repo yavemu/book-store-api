@@ -1,10 +1,6 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
-  ApiQuery,
-  ApiUnauthorizedResponse
-} from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiQuery, ApiUnauthorizedResponse, ApiExtraModels } from "@nestjs/swagger";
+import { PaginationDto } from "../../../common/dto";
 
 export function ApiSearchGenres() {
   return applyDecorators(
@@ -19,20 +15,7 @@ export function ApiSearchGenres() {
       description: "Término de búsqueda para filtrar géneros por nombre o descripción",
       example: "ficción",
     }),
-    ApiQuery({
-      name: "page",
-      required: false,
-      type: Number,
-      description: "Número de página para la paginación",
-      example: 1,
-    }),
-    ApiQuery({
-      name: "limit",
-      required: false,
-      type: Number,
-      description: "Número de elementos por página (máximo 100)",
-      example: 10,
-    }),
+    ApiExtraModels(PaginationDto),
     ApiResponse({
       status: 200,
       description: "Resultados de búsqueda de géneros obtenidos exitosamente",

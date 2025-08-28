@@ -1,56 +1,44 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
+import {
+  ApiOperation,
+  ApiResponse,
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiBearerAuth,
   ApiParam,
-  ApiQuery
-} from '@nestjs/swagger';
-import { AuditLogListResponseDto } from '../dto/audit-response.dto';
+} from "@nestjs/swagger";
+import { AuditLogListResponseDto } from "../dto/audit-response.dto";
+import { PaginationDto } from "../../../common/dto/pagination.dto";
+import { ApiExtraModels } from "@nestjs/swagger";
 
 export function ApiGetAuditByEntity() {
   return applyDecorators(
-    ApiBearerAuth('JWT-auth'),
-    ApiOperation({ 
-      summary: 'Obtener auditoría por entidad - Acceso: ADMIN',
-      description: 'Obtiene una lista paginada de registros de auditoría de una entidad específica. Solo accesible para administradores.' 
+    ApiBearerAuth("JWT-auth"),
+    ApiOperation({
+      summary: "Obtener auditoría por entidad - Acceso: ADMIN",
+      description: "Obtiene una lista paginada de registros de auditoría de una entidad específica. Solo accesible para administradores.",
     }),
     ApiParam({
-      name: 'entityId',
+      name: "entityId",
       type: String,
-      description: 'ID único de la entidad para obtener su auditoría (UUID)',
-      example: 'b8c4e4b2-1234-5678-9abc-def123456789'
+      description: "ID único de la entidad para obtener su auditoría (UUID)",
+      example: "b8c4e4b2-1234-5678-9abc-def123456789",
     }),
-    ApiQuery({
-      name: 'page',
-      required: false,
-      type: Number,
-      description: 'Número de página para la paginación',
-      example: 1
+    ApiExtraModels(PaginationDto),
+    ApiResponse({
+      status: 200,
+      description: "Registros de auditoría de la entidad obtenidos exitosamente",
+      type: AuditLogListResponseDto,
     }),
-    ApiQuery({
-      name: 'limit',
-      required: false,
-      type: Number,
-      description: 'Número de elementos por página',
-      example: 20
-    }),
-    ApiResponse({ 
-      status: 200, 
-      description: 'Registros de auditoría de la entidad obtenidos exitosamente',
-      type: AuditLogListResponseDto
-    }),
-    ApiUnauthorizedResponse({ 
-      description: 'No autorizado - Token JWT inválido o faltante'
+    ApiUnauthorizedResponse({
+      description: "No autorizado - Token JWT inválido o faltante",
     }),
     ApiForbiddenResponse({
-      description: 'Acceso denegado - Se requieren permisos de administrador'
+      description: "Acceso denegado - Se requieren permisos de administrador",
     }),
     ApiNotFoundResponse({
-      description: 'Entidad no encontrada con el ID proporcionado'
-    })
+      description: "Entidad no encontrada con el ID proporcionado",
+    }),
   );
 }

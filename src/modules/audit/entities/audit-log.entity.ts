@@ -48,8 +48,7 @@ export class AuditLog {
 
   @Column({
     name: "entity_type",
-    type: "varchar",
-    length: 50,
+    type: "text",
     nullable: false,
     comment: "Type of entity that was affected (User, Book, etc.)",
   })
