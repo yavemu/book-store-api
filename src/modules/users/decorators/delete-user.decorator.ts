@@ -1,43 +1,62 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
+import {
+  ApiOperation,
+  ApiResponse,
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiBearerAuth,
-  ApiParam
+  ApiParam,
+  getSchemaPath,
 } from '@nestjs/swagger';
-import { DeleteUserResponseDto } from '../dto';
+import { SuccessResponseDto } from '../../../common/dto/success-response.dto';
 
 export function ApiDeleteUser() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
-    ApiOperation({ 
+    ApiOperation({
       summary: 'Eliminar usuario del sistema - Acceso: ADMIN',
-      description: 'Realiza una eliminación lógica (soft delete) de un usuario del sistema. Solo accesible para administradores.' 
+      description:
+        'Realiza una eliminación lógica (soft delete) de un usuario del sistema. Solo accesible para administradores.',
     }),
     ApiParam({
       name: 'id',
       type: String,
       description: 'ID único del usuario a eliminar (UUID)',
-      example: 'b8c4e4b2-1234-5678-9abc-def123456789'
+      example: 'b8c4e4b2-1234-5678-9abc-def123456789',
     }),
-    ApiResponse({ 
-      status: 200, 
+    ApiResponse({
+      status: 200,
       description: 'Usuario eliminado exitosamente del sistema',
-      type: DeleteUserResponseDto
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(SuccessResponseDto) },
+          {
+            properties: {
+              data: {
+                type: 'object',
+                properties: {
+                  id: {
+                    type: 'string',
+                    example: 'b8c4e4b2-1234-5678-9abc-def123456789',
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
     }),
-    ApiUnauthorizedResponse({ 
+    ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',
       schema: {
         type: 'object',
         properties: {
           statusCode: { type: 'number', example: 401 },
           message: { type: 'string', example: 'No autorizado' },
-          error: { type: 'string', example: 'Sin autorización' }
-        }
-      }
+          error: { type: 'string', example: 'Sin autorización' },
+        },
+      },
     }),
     ApiForbiddenResponse({
       description: 'Acceso denegado - Se requieren permisos de administrador',
@@ -46,9 +65,9 @@ export function ApiDeleteUser() {
         properties: {
           statusCode: { type: 'number', example: 403 },
           message: { type: 'string', example: 'Acceso denegado' },
-          error: { type: 'string', example: 'Prohibido' }
-        }
-      }
+          error: { type: 'string', example: 'Prohibido' },
+        },
+      },
     }),
     ApiNotFoundResponse({
       description: 'Usuario no encontrado con el ID proporcionado',
@@ -57,9 +76,9 @@ export function ApiDeleteUser() {
         properties: {
           statusCode: { type: 'number', example: 404 },
           message: { type: 'string', example: 'Usuario no encontrado' },
-          error: { type: 'string', example: 'No encontrado' }
-        }
-      }
-    })
+          error: { type: 'string', example: 'No encontrado' },
+        },
+      },
+    }),
   );
 }

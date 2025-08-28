@@ -1,31 +1,43 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { IUserRepository } from '../interfaces/user.repository.interface';
-import { User } from "../entities/user.entity";
-import { CreateUserDto } from "../dto/create-user.dto";
-import { UpdateUserDto } from "../dto/update-user.dto";
-import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
-import { RegisterUserDto } from "../dto";
+import { User } from '../entities/user.entity';
+import { CreateUserDto } from '../dto/create-user.dto';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import {
+  PaginationDto,
+  PaginatedResult,
+} from '../../../common/dto/pagination.dto';
+import { RegisterUserDto } from '../dto';
+import { SuccessResponseDto } from '../../../common/dto/success-response.dto';
 
 @Injectable()
 export class UserService {
   constructor(
-    @Inject("IUserRepository")
+    @Inject('IUserRepository')
     private readonly userRepository: IUserRepository,
   ) {}
 
-  async create(createUserDto: CreateUserDto, createdBy?: string): Promise<User> {
-    return await this.userRepository.registerUser(createUserDto, createdBy);
+  async create(
+    createUserDto: CreateUserDto,
+    createdBy?: string,
+  ): Promise<SuccessResponseDto<User>> {
+    return this.userRepository.registerUser(createUserDto, createdBy);
   }
 
-  async register(registerUser: RegisterUserDto, createdBy?: string): Promise<User> {
-    return await this.userRepository.registerUser(registerUser, createdBy);
+  async register(
+    registerUser: RegisterUserDto,
+    createdBy?: string,
+  ): Promise<SuccessResponseDto<User>> {
+    return this.userRepository.registerUser(registerUser, createdby);
   }
 
-  async findAll(pagination: PaginationDto): Promise<PaginatedResult<User>> {
+  async findAll(
+    pagination: PaginationDto,
+  ): Promise<SuccessResponseDto<PaginatedResult<User>>> {
     return this.userRepository.getAllUsers(pagination);
   }
 
-  async findById(id: string): Promise<User> {
+  async findById(id: string): Promise<SuccessResponseDto<User>> {
     return this.userRepository.getUserProfile(id);
   }
 
@@ -37,12 +49,18 @@ export class UserService {
     return this.userRepository.checkEmailExists(email);
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto, updatedBy?: string): Promise<User> {
-    return await this.userRepository.updateUserProfile(id, updateUserDto, updatedBy);
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    updatedBy?: string,
+  ): Promise<SuccessResponseDto<User>> {
+    return this.userRepository.updateUserProfile(id, updateUserDto, updatedBy);
   }
 
-  async softDelete(id: string, deletedBy?: string): Promise<{ message: string }> {
-    await this.userRepository.deactivateUser(id, deletedBy);
-    return { message: "User deleted successfully" };
+  async softDelete(
+    id: string,
+    deletedBy?: string,
+  ): Promise<SuccessResponseDto<{ id: string }>> {
+    return this.userRepository.deactivateUser(id, deletedBy);
   }
 }

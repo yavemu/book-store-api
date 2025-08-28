@@ -1,55 +1,69 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
+import {
+  ApiOperation,
+  ApiResponse,
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
   ApiBearerAuth,
-  ApiQuery
+  ApiQuery,
+  ApiExtraModels,
+  getSchemaPath,
 } from '@nestjs/swagger';
 import { AuditLogListResponseDto } from '../dto/audit-response.dto';
-import { ApiExtraModels } from "@nestjs/swagger";
 import { PaginationDto } from '../../../common/dto';
+import { SuccessResponseDto } from '../../../common/dto/success-response.dto';
 
 export function ApiSearchAuditLogs() {
   return applyDecorators(
-    ApiBearerAuth("JWT-auth"),
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
-      summary: "Buscar registros de auditoría - Acceso: ADMIN",
-      description: "Busca registros de auditoría por término en el campo de detalles. Solo accesible para administradores.",
+      summary: 'Buscar registros de auditoría - Acceso: ADMIN',
+      description:
+        'Busca registros de auditoría por término en el campo de detalles. Solo accesible para administradores.',
     }),
     ApiQuery({
-      name: "term",
+      name: 'term',
       required: true,
       type: String,
-      description: "Término de búsqueda para filtrar por detalles de auditoría",
-      example: "john_doe",
+      description: 'Término de búsqueda para filtrar por detalles de auditoría',
+      example: 'john_doe',
     }),
-    ApiExtraModels(PaginationDto),
+    ApiExtraModels(PaginationDto, SuccessResponseDto, AuditLogListResponseDto),
     ApiResponse({
       status: 200,
-      description: "Resultados de búsqueda de auditoría obtenidos exitosamente",
-      type: AuditLogListResponseDto,
+      description: 'Resultados de búsqueda de auditoría obtenidos exitosamente',
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(SuccessResponseDto) },
+          {
+            properties: {
+              data: {
+                $ref: getSchemaPath(AuditLogListResponseDto),
+              },
+            },
+          },
+        ],
+      },
     }),
     ApiUnauthorizedResponse({
-      description: "No autorizado - Token JWT inválido o faltante",
+      description: 'No autorizado - Token JWT inválido o faltante',
       schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          statusCode: { type: "number", example: 401 },
-          message: { type: "string", example: "No autorizado" },
-          error: { type: "string", example: "Sin autorización" },
+          statusCode: { type: 'number', example: 401 },
+          message: { type: 'string', example: 'No autorizado' },
+          error: { type: 'string', example: 'Sin autorización' },
         },
       },
     }),
     ApiForbiddenResponse({
-      description: "Acceso denegado - Se requieren permisos de administrador",
+      description: 'Acceso denegado - Se requieren permisos de administrador',
       schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          statusCode: { type: "number", example: 403 },
-          message: { type: "string", example: "Acceso denegado" },
-          error: { type: "string", example: "Prohibido" },
+          statusCode: { type: 'number', example: 403 },
+          message: { type: 'string', example: 'Acceso denegado' },
+          error: { type: 'string', example: 'Prohibido' },
         },
       },
     }),
