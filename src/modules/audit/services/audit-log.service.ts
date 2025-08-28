@@ -3,7 +3,11 @@ import { IAuditLogRepository } from '../interfaces/audit-log.repository.interfac
 import { IAuditLogService } from '../interfaces/audit-log.service.interface';
 import { AuditLog } from '../entities/audit-log.entity';
 import { AuditAction } from '../enums/audit-action.enum';
-import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import {
+  PaginationDto,
+  PaginatedResult,
+} from '../../../common/dto/pagination.dto';
+import { SuccessResponseDto } from '../../../common/dto/success-response.dto';
 
 @Injectable()
 export class AuditLogService implements IAuditLogService {
@@ -18,7 +22,7 @@ export class AuditLogService implements IAuditLogService {
     action: AuditAction,
     details: string,
     entityType: string,
-  ): Promise<AuditLog> {
+  ): Promise<SuccessResponseDto<AuditLog>> {
     return this.auditLogRepository.logUserAction(
       performedBy,
       entityId,
@@ -34,31 +38,48 @@ export class AuditLogService implements IAuditLogService {
     action: AuditAction,
     details: string,
     entityType: string,
-  ): Promise<AuditLog> {
+  ): Promise<SuccessResponseDto<AuditLog>> {
     return this.logOperation(performedBy, entityId, action, details, entityType);
   }
 
-  async getAuditTrail(pagination: PaginationDto): Promise<PaginatedResult<AuditLog>> {
+  async getAuditTrail(
+    pagination: PaginationDto,
+  ): Promise<SuccessResponseDto<PaginatedResult<AuditLog>>> {
     return this.auditLogRepository.getAuditTrail(pagination);
   }
 
-  async getUserAuditHistory(userId: string, pagination: PaginationDto): Promise<PaginatedResult<AuditLog>> {
+  async getUserAuditHistory(
+    userId: string,
+    pagination: PaginationDto,
+  ): Promise<SuccessResponseDto<PaginatedResult<AuditLog>>> {
     return this.auditLogRepository.getUserAuditHistory(userId, pagination);
   }
 
-  async getEntityAuditHistory(entityId: string, pagination: PaginationDto): Promise<PaginatedResult<AuditLog>> {
+  async getEntityAuditHistory(
+    entityId: string,
+    pagination: PaginationDto,
+  ): Promise<SuccessResponseDto<PaginatedResult<AuditLog>>> {
     return this.auditLogRepository.getEntityAuditHistory(entityId, pagination);
   }
 
-  async getAuditsByAction(action: AuditAction, pagination: PaginationDto): Promise<PaginatedResult<AuditLog>> {
+  async getAuditsByAction(
+    action: AuditAction,
+    pagination: PaginationDto,
+  ): Promise<SuccessResponseDto<PaginatedResult<AuditLog>>> {
     return this.auditLogRepository.getAuditsByAction(action, pagination);
   }
 
-  async getAuditsByEntityType(entityType: string, pagination: PaginationDto): Promise<PaginatedResult<AuditLog>> {
+  async getAuditsByEntityType(
+    entityType: string,
+    pagination: PaginationDto,
+  ): Promise<SuccessResponseDto<PaginatedResult<AuditLog>>> {
     return this.auditLogRepository.getAuditsByEntityType(entityType, pagination);
   }
 
-  async searchAuditLogs(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<AuditLog>> {
+  async searchAuditLogs(
+    searchTerm: string,
+    pagination: PaginationDto,
+  ): Promise<SuccessResponseDto<PaginatedResult<AuditLog>>> {
     return this.auditLogRepository.searchAuditLogs(searchTerm, pagination);
   }
 }
