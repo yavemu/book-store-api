@@ -15,24 +15,35 @@ export function ApiCreateBookGenre() {
       summary: 'Crear nuevo género de libro - Acceso: ADMIN',
       description: 'Crea un nuevo género de libro en el catálogo. Solo accesible para administradores.' 
     }),
-    ApiResponse({ 
-      status: 201, 
+    ApiResponse({
+      status: 201,
       description: 'Género de libro creado exitosamente',
       schema: {
         type: 'object',
         properties: {
-          message: { type: 'string', example: 'Género creado exitosamente' },
-          genre: {
+          success: { type: 'boolean', example: true },
+          message: {
+            type: 'string',
+            example: 'Género de libro creado exitosamente',
+          },
+          data: {
             type: 'object',
             properties: {
               id: { type: 'string', example: 'genre-uuid-123' },
               name: { type: 'string', example: 'Ciencia Ficción' },
-              description: { type: 'string', example: 'Libros del género de ciencia ficción' },
-              createdAt: { type: 'string', example: '2024-01-01T00:00:00.000Z' }
-            }
-          }
-        }
-      }
+              description: {
+                type: 'string',
+                example: 'Libros del género de ciencia ficción',
+              },
+              createdAt: {
+                type: 'string',
+                format: 'date-time',
+                example: '2024-01-01T00:00:00.000Z',
+              },
+            },
+          },
+        },
+      },
     }),
     ApiBadRequestResponse({
       description: 'Datos de entrada inválidos o errores de validación',
