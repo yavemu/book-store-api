@@ -1,34 +1,48 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
+import {
+  ApiOperation,
+  ApiResponse,
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiBadRequestResponse,
   ApiConflictResponse,
   ApiBearerAuth,
-  ApiParam
+  ApiParam,
+  getSchemaPath,
 } from '@nestjs/swagger';
-import { UpdateUserResponseDto } from '../dto';
+import { UserResponseDto } from '../dto/user-response.dto';
+import { SuccessResponseDto } from '../../../common/dto/success-response.dto';
 
 export function ApiUpdateUser() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
-    ApiOperation({ 
+    ApiOperation({
       summary: 'Actualizar información de usuario - Acceso: ADMIN',
-      description: 'Actualiza la información de un usuario existente. Los usuarios pueden actualizar su propio perfil, los administradores pueden actualizar cualquier usuario.' 
+      description:
+        'Actualiza la información de un usuario existente. Los usuarios pueden actualizar su propio perfil, los administradores pueden actualizar cualquier usuario.',
     }),
     ApiParam({
       name: 'id',
       type: String,
       description: 'ID único del usuario a actualizar (UUID)',
-      example: 'b8c4e4b2-1234-5678-9abc-def123456789'
+      example: 'b8c4e4b2-1234-5678-9abc-def123456789',
     }),
-    ApiResponse({ 
-      status: 200, 
+    ApiResponse({
+      status: 200,
       description: 'Usuario actualizado exitosamente',
-      type: UpdateUserResponseDto
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(SuccessResponseDto) },
+          {
+            properties: {
+              data: {
+                $ref: getSchemaPath(UserResponseDto),
+              },
+            },
+          },
+        ],
+      },
     }),
     ApiBadRequestResponse({
       description: 'Datos de entrada inválidos o errores de validación',
@@ -36,39 +50,40 @@ export function ApiUpdateUser() {
         type: 'object',
         properties: {
           statusCode: { type: 'number', example: 400 },
-          message: { 
-            type: 'array', 
+          message: {
+            type: 'array',
             items: { type: 'string' },
             example: [
               'El nombre de usuario debe tener al menos 3 caracteres',
-              'Debe proporcionar un email válido'
-            ]
+              'Debe proporcionar un email válido',
+            ],
           },
-          error: { type: 'string', example: 'Solicitud incorrecta' }
-        }
-      }
+          error: { type: 'string', example: 'Solicitud incorrecta' },
+        },
+      },
     }),
-    ApiUnauthorizedResponse({ 
+    ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',
       schema: {
         type: 'object',
         properties: {
           statusCode: { type: 'number', example: 401 },
           message: { type: 'string', example: 'No autorizado' },
-          error: { type: 'string', example: 'Sin autorización' }
-        }
-      }
+          error: { type: 'string', example: 'Sin autorización' },
+        },
+      },
     }),
     ApiForbiddenResponse({
-      description: 'Acceso denegado - No tiene permisos para actualizar este usuario',
+      description:
+        'Acceso denegado - No tiene permisos para actualizar este usuario',
       schema: {
         type: 'object',
         properties: {
           statusCode: { type: 'number', example: 403 },
           message: { type: 'string', example: 'Acceso denegado' },
-          error: { type: 'string', example: 'Prohibido' }
-        }
-      }
+          error: { type: 'string', example: 'Prohibido' },
+        },
+      },
     }),
     ApiNotFoundResponse({
       description: 'Usuario no encontrado con el ID proporcionado',
@@ -77,9 +92,9 @@ export function ApiUpdateUser() {
         properties: {
           statusCode: { type: 'number', example: 404 },
           message: { type: 'string', example: 'Usuario no encontrado' },
-          error: { type: 'string', example: 'No encontrado' }
-        }
-      }
+          error: { type: 'string', example: 'No encontrado' },
+        },
+      },
     }),
     ApiConflictResponse({
       description: 'Conflicto - El nombre de usuario o email ya están en uso',
@@ -88,9 +103,9 @@ export function ApiUpdateUser() {
         properties: {
           statusCode: { type: 'number', example: 409 },
           message: { type: 'string', example: 'El email ya está registrado' },
-          error: { type: 'string', example: 'Conflicto' }
-        }
-      }
-    })
+          error: { type: 'string', example: 'Conflicto' },
+        },
+      },
+    }),
   );
 }
