@@ -1,6 +1,6 @@
-import { IsString, IsNotEmpty, Length, IsOptional, IsNumber, IsBoolean, IsUUID, IsDateString, Min, IsUrl } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type, Transform } from 'class-transformer';
+import { IsString, IsNotEmpty, Length, IsOptional, IsNumber, IsBoolean, IsUUID, IsDateString, Min, IsUrl, IsDate } from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Type, Transform } from "class-transformer";
 
 export class CreateBookCatalogDto {
   @IsString()
@@ -68,15 +68,15 @@ export class CreateBookCatalogDto {
   })
   coverImageUrl?: string;
 
-  @IsDateString()
+  @IsDate()
   @IsOptional()
-  @Transform(({ value }) => (value ? new Date(value) : undefined))
+  @Type(() => Date)
   @ApiPropertyOptional({
     description: "Date when the book was published",
     example: "1977-01-28",
     format: "date",
   })
-  publicationDate?: Date;
+  publicationDate?: string;
 
   @IsNumber()
   @Min(1)

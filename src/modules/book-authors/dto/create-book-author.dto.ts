@@ -1,6 +1,6 @@
-import { IsString, IsNotEmpty, Length, IsOptional, IsDateString } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { IsString, IsNotEmpty, Length, IsOptional, IsDate } from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 
 export class CreateBookAuthorDto {
   @IsString()
@@ -36,15 +36,15 @@ export class CreateBookAuthorDto {
   })
   nationality?: string;
 
-  @IsDateString()
+  @IsDate()
   @IsOptional()
-  @Transform(({ value }) => (value ? new Date(value) : undefined))
+  @Type(() => Date)
   @ApiPropertyOptional({
     description: "Birth date of the author",
     example: "1947-09-21",
     format: "date",
   })
-  birthDate?: Date;
+  birthDate?: string;
 
   @IsString()
   @IsOptional()
