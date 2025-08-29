@@ -18,6 +18,7 @@ export class CreateRoleDto {
     description: "Descripción detallada del rol y sus responsabilidades",
     example: "Manager con permisos de gestión de libros y usuarios",
     maxLength: 500,
+    required: false,
   })
   @IsOptional()
   @IsString({ message: "La descripción debe ser una cadena de texto" })
@@ -28,11 +29,13 @@ export class CreateRoleDto {
     description: "Array de permisos asignados al rol",
     example: ["books:read", "books:write", "users:read"],
     type: [String],
+    required: false,
   })
   @ApiPropertyOptional({
     description: "Estado del rol (activo/inactivo)",
     example: true,
     default: true,
+    required: false,
   })
   @IsOptional()
   @IsBoolean({ message: "El estado activo debe ser un valor booleano" })

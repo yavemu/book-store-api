@@ -23,6 +23,7 @@ export class CreateBookAuthorAssignmentDto {
     description: 'Role of the author in this book (e.g., "Main Author", "Co-Author")',
     example: 'Main Author',
     maxLength: 100,
+    required: false,
   })
   authorRole?: string;
 }

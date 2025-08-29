@@ -15,7 +15,8 @@ export class RoleResponseDto {
 
   @ApiPropertyOptional({ 
     description: 'Descripción del rol', 
-    example: 'Manager con permisos de gestión de libros y usuarios' 
+    example: 'Manager con permisos de gestión de libros y usuarios',
+    required: false,
   })
   description?: string;
 

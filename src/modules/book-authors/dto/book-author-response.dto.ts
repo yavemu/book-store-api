@@ -24,6 +24,7 @@ export class BookAuthorResponseDto {
   @ApiPropertyOptional({
     description: "Nacionalidad del autor",
     example: "Estadounidense",
+    required: false,
   })
   nationality?: string;
 
@@ -34,12 +35,14 @@ export class BookAuthorResponseDto {
     description: "Birth date of the author",
     example: "1947-10-21",
     format: "date",
+    required: false,
   })
   birthDate?: Date;
 
   @ApiPropertyOptional({
     description: "Biografía del autor",
     example: "Stephen Edwin King es un escritor estadounidense de novelas de terror, ficción sobrenatural, suspenso, ciencia ficción y fantasía.",
+    required: false,
   })
   biography?: string;
 

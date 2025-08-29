@@ -42,6 +42,7 @@ export class BookCatalogResponseDto {
   @ApiPropertyOptional({
     description: "URL de la imagen de portada del libro",
     example: "https://example.com/covers/the-shining.jpg",
+    required: false,
   })
   coverImageUrl?: string;
 
@@ -51,18 +52,21 @@ export class BookCatalogResponseDto {
   @ApiPropertyOptional({
     description: "Fecha de publicación del libro",
     example: "1977-01-28T00:00:00.000Z",
+    required: false,
   })
   publicationDate?: Date;
 
   @ApiPropertyOptional({
     description: "Número de páginas del libro",
     example: 447,
+    required: false,
   })
   pageCount?: number;
 
   @ApiPropertyOptional({
     description: "Resumen o descripción del libro",
     example: "Una novela de terror psicológico que cuenta la historia de Jack Torrance...",
+    required: false,
   })
   summary?: string;
 

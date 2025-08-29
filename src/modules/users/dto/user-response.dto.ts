@@ -30,6 +30,7 @@ export class UserResponseDto {
   @ApiPropertyOptional({
     description: 'ID del rol personalizado asignado al usuario',
     example: 'role-uuid-123',
+    required: false,
   })
   roleId?: string;
 

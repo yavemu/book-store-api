@@ -7,7 +7,8 @@ export class BookFiltersDto {
   @IsString()
   @ApiPropertyOptional({ 
     description: 'Search term for book title',
-    example: 'Harry Potter'
+    example: 'Harry Potter',
+    required: false,
   })
   title?: string;
 
@@ -16,7 +17,8 @@ export class BookFiltersDto {
   @ApiPropertyOptional({ 
     description: 'Filter by genre ID',
     example: '550e8400-e29b-41d4-a716-446655440000',
-    format: 'uuid'
+    format: 'uuid',
+    required: false,
   })
   genreId?: string;
 
@@ -25,7 +27,8 @@ export class BookFiltersDto {
   @ApiPropertyOptional({ 
     description: 'Filter by publisher ID',
     example: '550e8400-e29b-41d4-a716-446655440001',
-    format: 'uuid'
+    format: 'uuid',
+    required: false,
   })
   publisherId?: string;
 
@@ -34,7 +37,8 @@ export class BookFiltersDto {
   @Type(() => Boolean)
   @ApiPropertyOptional({ 
     description: 'Filter by availability status',
-    example: true
+    example: true,
+    required: false,
   })
   isAvailable?: boolean;
 
@@ -45,7 +49,8 @@ export class BookFiltersDto {
   @ApiPropertyOptional({ 
     description: 'Minimum price filter',
     example: 10.00,
-    minimum: 0
+    minimum: 0,
+    required: false,
   })
   minPrice?: number;
 
@@ -56,7 +61,8 @@ export class BookFiltersDto {
   @ApiPropertyOptional({ 
     description: 'Maximum price filter',
     example: 50.00,
-    minimum: 0
+    minimum: 0,
+    required: false,
   })
   maxPrice?: number;
 
@@ -64,7 +70,8 @@ export class BookFiltersDto {
   @IsString()
   @ApiPropertyOptional({ 
     description: 'Search term for author name',
-    example: 'J.K. Rowling'
+    example: 'J.K. Rowling',
+    required: false,
   })
   author?: string;
 }

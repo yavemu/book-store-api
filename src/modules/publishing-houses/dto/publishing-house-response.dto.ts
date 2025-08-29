@@ -16,12 +16,14 @@ export class PublishingHouseResponseDto {
   @ApiPropertyOptional({
     description: "País donde se ubica la editorial",
     example: "Estados Unidos",
+    required: false,
   })
   country?: string;
 
   @ApiPropertyOptional({
     description: "URL del sitio web oficial de la editorial",
     example: "https://www.penguinrandomhouse.com",
+    required: false,
   })
   websiteUrl?: string;
 

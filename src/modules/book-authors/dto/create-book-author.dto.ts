@@ -33,6 +33,7 @@ export class CreateBookAuthorDto {
     example: "American",
     minLength: 2,
     maxLength: 50,
+    required: false,
   })
   nationality?: string;
 
@@ -43,6 +44,7 @@ export class CreateBookAuthorDto {
     description: "Birth date of the author",
     example: "1947-10-21",
     format: "date",
+    required: false,
   })
   birthDate?: Date;
 
@@ -51,6 +53,7 @@ export class CreateBookAuthorDto {
   @ApiPropertyOptional({
     description: "Biography or description of the author",
     example: "Stephen Edwin King is an American author of horror, supernatural fiction, suspense, crime, science-fiction, and fantasy novels.",
+    required: false,
   })
   biography?: string;
 }

@@ -44,6 +44,7 @@ export class CreateBookCatalogDto {
     description: "Indicates if the book is available for purchase",
     example: true,
     default: true,
+    required: false,
   })
   isAvailable?: boolean = true;
 
@@ -56,6 +57,7 @@ export class CreateBookCatalogDto {
     example: 25,
     minimum: 0,
     default: 0,
+    required: false,
   })
   stockQuantity?: number = 0;
 
@@ -65,6 +67,7 @@ export class CreateBookCatalogDto {
     description: "URL of the book cover image",
     example: "https://example.com/covers/the-shining.jpg",
     format: "url",
+    required: false,
   })
   coverImageUrl?: string;
 
@@ -75,6 +78,7 @@ export class CreateBookCatalogDto {
     description: "Date when the book was published",
     example: "1947-09-21",
     format: "date",
+    required: false,
   })
   publicationDate?: Date;
 
@@ -86,6 +90,7 @@ export class CreateBookCatalogDto {
     description: "Number of pages in the book",
     example: 447,
     minimum: 1,
+    required: false,
   })
   pageCount?: number;
 
@@ -95,6 +100,7 @@ export class CreateBookCatalogDto {
     description: "Summary or description of the book",
     example:
       "A psychological horror novel that tells the story of Jack Torrance, an aspiring writer and recovering alcoholic who accepts a position as the off-season caretaker of the isolated historic Overlook Hotel.",
+    required: false,
   })
   summary?: string;
 

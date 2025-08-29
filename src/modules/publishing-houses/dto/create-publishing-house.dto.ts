@@ -21,6 +21,7 @@ export class CreatePublishingHouseDto {
     example: "United States",
     minLength: 2,
     maxLength: 50,
+    required: false,
   })
   country?: string;
 
@@ -30,6 +31,7 @@ export class CreatePublishingHouseDto {
     description: "Official website URL of the publishing house",
     example: "https://www.penguinrandomhouse.com",
     format: "url",
+    required: false,
   })
   websiteUrl?: string;
 }
