@@ -40,7 +40,7 @@ export class RoleCrudService implements IRoleCrudService {
 
       return await this.crudRepository.create(createRoleDto, performedBy);
     } catch (error) {
-      this.errorHandler.handleError(
+      throw this.errorHandler.handleError(
         error,
         ERROR_MESSAGES.ROLES?.FAILED_TO_CREATE || 'Failed to create role'
       );
@@ -51,7 +51,7 @@ export class RoleCrudService implements IRoleCrudService {
     try {
       return await this.crudRepository.findAll(pagination);
     } catch (error) {
-      this.errorHandler.handleError(
+      throw this.errorHandler.handleError(
         error,
         ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to retrieve roles'
       );
@@ -62,13 +62,13 @@ export class RoleCrudService implements IRoleCrudService {
     try {
       const role = await this.crudRepository.findOne(id);
       if (!role) {
-        this.errorHandler.createNotFoundException(
+        throw this.errorHandler.createNotFoundException(
           ERROR_MESSAGES.ROLES?.NOT_FOUND || 'Role not found'
         );
       }
       return role;
     } catch (error) {
-      this.errorHandler.handleError(
+      throw this.errorHandler.handleError(
         error,
         ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to retrieve role'
       );
@@ -87,7 +87,7 @@ export class RoleCrudService implements IRoleCrudService {
 
       return await this.crudRepository.update(id, updateRoleDto, performedBy);
     } catch (error) {
-      this.errorHandler.handleError(
+      throw this.errorHandler.handleError(
         error,
         ERROR_MESSAGES.ROLES?.FAILED_TO_UPDATE || 'Failed to update role'
       );
@@ -99,7 +99,7 @@ export class RoleCrudService implements IRoleCrudService {
       await this.findOne(id);
       await this.crudRepository.remove(id, performedBy);
     } catch (error) {
-      this.errorHandler.handleError(
+      throw this.errorHandler.handleError(
         error,
         ERROR_MESSAGES.ROLES?.FAILED_TO_DELETE || 'Failed to delete role'
       );

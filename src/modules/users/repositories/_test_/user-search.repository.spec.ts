@@ -30,8 +30,10 @@ const mockUser: Partial<User> = {
 describe('UserSearchRepository', () => {
   let repository: UserSearchRepository;
   let userRepo: Repository<User>;
+  let consoleSpy: jest.SpyInstance;
 
   beforeEach(async () => {
+    consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserSearchRepository,
@@ -55,6 +57,10 @@ describe('UserSearchRepository', () => {
     repository = module.get<UserSearchRepository>(UserSearchRepository);
     userRepo = module.get<Repository<User>>(getRepositoryToken(User));
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    consoleSpy.mockRestore();
   });
 
   it('should be defined', () => {

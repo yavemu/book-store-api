@@ -20,13 +20,13 @@ export class RoleSearchService implements IRoleSearchService {
     try {
       const role = await this.searchRepository.findByName(name);
       if (!role) {
-        this.errorHandler.createNotFoundException(
+        throw this.errorHandler.createNotFoundException(
           ERROR_MESSAGES.ROLES?.NOT_FOUND || 'Role not found'
         );
       }
       return role;
     } catch (error) {
-      this.errorHandler.handleError(
+      throw this.errorHandler.handleError(
         error,
         ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to retrieve role'
       );
@@ -37,7 +37,7 @@ export class RoleSearchService implements IRoleSearchService {
     try {
       return await this.searchRepository.findActiveRoles(pagination);
     } catch (error) {
-      this.errorHandler.handleError(
+      throw this.errorHandler.handleError(
         error,
         ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to retrieve active roles'
       );
@@ -48,7 +48,7 @@ export class RoleSearchService implements IRoleSearchService {
     try {
       return await this.searchRepository.findRolesByPermission(permission, pagination);
     } catch (error) {
-      this.errorHandler.handleError(
+      throw this.errorHandler.handleError(
         error,
         ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to retrieve roles by permission'
       );
@@ -59,7 +59,7 @@ export class RoleSearchService implements IRoleSearchService {
     try {
       return await this.searchRepository.searchRoles(term, pagination);
     } catch (error) {
-      this.errorHandler.handleError(
+      throw this.errorHandler.handleError(
         error,
         ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to search roles'
       );
