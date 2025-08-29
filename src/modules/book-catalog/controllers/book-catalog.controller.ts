@@ -9,13 +9,16 @@ import {
   Query,
   Inject,
   Request,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { IBookCatalogCrudService } from '../interfaces/book-catalog-crud.service.interface';
 import { IBookCatalogSearchService } from '../interfaces/book-catalog-search.service.interface';
 import { CreateBookCatalogDto } from '../dto/create-book-catalog.dto';
 import { UpdateBookCatalogDto } from '../dto/update-book-catalog.dto';
 import { BookFiltersDto } from "../dto/book-filters.dto";
+import { CsvExportFiltersDto } from "../dto/csv-export-filters.dto";
 import {
   ApiCreateBook,
   ApiGetBooks,
@@ -27,7 +30,8 @@ import {
   ApiGetAvailableBooks,
   ApiGetBooksByGenre,
   ApiGetBooksByPublisher,
-  ApiCheckIsbn
+  ApiCheckIsbn,
+  ApiExportBooksCsv
 } from '../decorators';
 import { UserRole } from "../../../modules/users/enums";
 import { Auth } from "../../../common/decorators/auth.decorator";
@@ -112,6 +116,32 @@ export class BookCatalogController {
   @ApiCheckIsbn()
   async checkIsbn(@Param('isbn') isbn: string) {
     return this.bookCatalogSearchService.checkIsbnExists(isbn);
+  }
+
+  @Get('export/csv')
+  @Auth(UserRole.ADMIN, UserRole.USER)
+  @ApiExportBooksCsv()
+  async exportToCsv(
+    @Query() filters: CsvExportFiltersDto,
+    @Res() res: Response,
+  ) {
+    const csvData = await this.bookCatalogSearchService.exportToCsv(filters);
+    
+    // Generate filename with current date
+    const currentDate = new Date().toISOString().split('T')[0];
+    const filename = `catalogo-libros-${currentDate}.csv`;
+    
+    // Set response headers for CSV download
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    
+    // Add BOM for UTF-8 to ensure proper encoding in Excel
+    const csvWithBom = '\uFEFF' + csvData;
+    
+    return res.send(csvWithBom);
   }
 
   @Get(':id')
