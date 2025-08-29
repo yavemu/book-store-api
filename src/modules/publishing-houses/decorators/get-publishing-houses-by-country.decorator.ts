@@ -12,7 +12,6 @@ export function ApiGetPublishingHousesByCountry() {
     ApiParam({
       name: "country",
       description: "Nombre del país para filtrar las editoriales",
-      example: "United States",
     }),
     ApiExtraModels(PaginationDto),
     ApiResponse({
@@ -25,8 +24,8 @@ export function ApiGetPublishingHousesByCountry() {
       schema: {
         type: "object",
         properties: {
-          statusCode: { type: "number", example: 401 },
-          message: { type: "string", example: "No autorizado" },
+          statusCode: { type: "number"},
+          message: { type: "string"},
         },
       },
     }),

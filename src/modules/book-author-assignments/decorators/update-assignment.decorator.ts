@@ -9,6 +9,7 @@ import {
   ApiNotFoundResponse,
   ApiBadRequestResponse
 } from '@nestjs/swagger';
+import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
 import { UpdateBookAuthorAssignmentDto } from '../dto';
 
 export function ApiUpdateAssignment() {
@@ -19,9 +20,7 @@ export function ApiUpdateAssignment() {
     }),
     ApiParam({
       name: 'id',
-      description: 'ID de la asignación libro-autor a actualizar',
-      example: '550e8400-e29b-41d4-a716-446655440000'
-    }),
+      description: 'ID de la asignación libro-autor a actualizar'}),
     ApiBody({
       type: UpdateBookAuthorAssignmentDto,
       description: 'Datos para actualizar la asignación libro-autor'
@@ -32,54 +31,29 @@ export function ApiUpdateAssignment() {
       schema: {
         type: 'object',
         properties: {
-          id: { type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' },
-          bookId: { type: 'string', example: '550e8400-e29b-41d4-a716-446655440001' },
-          authorId: { type: 'string', example: '550e8400-e29b-41d4-a716-446655440002' },
-          assignmentOrder: { type: 'number', example: 2 },
-          updatedAt: { type: 'string', example: '2024-01-02T00:00:00.000Z' }
+          id: { type: 'string'},
+          bookId: { type: 'string'},
+          authorId: { type: 'string'},
+          assignmentOrder: { type: 'number'},
+          updatedAt: { type: 'string'}
         }
       }
     }),
     ApiBadRequestResponse({
       description: 'Solicitud incorrecta - Datos de entrada inválidos',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 400 },
-          message: { type: 'array', items: { type: 'string' }, example: ['assignmentOrder must be a positive number'] },
-          error: { type: 'string', example: 'Bad Request' }
-        }
-      }
+      type: BadRequestResponseDto,
     }),
-    ApiUnauthorizedResponse({ 
+    ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 401 },
-          message: { type: 'string', example: 'No autorizado' }
-        }
-      }
+      type: UnauthorizedResponseDto,
     }),
     ApiForbiddenResponse({
       description: 'Acceso denegado - Se requieren permisos de administrador',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 403 },
-          message: { type: 'string', example: 'Acceso denegado' }
-        }
-      }
+      type: ForbiddenResponseDto,
     }),
     ApiNotFoundResponse({
       description: 'Asignación no encontrada',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 404 },
-          message: { type: 'string', example: 'Asignación no encontrada' }
-        }
-      }
-    })
+      type: NotFoundResponseDto,
+    }),
   );
 }

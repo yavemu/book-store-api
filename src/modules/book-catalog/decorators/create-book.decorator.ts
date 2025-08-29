@@ -6,9 +6,11 @@ import {
   ApiConflictResponse,
   ApiForbiddenResponse,
   ApiUnauthorizedResponse,
-  ApiBearerAuth
+  ApiBearerAuth,
+  getSchemaPath
 } from '@nestjs/swagger';
-import { CreateBookCatalogResponseDto } from '../dto';
+import { BookCatalogResponseDto } from '../dto';
+import { ApiResponseDto, BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto } from '../../../common/dto';
 
 export function ApiCreateBook() {
   return applyDecorators(
@@ -17,62 +19,37 @@ export function ApiCreateBook() {
       summary: 'Crear nuevo libro en el catálogo - Acceso: ADMIN',
       description: 'Crea un nuevo libro en el catálogo del sistema. Solo accesible para administradores.' 
     }),
-    ApiResponse({ 
-      status: 201, 
+    ApiResponse({
+      status: 201,
       description: 'Libro creado exitosamente en el catálogo',
-      type: CreateBookCatalogResponseDto
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(ApiResponseDto) },
+          {
+            properties: {
+              data: {
+                $ref: getSchemaPath(BookCatalogResponseDto),
+              },
+            },
+          },
+        ],
+      },
     }),
     ApiBadRequestResponse({
       description: 'Datos de entrada inválidos o errores de validación',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 400 },
-          message: { 
-            type: 'array', 
-            items: { type: 'string' },
-            example: [
-              'El título del libro es requerido',
-              'El código ISBN debe tener entre 10 y 13 caracteres',
-              'El precio debe ser un número positivo'
-            ]
-          },
-          error: { type: 'string', example: 'Solicitud incorrecta' }
-        }
-      }
+      type: BadRequestResponseDto,
     }),
     ApiUnauthorizedResponse({ 
       description: 'No autorizado - Token JWT inválido o faltante',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 401 },
-          message: { type: 'string', example: 'No autorizado' },
-          error: { type: 'string', example: 'Sin autorización' }
-        }
-      }
+      type: UnauthorizedResponseDto,
     }),
     ApiConflictResponse({
       description: 'El código ISBN ya existe en el catálogo',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 409 },
-          message: { type: 'string', example: 'El código ISBN ya está registrado en el catálogo' },
-          error: { type: 'string', example: 'Conflicto' }
-        }
-      }
+      type: ConflictResponseDto,
     }),
     ApiForbiddenResponse({
       description: 'Acceso denegado - Se requieren permisos de administrador',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 403 },
-          message: { type: 'string', example: 'Acceso denegado' },
-          error: { type: 'string', example: 'Prohibido' }
-        }
-      }
+      type: ForbiddenResponseDto,
     })
   );
 }

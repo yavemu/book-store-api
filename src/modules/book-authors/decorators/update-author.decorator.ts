@@ -10,6 +10,7 @@ import {
   ApiBearerAuth,
   ApiParam
 } from '@nestjs/swagger';
+import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
 import { UpdateBookAuthorResponseDto } from '../dto';
 
 export function ApiUpdateAuthor() {
@@ -22,9 +23,7 @@ export function ApiUpdateAuthor() {
     ApiParam({
       name: 'id',
       type: String,
-      description: 'ID único del autor a actualizar',
-      example: '550e8400-e29b-41d4-a716-446655440000'
-    }),
+      description: 'ID único del autor a actualizar'}),
     ApiResponse({ 
       status: 200, 
       description: 'Autor actualizado exitosamente',
@@ -32,66 +31,23 @@ export function ApiUpdateAuthor() {
     }),
     ApiBadRequestResponse({
       description: 'Datos de entrada inválidos o errores de validación',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 400 },
-          message: { 
-            type: 'array', 
-            items: { type: 'string' },
-            example: [
-              'El nombre debe tener entre 1 y 50 caracteres',
-              'El apellido debe tener entre 1 y 50 caracteres',
-              'La fecha de nacimiento debe ser una fecha válida'
-            ]
-          },
-          error: { type: 'string', example: 'Solicitud incorrecta' }
-        }
-      }
+      type: BadRequestResponseDto,
     }),
-    ApiUnauthorizedResponse({ 
+    ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 401 },
-          message: { type: 'string', example: 'No autorizado' },
-          error: { type: 'string', example: 'Sin autorización' }
-        }
-      }
+      type: UnauthorizedResponseDto,
     }),
     ApiForbiddenResponse({
       description: 'Acceso denegado - Se requieren permisos de administrador',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 403 },
-          message: { type: 'string', example: 'Acceso denegado' },
-          error: { type: 'string', example: 'Prohibido' }
-        }
-      }
+      type: ForbiddenResponseDto,
     }),
     ApiNotFoundResponse({
       description: 'Autor no encontrado',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 404 },
-          message: { type: 'string', example: 'Autor no encontrado' },
-          error: { type: 'string', example: 'No encontrado' }
-        }
-      }
+      type: NotFoundResponseDto,
     }),
     ApiConflictResponse({
       description: 'Ya existe otro autor con el mismo nombre y apellido',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 409 },
-          message: { type: 'string', example: 'Ya existe un autor con ese nombre y apellido' },
-          error: { type: 'string', example: 'Conflicto' }
-        }
-      }
-    })
+      type: ConflictResponseDto,
+    }),
   );
 }

@@ -1,0 +1,136 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { BookGenreRepository } from '../book-genre.repository';
+import { BookGenre } from '../../entities/book-genre.entity';
+import { CreateBookGenreDto, UpdateBookGenreDto } from '../../dto';
+import { PaginationDto } from '../../../../common/dto';
+import { HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
+import { IAuditLoggerService } from '../../../audit/interfaces/audit-logger.service.interface';
+
+const mockBookGenre: BookGenre = {
+    id: '1',
+    name: 'test',
+    description: 'test genre',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+};
+
+describe('BookGenreRepository', () => {
+    let repository: BookGenreRepository;
+    let typeormRepo: Repository<BookGenre>;
+    let auditLoggerService: IAuditLoggerService;
+
+    beforeEach(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+            providers: [
+                BookGenreRepository,
+                {
+                    provide: getRepositoryToken(BookGenre),
+                    useValue: {
+                        create: jest.fn().mockReturnValue(mockBookGenre),
+                        save: jest.fn().mockResolvedValue(mockBookGenre),
+                        findOne: jest.fn().mockResolvedValue(mockBookGenre),
+                        update: jest.fn().mockResolvedValue({ affected: 1 }),
+                        softDelete: jest.fn().mockResolvedValue({ affected: 1 }),
+                        findAndCount: jest.fn().mockResolvedValue([[mockBookGenre], 1]),
+                        count: jest.fn().mockResolvedValue(0),
+                    },
+                },
+                {
+                    provide: 'IAuditLoggerService',
+                    useValue: {
+                        log: jest.fn(),
+                    },
+                }
+            ],
+        }).compile();
+
+        repository = module.get<BookGenreRepository>(BookGenreRepository);
+        typeormRepo = module.get<Repository<BookGenre>>(getRepositoryToken(BookGenre));
+        auditLoggerService = module.get<IAuditLoggerService>('IAuditLoggerService');
+        jest.clearAllMocks();
+    });
+
+    it('should be defined', () => {
+        expect(repository).toBeDefined();
+    });
+
+    describe('registerGenre', () => {
+        it('should register a genre', async () => {
+            const createDto = new CreateBookGenreDto();
+            (repository as any)._validateUniqueConstraints = jest.fn().mockResolvedValue(undefined);
+
+            const result = await repository.registerGenre(createDto, 'test-user');
+
+            expect(result).toEqual(mockBookGenre);
+            expect(auditLoggerService.log).toHaveBeenCalled();
+        });
+    });
+
+    describe('getGenreProfile', () => {
+        it('should return a genre profile', async () => {
+            const result = await repository.getGenreProfile('1');
+            expect(result).toEqual(mockBookGenre);
+        });
+
+        it('should throw not found exception if genre does not exist', async () => {
+            (typeormRepo.findOne as jest.Mock).mockResolvedValue(null);
+            await expect(repository.getGenreProfile('1')).rejects.toThrow(NotFoundException);
+        });
+    });
+
+    describe('updateGenreProfile', () => {
+        it('should update a genre profile', async () => {
+            const updateDto: UpdateBookGenreDto = { name: 'Updated Name' };
+            const updatedGenre = { ...mockBookGenre, ...updateDto };
+
+            jest.spyOn(repository, 'getGenreProfile').mockResolvedValue(mockBookGenre);
+            (repository as any)._validateUniqueConstraints = jest.fn().mockResolvedValue(undefined);
+            (typeormRepo.findOne as jest.Mock).mockResolvedValue(updatedGenre);
+
+            const result = await repository.updateGenreProfile('1', updateDto, 'test-user');
+
+            expect(result.name).toEqual('Updated Name');
+            expect(auditLoggerService.log).toHaveBeenCalled();
+        });
+    });
+
+    describe('deactivateGenre', () => {
+        it('should deactivate a genre', async () => {
+            jest.spyOn(repository, 'getGenreProfile').mockResolvedValue(mockBookGenre);
+
+            await repository.deactivateGenre('1', 'test-user');
+
+            expect(typeormRepo.softDelete).toHaveBeenCalledWith({ id: '1' });
+            expect(auditLoggerService.log).toHaveBeenCalled();
+        });
+    });
+
+    describe('searchGenres', () => {
+        it('should search genres', async () => {
+            const pagination = new PaginationDto();
+            const result = await repository.searchGenres('test', pagination);
+            expect(result.data).toEqual([mockBookGenre]);
+            expect(result.meta.total).toBe(1);
+        });
+    });
+
+    describe('getAllGenres', () => {
+        it('should get all genres', async () => {
+            const pagination = new PaginationDto();
+            const result = await repository.getAllGenres(pagination);
+            expect(result.data).toEqual([mockBookGenre]);
+            expect(result.meta.total).toBe(1);
+        });
+    });
+
+    describe('checknameExists', () => {
+        it('should check if name exists', async () => {
+            (typeormRepo.count as jest.Mock).mockResolvedValue(1);
+            const result = await repository.checknameExists('test');
+            expect(result).toBe(true);
+        });
+    });
+});

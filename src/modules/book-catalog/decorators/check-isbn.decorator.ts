@@ -6,6 +6,7 @@ import {
   ApiUnauthorizedResponse,
   ApiForbiddenResponse
 } from '@nestjs/swagger';
+import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
 
 export function ApiCheckIsbn() {
   return applyDecorators(
@@ -15,9 +16,7 @@ export function ApiCheckIsbn() {
     }),
     ApiParam({
       name: 'isbn',
-      description: 'Código ISBN a verificar',
-      example: '978-0-134-68552-4'
-    }),
+      description: 'Código ISBN a verificar'}),
     ApiResponse({ 
       status: 200, 
       description: 'Verificación de ISBN realizada exitosamente',
@@ -25,32 +24,19 @@ export function ApiCheckIsbn() {
         type: 'object',
         properties: {
           exists: { 
-            type: 'boolean', 
-            example: false,
+            type: 'boolean',
             description: 'Indica si el ISBN ya existe en el catálogo'
           }
         }
       }
     }),
-    ApiUnauthorizedResponse({ 
+    ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 401 },
-          message: { type: 'string', example: 'No autorizado' }
-        }
-      }
+      type: UnauthorizedResponseDto,
     }),
     ApiForbiddenResponse({
       description: 'Acceso denegado - Se requieren permisos de administrador',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 403 },
-          message: { type: 'string', example: 'Acceso denegado' }
-        }
-      }
-    })
+      type: ForbiddenResponseDto,
+    }),
   );
 }

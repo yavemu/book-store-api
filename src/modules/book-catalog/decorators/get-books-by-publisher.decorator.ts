@@ -1,32 +1,61 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiParam, ApiUnauthorizedResponse, ApiExtraModels } from "@nestjs/swagger";
-import { BookCatalogListResponseDto } from '../dto';
-import { PaginationDto } from "../../../common/dto/pagination.dto";
+import { ApiOperation, ApiResponse, ApiParam, ApiUnauthorizedResponse, ApiExtraModels, getSchemaPath } from "@nestjs/swagger";
+import { BookCatalogResponseDto } from '../dto';
+import { PaginationDto , BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto} from '../../../common/dto';
+import { ApiResponseDto } from '../../../common/dto';
 
 export function ApiGetBooksByPublisher() {
   return applyDecorators(
     ApiOperation({
       summary: "Obtener libros por editorial - Acceso: ADMIN, USER",
-      description: "Obtiene una lista paginada de libros filtrados por una editorial específica.",
+      description: "Obtiene una lista paginada de libros que pertenecen a una editorial específica.",
     }),
     ApiParam({
       name: "publisherId",
+      required: true,
+      type: String,
       description: "ID de la editorial para filtrar los libros",
-      example: "550e8400-e29b-41d4-a716-446655440002",
     }),
-    ApiExtraModels(PaginationDto),
+    ApiExtraModels(PaginationDto, ApiResponseDto, BookCatalogResponseDto),
     ApiResponse({
       status: 200,
       description: "Libros de la editorial especificada obtenidos exitosamente",
-      type: BookCatalogListResponseDto,
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(ApiResponseDto) },
+          {
+            properties: {
+              data: {
+                properties: {
+                  data: {
+                    type: 'array',
+                    items: { $ref: getSchemaPath(BookCatalogResponseDto) },
+                  },
+                  meta: {
+                    type: 'object',
+                    properties: {
+                      total: { type: 'number' },
+                      page: { type: 'number' },
+                      limit: { type: 'number' },
+                      totalPages: { type: 'number' },
+                      hasNext: { type: 'boolean' },
+                      hasPrev: { type: 'boolean' },
+                    }
+                  }
+                }
+              },
+            },
+          },
+        ],
+      },
     }),
     ApiUnauthorizedResponse({
       description: "No autorizado - Token JWT inválido o faltante",
       schema: {
         type: "object",
         properties: {
-          statusCode: { type: "number", example: 401 },
-          message: { type: "string", example: "No autorizado" },
+          statusCode: { type: "number"},
+          message: { type: "string"},
         },
       },
     }),

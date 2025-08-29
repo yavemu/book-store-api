@@ -1,7 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { UserRole } from "../../modules/users/enums/user-role.enum";
-import { ERROR_MESSAGES } from "../exceptions/error-messages";
+import { ERROR_MESSAGES } from "../constants/error-messages";
 
 const ROLES_KEY = "roles";
 

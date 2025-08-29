@@ -1,9 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BookGenre } from './entities/book-genre.entity';
-import { BookGenreRepository } from './repositories/book-genre.repository';
-import { BookGenreService } from './services/book-genre.service';
-import { BookGenresController } from './book-genres.controller';
+import { BookGenreCrudRepository } from './repositories/book-genre-crud.repository';
+import { BookGenreSearchRepository } from './repositories/book-genre-search.repository';
+import { BookGenreCrudService } from './services/book-genre-crud.service';
+import { BookGenreSearchService } from './services/book-genre-search.service';
+import { ValidationService } from './services/validation.service';
+import { ErrorHandlerService } from './services/error-handler.service';
+import { UserContextService } from './services/user-context.service';
+import { BookGenresController } from './controllers/book-genres.controller';
 import { AuditModule } from '../audit/audit.module';
 
 @Module({
@@ -13,16 +18,49 @@ import { AuditModule } from '../audit/audit.module';
   ],
   controllers: [BookGenresController],
   providers: [
-    BookGenreService,
+    // Core Services
+    BookGenreCrudService,
+    BookGenreSearchService,
+    ValidationService,
+    ErrorHandlerService,
+    UserContextService,
+    BookGenreCrudRepository,
+    BookGenreSearchRepository,
+    
+    // Interface Providers
     {
-      provide: 'IBookGenreRepository',
-      useClass: BookGenreRepository,
+      provide: 'IBookGenreCrudService',
+      useClass: BookGenreCrudService,
+    },
+    {
+      provide: 'IBookGenreSearchService',
+      useClass: BookGenreSearchService,
+    },
+    {
+      provide: 'IValidationService',
+      useClass: ValidationService,
+    },
+    {
+      provide: 'IErrorHandlerService',
+      useClass: ErrorHandlerService,
+    },
+    {
+      provide: 'IUserContextService',
+      useClass: UserContextService,
+    },
+    {
+      provide: 'IBookGenreCrudRepository',
+      useClass: BookGenreCrudRepository,
+    },
+    {
+      provide: 'IBookGenreSearchRepository',
+      useClass: BookGenreSearchRepository,
     },
   ],
   exports: [
     TypeOrmModule,
-    'IBookGenreRepository',
-    BookGenreService,
+    'IBookGenreCrudService',
+    'IBookGenreSearchService',
   ],
 })
 export class BookGenresModule {}

@@ -1,65 +1,57 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
+import {
+  ApiOperation,
+  ApiResponse,
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiBearerAuth,
-  ApiParam
+  ApiParam,
+  getSchemaPath,
 } from '@nestjs/swagger';
-import { UserResponseDto } from '../dto';
+import { UserResponseDto } from '../dto/user-response.dto';
+import { ApiResponseDto, UnauthorizedResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
 
 export function ApiGetUserById() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
-    ApiOperation({ 
+    ApiOperation({
       summary: 'Obtener usuario por ID - Acceso: ADMIN',
-      description: 'Obtiene la información detallada de un usuario específico por su ID único.' 
+      description:
+        'Obtiene la información detallada de un usuario específico por su ID único.',
     }),
     ApiParam({
       name: 'id',
       type: String,
       description: 'ID único del usuario (UUID)',
-      example: 'b8c4e4b2-1234-5678-9abc-def123456789'
     }),
-    ApiResponse({ 
-      status: 200, 
+    ApiResponse({
+      status: 200,
       description: 'Usuario encontrado exitosamente',
-      type: UserResponseDto
-    }),
-    ApiUnauthorizedResponse({ 
-      description: 'No autorizado - Token JWT inválido o faltante',
       schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 401 },
-          message: { type: 'string', example: 'No autorizado' },
-          error: { type: 'string', example: 'Sin autorización' }
-        }
-      }
+        allOf: [
+          { $ref: getSchemaPath(ApiResponseDto) },
+          {
+            properties: {
+              data: {
+                $ref: getSchemaPath(UserResponseDto),
+              },
+            },
+          },
+        ],
+      },
+    }),
+    ApiUnauthorizedResponse({
+      description: 'No autorizado - Token JWT inválido o faltante',
+      type: UnauthorizedResponseDto,
     }),
     ApiForbiddenResponse({
       description: 'Acceso denegado - No tiene permisos para ver este usuario',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 403 },
-          message: { type: 'string', example: 'Acceso denegado' },
-          error: { type: 'string', example: 'Prohibido' }
-        }
-      }
+      type: ForbiddenResponseDto,
     }),
     ApiNotFoundResponse({
       description: 'Usuario no encontrado con el ID proporcionado',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 404 },
-          message: { type: 'string', example: 'Usuario no encontrado' },
-          error: { type: 'string', example: 'No encontrado' }
-        }
-      }
-    })
+      type: NotFoundResponseDto,
+    }),
   );
 }

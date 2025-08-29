@@ -3,9 +3,11 @@ import {
   ApiOperation, 
   ApiResponse,
   ApiNotFoundResponse,
-  ApiParam
+  ApiParam,
+  getSchemaPath
 } from '@nestjs/swagger';
 import { BookCatalogResponseDto } from '../dto';
+import { ApiResponseDto , BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto} from '../../../common/dto';
 
 export function ApiGetBookById() {
   return applyDecorators(
@@ -16,24 +18,26 @@ export function ApiGetBookById() {
     ApiParam({
       name: 'id',
       type: String,
-      description: 'ID único del libro en el catálogo',
-      example: '550e8400-e29b-41d4-a716-446655440000'
-    }),
-    ApiResponse({ 
-      status: 200, 
+      description: 'ID único del libro en el catálogo'}),
+    ApiResponse({
+      status: 200,
       description: 'Libro encontrado y devuelto exitosamente',
-      type: BookCatalogResponseDto
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(ApiResponseDto) },
+          {
+            properties: {
+              data: {
+                $ref: getSchemaPath(BookCatalogResponseDto),
+              },
+            },
+          },
+        ],
+      },
     }),
     ApiNotFoundResponse({
       description: 'Libro no encontrado en el catálogo',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 404 },
-          message: { type: 'string', example: 'Libro no encontrado en el catálogo' },
-          error: { type: 'string', example: 'No encontrado' }
-        }
-      }
-    })
+      type: NotFoundResponseDto,
+    }),
   );
 }

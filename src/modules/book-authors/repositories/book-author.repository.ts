@@ -1,15 +1,20 @@
-import { Injectable, NotFoundException, ConflictException, HttpException, HttpStatus } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, FindManyOptions, ILike } from "typeorm";
 import { BookAuthor } from "../entities/book-author.entity";
-import { IBookAuthorRepository } from "../interfaces/book-author.repository.interface";
+import { IBookAuthorCrudRepository } from "../interfaces/book-author-crud.repository.interface";
+import { IBookAuthorSearchRepository } from "../interfaces/book-author-search.repository.interface";
+import { IBookAuthorValidationRepository } from "../interfaces/book-author-validation.repository.interface";
 import { CreateBookAuthorDto } from "../dto/create-book-author.dto";
 import { UpdateBookAuthorDto } from "../dto/update-book-author.dto";
 import { PaginationDto, PaginatedResult } from "../../../common/dto/pagination.dto";
 import { BaseRepository } from "../../../common/repositories/base.repository";
 
 @Injectable()
-export class BookAuthorRepository extends BaseRepository<BookAuthor> implements IBookAuthorRepository {
+export class BookAuthorRepository
+  extends BaseRepository<BookAuthor>
+  implements IBookAuthorCrudRepository, IBookAuthorSearchRepository, IBookAuthorValidationRepository
+{
   constructor(
     @InjectRepository(BookAuthor)
     private readonly authorRepository: Repository<BookAuthor>,
@@ -17,170 +22,81 @@ export class BookAuthorRepository extends BaseRepository<BookAuthor> implements 
     super(authorRepository);
   }
 
-  // Public business logic methods
-
-  async registerAuthor(createBookAuthorDto: CreateBookAuthorDto): Promise<BookAuthor> {
-    try {
-      // Validate uniqueness using inherited method with specific configuration
-      await this._validateUniqueConstraints(createBookAuthorDto, undefined, [
-        {
-          field: ["firstName", "lastName"],
-          message: "Author with this full name already exists",
-          transform: (value: string) => value.trim(),
-        },
-      ]);
-
-      // Use inherited method from BaseRepository
-      const entityData = {
-        ...createBookAuthorDto,
-        birthDate: new Date(createBookAuthorDto.birthDate),
-      };
-      return await this._createEntity(entityData);
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to register author', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async create(createBookAuthorDto: CreateBookAuthorDto, performedBy: string): Promise<BookAuthor> {
+    return await this._create(
+      createBookAuthorDto,
+      performedBy,
+      "BookAuthor",
+      (author) => `Author registered: ${author.firstName} ${author.lastName}`,
+    );
   }
 
-  async getAuthorProfile(authorId: string): Promise<BookAuthor> {
-    try {
-      const author = await this._findById(authorId);
-      if (!author) {
-        throw new NotFoundException('Author not found');
-      }
-      return author;
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to get author profile', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async findById(authorId: string): Promise<BookAuthor | null> {
+    return await this._findById(authorId);
   }
 
-  async updateAuthorProfile(authorId: string, updateBookAuthorDto: UpdateBookAuthorDto): Promise<BookAuthor> {
-    try {
-      const author = await this.getAuthorProfile(authorId);
-      
-      // Create combined DTO with existing values for validation
-      const validationDto = {
-        firstName: updateBookAuthorDto.firstName || author.firstName,
-        lastName: updateBookAuthorDto.lastName || author.lastName,
-      };
-      
-      // Validate uniqueness using inherited method with specific configuration
-      await this._validateUniqueConstraints(validationDto, authorId, [
-        {
-          field: ["firstName", "lastName"],
-          message: "Author with this full name already exists",
-          transform: (value: string) => value.trim(),
-        },
-      ]);
+  async update(authorId: string, updateBookAuthorDto: UpdateBookAuthorDto, performedBy: string): Promise<BookAuthor> {
+    const entityData = {
+      ...updateBookAuthorDto,
+      ...(updateBookAuthorDto.birthDate && {
+        birthDate: new Date(updateBookAuthorDto.birthDate),
+      }),
+    };
 
-      // Use inherited method from BaseRepository
-      const entityData = {
-        ...updateBookAuthorDto,
-        ...(updateBookAuthorDto.birthDate && { birthDate: new Date(updateBookAuthorDto.birthDate) }),
-      };
-      await this._updateEntity(authorId, entityData);
-      return await this._findById(authorId);
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to update author profile', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this._update(authorId, entityData, performedBy, "BookAuthor", (author) => `Author ${author.id} updated.`);
   }
 
-  async deactivateAuthor(authorId: string): Promise<void> {
-    try {
-      await this.getAuthorProfile(authorId); // Verify author exists
-      // Use inherited method from BaseRepository
-      await this._softDelete(authorId);
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to deactivate author', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async softDelete(authorId: string, performedBy: string): Promise<{ id: string }> {
+    return await this._softDelete(authorId, performedBy, "BookAuthor", (author) => `Author ${author.id} deactivated.`);
   }
 
-  async searchAuthors(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
-    try {
-      const options: FindManyOptions<BookAuthor> = {
-        where: [{ firstName: ILike(`%${searchTerm}%`) }, { lastName: ILike(`%${searchTerm}%`) }, { nationality: ILike(`%${searchTerm}%`) }],
-        order: { [pagination.sortBy]: pagination.sortOrder },
-        skip: pagination.offset,
-        take: pagination.limit,
-      };
+  async searchByTerm(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
+    const options: FindManyOptions<BookAuthor> = {
+      where: [{ firstName: ILike(`%${searchTerm}%`) }, { lastName: ILike(`%${searchTerm}%`) }, { nationality: ILike(`%${searchTerm}%`) }],
+      order: { [pagination.sortBy]: pagination.sortOrder },
+      skip: pagination.offset,
+      take: pagination.limit,
+    };
 
-      return await this._findManyWithPagination(options, pagination);
-    } catch (error) {
-      throw new HttpException('Failed to search authors', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return this._findManyWithPagination(options, pagination);
   }
 
-  async getAllAuthors(pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
-    try {
-      const options: FindManyOptions<BookAuthor> = {
-        order: { [pagination.sortBy]: pagination.sortOrder },
-        skip: pagination.offset,
-        take: pagination.limit,
-      };
+  async findAll(pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
+    const options: FindManyOptions<BookAuthor> = {
+      order: { [pagination.sortBy]: pagination.sortOrder },
+      skip: pagination.offset,
+      take: pagination.limit,
+    };
 
-      return await this._findManyWithPagination(options, pagination);
-    } catch (error) {
-      throw new HttpException('Failed to get all authors', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this._findManyWithPagination(options, pagination);
   }
 
-  async getAuthorsByNationality(nationality: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
-    try {
-      const options: FindManyOptions<BookAuthor> = {
-        where: { nationality },
-        order: { [pagination.sortBy]: pagination.sortOrder },
-        skip: pagination.offset,
-        take: pagination.limit,
-      };
+  async findByNationality(nationality: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
+    const options: FindManyOptions<BookAuthor> = {
+      where: { nationality },
+      order: { [pagination.sortBy]: pagination.sortOrder },
+      skip: pagination.offset,
+      take: pagination.limit,
+    };
 
-      return await this._findManyWithPagination(options, pagination);
-    } catch (error) {
-      throw new HttpException('Failed to get authors by nationality', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this._findManyWithPagination(options, pagination);
   }
 
-  async checkAuthorFullNameExists(firstName: string, lastName: string): Promise<boolean> {
-    try {
-      return await this._exists({
-        where: {
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-        },
-      });
-    } catch (error) {
-      throw new HttpException('Failed to check author full name existence', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async checkFullNameExists(firstName: string, lastName: string): Promise<boolean> {
+    return await this._exists({
+      where: {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+      },
+    });
   }
 
-  async validateUniqueAuthorName(firstName: string, lastName: string): Promise<BookAuthor> {
-    try {
-      const author = await this._findOne({
-        where: {
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-        },
-      });
-      if (!author) {
-        throw new NotFoundException('Author not found');
-      }
-      return author;
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to validate author name', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async findByFullName(firstName: string, lastName: string): Promise<BookAuthor | null> {
+    return await this._findOne({
+      where: {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+      },
+    });
   }
-
 }

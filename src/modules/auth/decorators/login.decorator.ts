@@ -1,11 +1,7 @@
 import { applyDecorators } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiUnauthorizedResponse, ApiBadRequestResponse, ApiBody } from "@nestjs/swagger";
 import { LoginDto, LoginResponseDto } from "../dto";
-
-const INPUT_DATA = {
-  email: "john@example.com",
-  password: "Password123!",
-};
+import { BadRequestResponseDto, UnauthorizedResponseDto } from "../../../common/dto";
 
 export function ApiLogin() {
   return applyDecorators(
@@ -15,11 +11,6 @@ export function ApiLogin() {
     }),
     ApiBody({
       type: LoginDto,
-      examples: {
-        "application/json": {
-          value: INPUT_DATA,
-        },
-      },
     }),
     ApiResponse({
       status: 200,
@@ -28,29 +19,11 @@ export function ApiLogin() {
     }),
     ApiUnauthorizedResponse({
       description: "Credenciales inválidas",
-      schema: {
-        type: "object",
-        properties: {
-          statusCode: { type: "number", example: 401 },
-          message: { type: "string", example: "Credenciales inválidas" },
-          timestamp: { type: "string", example: "2024-01-01T00:00:00.000Z" },
-        },
-      },
+      type: UnauthorizedResponseDto,
     }),
     ApiBadRequestResponse({
       description: "Datos de entrada inválidos",
-      schema: {
-        type: "object",
-        properties: {
-          statusCode: { type: "number", example: 400 },
-          message: {
-            type: "array",
-            items: { type: "string" },
-            example: ["El nombre de usuario es requerido", "La contraseña es requerida"],
-          },
-          error: { type: "string", example: "Bad Request" },
-        },
-      },
+      type: BadRequestResponseDto,
     }),
   );
 }

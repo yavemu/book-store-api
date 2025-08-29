@@ -6,6 +6,7 @@ import {
   ApiBearerAuth 
 } from '@nestjs/swagger';
 import { UserProfileResponseDto } from '../dto';
+import { UnauthorizedResponseDto } from '../../../common/dto';
 
 export function ApiGetProfile() {
   return applyDecorators(
@@ -21,14 +22,7 @@ export function ApiGetProfile() {
     }),
     ApiUnauthorizedResponse({ 
       description: 'No autorizado - Token inválido o faltante',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 401 },
-          message: { type: 'string', example: 'No autorizado' },
-          timestamp: { type: 'string', example: '2024-01-01T00:00:00.000Z' }
-        }
-      }
+      type: UnauthorizedResponseDto,
     })
   );
 }

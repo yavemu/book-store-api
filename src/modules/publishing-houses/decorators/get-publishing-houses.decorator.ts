@@ -14,14 +14,12 @@ export function ApiGetPublishingHouses() {
       required: false,
       type: String,
       description: "Término de búsqueda para filtrar por nombre de la editorial",
-      example: "Penguin",
     }),
     ApiQuery({
       name: "country",
       required: false,
       type: String,
       description: "País para filtrar editoriales",
-      example: "Estados Unidos",
     }),
     ApiExtraModels(PaginationDto),
     ApiResponse({

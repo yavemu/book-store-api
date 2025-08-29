@@ -1,19 +1,26 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
-import { UserService } from "../../users/services/user.service";
+import { IUserCrudService } from "../../users/interfaces/user-crud.service.interface";
+import { IUserSearchService } from "../../users/interfaces/user-search.service.interface";
+import { IUserAuthService } from "../../users/interfaces/user-auth.service.interface";
 import { User } from "../../users/entities/user.entity";
 import { RegisterUserDto } from "../../users/dto/register-user.dto";
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
+    @Inject('IUserCrudService')
+    private readonly userCrudService: IUserCrudService,
+    @Inject('IUserSearchService')
+    private readonly userSearchService: IUserSearchService,
+    @Inject('IUserAuthService')
+    private readonly userAuthService: IUserAuthService,
     private readonly jwtService: JwtService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<User | null> {
-    const user = await this.userService.findToLoginByEmail(email);
+    const user = await this.userSearchService.findToLoginByEmail(email);
 
     if (user && (await bcrypt.compare(password, user.password))) {
       return user;
@@ -23,6 +30,9 @@ export class AuthService {
   }
 
   async login(user: User) {
+    // Log the login event for auditing
+    await this.userAuthService.logLogin(user.id);
+
     const payload = {
       username: user.username,
       sub: user.id,
@@ -41,7 +51,7 @@ export class AuthService {
   }
 
   async register(registerUserDto: RegisterUserDto) {
-    const user = await this.userService.register(registerUserDto);
+    const user = await this.userCrudService.register(registerUserDto);
     return {
       message: "Usuario creado exitosamente",
       user: {
@@ -54,7 +64,7 @@ export class AuthService {
   }
 
   async getProfile(userId: string) {
-    const user = await this.userService.findById(userId);
+    const user = await this.userCrudService.findById(userId);
     return {
       id: user.id,
       username: user.username,

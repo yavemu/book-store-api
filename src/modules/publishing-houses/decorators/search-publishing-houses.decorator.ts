@@ -14,7 +14,6 @@ export function ApiSearchPublishingHouses() {
       required: true,
       type: String,
       description: "Término de búsqueda para filtrar editoriales",
-      example: "Penguin",
     }),
     ApiExtraModels(PaginationDto),
     ApiResponse({
@@ -27,8 +26,8 @@ export function ApiSearchPublishingHouses() {
       schema: {
         type: "object",
         properties: {
-          statusCode: { type: "number", example: 401 },
-          message: { type: "string", example: "No autorizado" },
+          statusCode: { type: "number"},
+          message: { type: "string"},
         },
       },
     }),

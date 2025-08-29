@@ -1,0 +1,110 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { BookAuthorsController } from '../book-authors.controller';
+import { IBookAuthorCrudService } from '../interfaces/book-author-crud.service.interface';
+import { IBookAuthorSearchService } from '../interfaces/book-author-search.service.interface';
+import { IUserContextService } from '../interfaces/user-context.service.interface';
+import { CreateBookAuthorDto, UpdateBookAuthorDto } from '../dto';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
+
+describe('BookAuthorsController', () => {
+    let controller: BookAuthorsController;
+    let crudService: IBookAuthorCrudService;
+    let searchService: IBookAuthorSearchService;
+    let userContextService: IUserContextService;
+
+    const mockCrudService = {
+        create: jest.fn(),
+        findAll: jest.fn(),
+        findById: jest.fn(),
+        update: jest.fn(),
+        softDelete: jest.fn(),
+    };
+
+    const mockSearchService = {
+        search: jest.fn(),
+        findByFullName: jest.fn(),
+    };
+
+    const mockUserContextService = {
+        extractUserId: jest.fn().mockReturnValue('1'),
+    };
+
+    beforeEach(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+            controllers: [BookAuthorsController],
+            providers: [
+                { provide: 'IBookAuthorCrudService', useValue: mockCrudService },
+                { provide: 'IBookAuthorSearchService', useValue: mockSearchService },
+                { provide: 'IUserContextService', useValue: mockUserContextService },
+            ],
+        }).compile();
+
+        controller = module.get<BookAuthorsController>(BookAuthorsController);
+        crudService = module.get<IBookAuthorCrudService>('IBookAuthorCrudService');
+        searchService = module.get<IBookAuthorSearchService>('IBookAuthorSearchService');
+        userContextService = module.get<IUserContextService>('IUserContextService');
+    });
+
+    it('should be defined', () => {
+        expect(controller).toBeDefined();
+    });
+
+    describe('create', () => {
+        it('should create a book author', async () => {
+            const createDto = new CreateBookAuthorDto();
+            const req = {};
+            await controller.create(createDto, req);
+            expect(userContextService.extractUserId).toHaveBeenCalledWith(req);
+            expect(crudService.create).toHaveBeenCalledWith(createDto, '1');
+        });
+    });
+
+    describe('findAll', () => {
+        it('should find all book authors', async () => {
+            const pagination = new PaginationDto();
+            await controller.findAll(pagination);
+            expect(crudService.findAll).toHaveBeenCalledWith(pagination);
+        });
+    });
+
+    describe('search', () => {
+        it('should search book authors', async () => {
+            const pagination = new PaginationDto();
+            await controller.search('test', pagination);
+            expect(searchService.search).toHaveBeenCalledWith('test', pagination);
+        });
+    });
+
+    describe('findByFullName', () => {
+        it('should find a book author by full name', async () => {
+            await controller.findByFullName('John', 'Doe');
+            expect(searchService.findByFullName).toHaveBeenCalledWith('John', 'Doe');
+        });
+    });
+
+    describe('findOne', () => {
+        it('should find a book author by id', async () => {
+            await controller.findOne('1');
+            expect(crudService.findById).toHaveBeenCalledWith('1');
+        });
+    });
+
+    describe('update', () => {
+        it('should update a book author', async () => {
+            const updateDto = new UpdateBookAuthorDto();
+            const req = {};
+            await controller.update('1', updateDto, req);
+            expect(userContextService.extractUserId).toHaveBeenCalledWith(req);
+            expect(crudService.update).toHaveBeenCalledWith('1', updateDto, '1');
+        });
+    });
+
+    describe('remove', () => {
+        it('should remove a book author', async () => {
+            const req = {};
+            await controller.remove('1', req);
+            expect(userContextService.extractUserId).toHaveBeenCalledWith(req);
+            expect(crudService.softDelete).toHaveBeenCalledWith('1', '1');
+        });
+    });
+});

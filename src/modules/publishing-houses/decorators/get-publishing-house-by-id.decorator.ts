@@ -5,6 +5,7 @@ import {
   ApiNotFoundResponse,
   ApiParam
 } from '@nestjs/swagger';
+import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
 import { PublishingHouseResponseDto } from '../dto';
 
 export function ApiGetPublishingHouseById() {
@@ -16,9 +17,7 @@ export function ApiGetPublishingHouseById() {
     ApiParam({
       name: 'id',
       type: String,
-      description: 'ID único de la editorial',
-      example: '550e8400-e29b-41d4-a716-446655440000'
-    }),
+      description: 'ID único de la editorial'}),
     ApiResponse({ 
       status: 200, 
       description: 'Editorial encontrada y devuelta exitosamente',
@@ -26,14 +25,7 @@ export function ApiGetPublishingHouseById() {
     }),
     ApiNotFoundResponse({
       description: 'Editorial no encontrada',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 404 },
-          message: { type: 'string', example: 'Editorial no encontrada' },
-          error: { type: 'string', example: 'No encontrado' }
-        }
-      }
-    })
+      type: NotFoundResponseDto,
+    }),
   );
 }

@@ -11,30 +11,51 @@ export function ApiGetGenres() {
     ApiExtraModels(PaginationDto),
     ApiResponse({
       status: 200,
-      description: "Géneros de libros obtenidos exitosamente",
+      description: 'Géneros de libros obtenidos exitosamente',
       schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          data: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                id: { type: "string", example: "550e8400-e29b-41d4-a716-446655440000" },
-                name: { type: "string", example: "Ciencia Ficción" },
-                description: { type: "string", example: "Ficción que trata conceptos futuristas, ciencia y tecnología avanzada." },
-                createdAt: { type: "string", example: "2024-01-01T00:00:00.000Z" },
-                updatedAt: { type: "string", example: "2024-01-02T00:00:00.000Z" },
-              },
-            },
+          success: { type: 'boolean'},
+          message: {
+            type: 'string',
           },
-          meta: {
-            type: "object",
+          data: {
+            type: 'object',
             properties: {
-              total: { type: "number", example: 25 },
-              page: { type: "number", example: 1 },
-              limit: { type: "number", example: 10 },
-              totalPages: { type: "number", example: 3 },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: {
+                      type: 'string',
+                    },
+                    name: { type: 'string'},
+                    description: {
+                      type: 'string',
+                    },
+                    createdAt: {
+                      type: 'string',
+                      format: 'date-time',
+                    },
+                    updatedAt: {
+                      type: 'string',
+                      format: 'date-time',
+                    },
+                  },
+                },
+              },
+              meta: {
+                type: 'object',
+                properties: {
+                  total: { type: 'number'},
+                  page: { type: 'number'},
+                  limit: { type: 'number'},
+                  totalPages: { type: 'number'},
+                  hasNext: { type: 'boolean'},
+                  hasPrev: { type: 'boolean'},
+                },
+              },
             },
           },
         },
@@ -45,8 +66,8 @@ export function ApiGetGenres() {
       schema: {
         type: "object",
         properties: {
-          statusCode: { type: "number", example: 401 },
-          message: { type: "string", example: "No autorizado" },
+          statusCode: { type: "number"},
+          message: { type: "string"},
         },
       },
     }),

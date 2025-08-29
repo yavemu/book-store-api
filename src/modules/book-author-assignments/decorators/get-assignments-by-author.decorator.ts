@@ -11,7 +11,6 @@ export function ApiGetAssignmentsByAuthor() {
     ApiParam({
       name: "authorId",
       description: "ID del autor para filtrar asignaciones",
-      example: "550e8400-e29b-41d4-a716-446655440002",
     }),
     ApiExtraModels(PaginationDto),
     ApiResponse({
@@ -25,21 +24,21 @@ export function ApiGetAssignmentsByAuthor() {
             items: {
               type: "object",
               properties: {
-                id: { type: "string", example: "550e8400-e29b-41d4-a716-446655440000" },
-                bookId: { type: "string", example: "550e8400-e29b-41d4-a716-446655440001" },
-                authorId: { type: "string", example: "550e8400-e29b-41d4-a716-446655440002" },
-                assignmentOrder: { type: "number", example: 1 },
-                createdAt: { type: "string", example: "2024-01-01T00:00:00.000Z" },
+                id: { type: "string"},
+                bookId: { type: "string"},
+                authorId: { type: "string"},
+                assignmentOrder: { type: "number"},
+                createdAt: { type: "string"},
               },
             },
           },
           meta: {
             type: "object",
             properties: {
-              total: { type: "number", example: 15 },
-              page: { type: "number", example: 1 },
-              limit: { type: "number", example: 10 },
-              totalPages: { type: "number", example: 2 },
+              total: { type: "number"},
+              page: { type: "number"},
+              limit: { type: "number"},
+              totalPages: { type: "number"},
             },
           },
         },
@@ -50,8 +49,8 @@ export function ApiGetAssignmentsByAuthor() {
       schema: {
         type: "object",
         properties: {
-          statusCode: { type: "number", example: 401 },
-          message: { type: "string", example: "No autorizado" },
+          statusCode: { type: "number"},
+          message: { type: "string"},
         },
       },
     }),

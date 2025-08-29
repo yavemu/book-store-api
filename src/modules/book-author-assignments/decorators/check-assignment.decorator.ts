@@ -5,6 +5,7 @@ import {
   ApiParam,
   ApiUnauthorizedResponse
 } from '@nestjs/swagger';
+import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
 
 export function ApiCheckAssignment() {
   return applyDecorators(
@@ -14,14 +15,10 @@ export function ApiCheckAssignment() {
     }),
     ApiParam({
       name: 'bookId',
-      description: 'ID del libro a verificar',
-      example: '550e8400-e29b-41d4-a716-446655440001'
-    }),
+      description: 'ID del libro a verificar'}),
     ApiParam({
       name: 'authorId',
-      description: 'ID del autor a verificar',
-      example: '550e8400-e29b-41d4-a716-446655440002'
-    }),
+      description: 'ID del autor a verificar'}),
     ApiResponse({ 
       status: 200, 
       description: 'Verificación de asignación realizada exitosamente',
@@ -29,22 +26,15 @@ export function ApiCheckAssignment() {
         type: 'object',
         properties: {
           exists: { 
-            type: 'boolean', 
-            example: false,
+            type: 'boolean',
             description: 'Indica si existe la asignación entre el libro y el autor'
           }
         }
       }
     }),
-    ApiUnauthorizedResponse({ 
+    ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 401 },
-          message: { type: 'string', example: 'No autorizado' }
-        }
-      }
-    })
+      type: UnauthorizedResponseDto,
+    }),
   );
 }

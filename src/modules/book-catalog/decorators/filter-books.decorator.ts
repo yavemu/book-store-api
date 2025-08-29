@@ -1,7 +1,8 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiBody, ApiUnauthorizedResponse, ApiExtraModels } from "@nestjs/swagger";
-import { BookCatalogListResponseDto, BookFiltersDto } from '../dto';
+import { ApiOperation, ApiResponse, ApiBody, ApiUnauthorizedResponse, ApiExtraModels, getSchemaPath } from "@nestjs/swagger";
+import { BookCatalogResponseDto, BookFiltersDto } from '../dto';
 import { PaginationDto } from "../../../common/dto/pagination.dto";
+import { ApiResponseDto } from '../../../common/dto/api-response.dto';
 
 export function ApiFilterBooks() {
   return applyDecorators(
@@ -13,19 +14,46 @@ export function ApiFilterBooks() {
       type: BookFiltersDto,
       description: "Criterios de filtrado para los libros",
     }),
-    ApiExtraModels(PaginationDto),
+    ApiExtraModels(PaginationDto, ApiResponseDto, BookCatalogResponseDto),
     ApiResponse({
       status: 200,
       description: "Libros filtrados obtenidos exitosamente",
-      type: BookCatalogListResponseDto,
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(ApiResponseDto) },
+          {
+            properties: {
+              data: {
+                properties: {
+                  data: {
+                    type: 'array',
+                    items: { $ref: getSchemaPath(BookCatalogResponseDto) },
+                  },
+                  meta: {
+                    type: 'object',
+                    properties: {
+                      total: { type: 'number' },
+                      page: { type: 'number' },
+                      limit: { type: 'number' },
+                      totalPages: { type: 'number' },
+                      hasNext: { type: 'boolean' },
+                      hasPrev: { type: 'boolean' },
+                    }
+                  }
+                }
+              },
+            },
+          },
+        ],
+      },
     }),
     ApiUnauthorizedResponse({
       description: "No autorizado - Token JWT inválido o faltante",
       schema: {
         type: "object",
         properties: {
-          statusCode: { type: "number", example: 401 },
-          message: { type: "string", example: "No autorizado" },
+          statusCode: { type: "number"},
+          message: { type: "string"},
         },
       },
     }),

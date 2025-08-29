@@ -7,14 +7,14 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { IAuditLogService } from '../../modules/audit/interfaces/audit-log.service.interface';
+import { IAuditLoggerService } from '../../modules/audit/interfaces/audit-logger.service.interface';
 import { AuditAction } from '../../modules/audit/enums/audit-action.enum';
 
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {
   constructor(
-    @Inject("IAuditLogService")
-    private readonly auditLogService: IAuditLogService,
+    @Inject("IAuditLoggerService")
+    private readonly auditLogService: IAuditLoggerService,
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {

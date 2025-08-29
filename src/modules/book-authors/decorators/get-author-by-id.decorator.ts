@@ -5,6 +5,7 @@ import {
   ApiNotFoundResponse,
   ApiParam
 } from '@nestjs/swagger';
+import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
 import { BookAuthorResponseDto } from '../dto';
 
 export function ApiGetAuthorById() {
@@ -16,9 +17,7 @@ export function ApiGetAuthorById() {
     ApiParam({
       name: 'id',
       type: String,
-      description: 'ID único del autor',
-      example: '550e8400-e29b-41d4-a716-446655440000'
-    }),
+      description: 'ID único del autor'}),
     ApiResponse({ 
       status: 200, 
       description: 'Autor encontrado y devuelto exitosamente',
@@ -26,14 +25,7 @@ export function ApiGetAuthorById() {
     }),
     ApiNotFoundResponse({
       description: 'Autor no encontrado',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 404 },
-          message: { type: 'string', example: 'Autor no encontrado' },
-          error: { type: 'string', example: 'No encontrado' }
-        }
-      }
-    })
+      type: NotFoundResponseDto,
+    }),
   );
 }

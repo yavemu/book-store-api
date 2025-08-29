@@ -1,0 +1,133 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { BookAuthorService } from '../book-author.service';
+import { IBookAuthorCrudRepository } from '../../interfaces/book-author-crud.repository.interface';
+import { IBookAuthorSearchRepository } from '../../interfaces/book-author-search.repository.interface';
+import { IBookAuthorValidationRepository } from '../../interfaces/book-author-validation.repository.interface';
+import { IValidationService } from '../../interfaces/validation.service.interface';
+import { IErrorHandlerService } from '../../interfaces/error-handler.service.interface';
+import { CreateBookAuthorDto, UpdateBookAuthorDto } from '../../dto';
+import { PaginationDto } from '../../../../common/dto/pagination.dto';
+
+describe('BookAuthorService', () => {
+    let service: BookAuthorService;
+    let crudRepository: IBookAuthorCrudRepository;
+    let searchRepository: IBookAuthorSearchRepository;
+    let validationRepository: IBookAuthorValidationRepository;
+    let validationService: IValidationService;
+    let errorHandler: IErrorHandlerService;
+
+    const mockCrudRepository = {
+        create: jest.fn(),
+        findAll: jest.fn(),
+        findById: jest.fn(),
+        update: jest.fn(),
+        softDelete: jest.fn(),
+    };
+
+    const mockSearchRepository = {
+        searchByTerm: jest.fn(),
+        findByFullName: jest.fn(),
+    };
+
+    const mockValidationRepository = {
+        findOne: jest.fn(),
+    };
+
+    const mockValidationService = {
+        validateUniqueConstraints: jest.fn(),
+    };
+
+    const mockErrorHandler = {
+        handleError: jest.fn(),
+        createNotFoundException: jest.fn(),
+    };
+
+    beforeEach(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+            providers: [
+                BookAuthorService,
+                { provide: 'IBookAuthorCrudRepository', useValue: mockCrudRepository },
+                { provide: 'IBookAuthorSearchRepository', useValue: mockSearchRepository },
+                { provide: 'IBookAuthorValidationRepository', useValue: mockValidationRepository },
+                { provide: 'IValidationService', useValue: mockValidationService },
+                { provide: 'IErrorHandlerService', useValue: mockErrorHandler },
+            ],
+        }).compile();
+
+        service = module.get<BookAuthorService>(BookAuthorService);
+        crudRepository = module.get<IBookAuthorCrudRepository>('IBookAuthorCrudRepository');
+        searchRepository = module.get<IBookAuthorSearchRepository>('IBookAuthorSearchRepository');
+        validationService = module.get<IValidationService>('IValidationService');
+        errorHandler = module.get<IErrorHandlerService>('IErrorHandlerService');
+    });
+
+    it('should be defined', () => {
+        expect(service).toBeDefined();
+    });
+
+    describe('create', () => {
+        it('should create a book author', async () => {
+            const createDto = new CreateBookAuthorDto();
+            mockCrudRepository.create.mockResolvedValue({} as any);
+            await service.create(createDto, '1');
+            expect(validationService.validateUniqueConstraints).toHaveBeenCalled();
+            expect(crudRepository.create).toHaveBeenCalledWith(createDto, '1');
+        });
+    });
+
+    describe('findAll', () => {
+        it('should find all book authors', async () => {
+            const pagination = new PaginationDto();
+            mockCrudRepository.findAll.mockResolvedValue({} as any);
+            await service.findAll(pagination);
+            expect(crudRepository.findAll).toHaveBeenCalledWith(pagination);
+        });
+    });
+
+    describe('findById', () => {
+        it('should find a book author by id', async () => {
+            mockCrudRepository.findById.mockResolvedValue({} as any);
+            await service.findById('1');
+            expect(crudRepository.findById).toHaveBeenCalledWith('1');
+        });
+    });
+
+    describe('update', () => {
+        it('should update a book author', async () => {
+            const updateDto = new UpdateBookAuthorDto();
+            mockCrudRepository.findById.mockResolvedValue({ id: '1' } as any); // Ensure findById returns something
+            mockCrudRepository.update.mockResolvedValue({} as any);
+            await service.update('1', updateDto, '1');
+            expect(crudRepository.findById).toHaveBeenCalledWith('1');
+            expect(validationService.validateUniqueConstraints).toHaveBeenCalled();
+            expect(crudRepository.update).toHaveBeenCalledWith('1', updateDto, '1');
+        });
+    });
+
+    describe('softDelete', () => {
+        it('should soft delete a book author', async () => {
+            mockCrudRepository.softDelete.mockResolvedValue(undefined);
+            await service.softDelete('1', '1');
+            expect(crudRepository.softDelete).toHaveBeenCalledWith('1', '1');
+        });
+    });
+
+
+
+    describe('search', () => {
+        it('should search book authors', async () => {
+            const pagination = new PaginationDto();
+            mockSearchRepository.searchByTerm.mockResolvedValue({} as any);
+            await service.search('test', pagination);
+            expect(searchRepository.searchByTerm).toHaveBeenCalledWith('test', pagination);
+        });
+    });
+
+    describe('findByFullName', () => {
+        it('should find a book author by full name', async () => {
+            mockSearchRepository.findByFullName.mockResolvedValue({} as any);
+            await service.findByFullName('John', 'Doe');
+            expect(searchRepository.findByFullName).toHaveBeenCalledWith('John', 'Doe');
+        });
+    });
+});

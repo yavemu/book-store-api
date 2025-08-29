@@ -3,12 +3,31 @@ import { CreatePublishingHouseDto } from '../dto/create-publishing-house.dto';
 import { UpdatePublishingHouseDto } from '../dto/update-publishing-house.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
+
 export interface IPublishingHouseService {
-  create(createPublishingHouseDto: CreatePublishingHouseDto, performedBy: string): Promise<PublishingHouse>;
-  findAll(pagination: PaginationDto): Promise<PaginatedResult<PublishingHouse>>;
+  create(
+    createPublishingHouseDto: CreatePublishingHouseDto,
+    performedBy: string,
+  ): Promise<PublishingHouse>;
+  findAll(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<PublishingHouse>>;
   findById(id: string): Promise<PublishingHouse>;
-  update(id: string, updatePublishingHouseDto: UpdatePublishingHouseDto, performedBy: string): Promise<PublishingHouse>;
-  softDelete(id: string, performedBy: string): Promise<void>;
-  search(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<PublishingHouse>>;
-  findByCountry(country: string, pagination: PaginationDto): Promise<PaginatedResult<PublishingHouse>>;
+  update(
+    id: string,
+    updatePublishingHouseDto: UpdatePublishingHouseDto,
+    performedBy: string,
+  ): Promise<PublishingHouse>;
+  softDelete(
+    id: string,
+    performedBy: string,
+  ): Promise<{ id: string }>;
+  search(
+    searchTerm: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<PublishingHouse>>;
+  findByCountry(
+    country: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<PublishingHouse>>;
 }

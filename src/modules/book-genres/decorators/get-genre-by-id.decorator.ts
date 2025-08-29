@@ -6,6 +6,7 @@ import {
   ApiUnauthorizedResponse,
   ApiNotFoundResponse
 } from '@nestjs/swagger';
+import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
 
 export function ApiGetGenreById() {
   return applyDecorators(
@@ -16,19 +17,37 @@ export function ApiGetGenreById() {
     ApiParam({
       name: "id",
       description: "ID único del género de libro",
-      example: "550e8400-e29b-41d4-a716-446655440000",
     }),
     ApiResponse({
       status: 200,
-      description: "Género de libro obtenido exitosamente",
+      description: 'Género de libro obtenido exitosamente',
       schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          id: { type: "string", example: "550e8400-e29b-41d4-a716-446655440000" },
-          name: { type: "string", example: "Ciencia Ficción" },
-          description: { type: "string", example: "Ficción que trata conceptos futuristas, ciencia y tecnología avanzada." },
-          createdAt: { type: "string", example: "2024-01-01T00:00:00.000Z" },
-          updatedAt: { type: "string", example: "2024-01-02T00:00:00.000Z" },
+          success: { type: 'boolean'},
+          message: {
+            type: 'string',
+          },
+          data: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'string',
+              },
+              name: { type: 'string'},
+              description: {
+                type: 'string',
+              },
+              createdAt: {
+                type: 'string',
+                format: 'date-time',
+              },
+              updatedAt: {
+                type: 'string',
+                format: 'date-time',
+              },
+            },
+          },
         },
       },
     }),
@@ -37,8 +56,8 @@ export function ApiGetGenreById() {
       schema: {
         type: "object",
         properties: {
-          statusCode: { type: "number", example: 401 },
-          message: { type: "string", example: "No autorizado" },
+          statusCode: { type: "number"},
+          message: { type: "string"},
         },
       },
     }),
@@ -47,8 +66,8 @@ export function ApiGetGenreById() {
       schema: {
         type: "object",
         properties: {
-          statusCode: { type: "number", example: 404 },
-          message: { type: "string", example: "Género no encontrado" },
+          statusCode: { type: "number"},
+          message: { type: "string"},
         },
       },
     }),

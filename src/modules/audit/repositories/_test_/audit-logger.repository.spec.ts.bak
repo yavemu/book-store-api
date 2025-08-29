@@ -1,0 +1,45 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { AuditLoggerRepository } from '../audit-logger.repository';
+import { AuditLog } from '../../entities/audit-log.entity';
+import { AuditAction } from '../../enums/audit-action.enum';
+
+describe('AuditLoggerRepository', () => {
+    let repository: AuditLoggerRepository;
+    let auditLogRepo: Repository<AuditLog>;
+
+    const mockAuditLogRepo = {
+        create: jest.fn(),
+        save: jest.fn(),
+    };
+
+    beforeEach(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+            providers: [
+                AuditLoggerRepository,
+                {
+                    provide: getRepositoryToken(AuditLog),
+                    useValue: mockAuditLogRepo,
+                },
+            ],
+        }).compile();
+
+        repository = module.get<AuditLoggerRepository>(AuditLoggerRepository);
+        auditLogRepo = module.get<Repository<AuditLog>>(getRepositoryToken(AuditLog));
+    });
+
+    it('should be defined', () => {
+        expect(repository).toBeDefined();
+    });
+
+    describe('logUserAction', () => {
+        it('should log a user action', async () => {
+            const auditLog = new AuditLog();
+            mockAuditLogRepo.create.mockReturnValue(auditLog);
+            mockAuditLogRepo.save.mockResolvedValue(auditLog);
+            const result = await repository.logUserAction('1', '1', AuditAction.CREATE, 'details', 'User');
+            expect(result).toEqual(auditLog);
+        });
+    });
+});

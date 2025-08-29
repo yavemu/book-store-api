@@ -6,6 +6,7 @@ import {
   ApiConflictResponse 
 } from '@nestjs/swagger';
 import { RegisterResponseDto } from '../dto';
+import { BadRequestResponseDto, ConflictResponseDto } from '../../../common/dto';
 
 export function ApiRegister() {
   return applyDecorators(
@@ -20,33 +21,11 @@ export function ApiRegister() {
     }),
     ApiBadRequestResponse({
       description: 'Datos de entrada inválidos',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 400 },
-          message: { 
-            type: 'array', 
-            items: { type: 'string' },
-            example: [
-              'El nombre de usuario debe tener al menos 3 caracteres',
-              'Debe proporcionar un email válido',
-              'La contraseña debe tener al menos 6 caracteres'
-            ]
-          },
-          error: { type: 'string', example: 'Bad Request' }
-        }
-      }
+      type: BadRequestResponseDto,
     }),
     ApiConflictResponse({
       description: 'Usuario ya existe',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 409 },
-          message: { type: 'string', example: 'El nombre de usuario ya está en uso' },
-          error: { type: 'string', example: 'Conflict' }
-        }
-      }
+      type: ConflictResponseDto,
     })
   );
 }

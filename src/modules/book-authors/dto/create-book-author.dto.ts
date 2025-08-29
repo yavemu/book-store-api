@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, Length, IsOptional, IsDate } from "class-validator";
+import { IsString, IsNotEmpty, Length, IsOptional, IsDate, IsDateString } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 
@@ -36,7 +36,7 @@ export class CreateBookAuthorDto {
   })
   nationality?: string;
 
-  @IsDate()
+  @IsDateString()
   @IsOptional()
   @Type(() => Date)
   @ApiPropertyOptional({
@@ -44,7 +44,7 @@ export class CreateBookAuthorDto {
     example: "1947-09-21",
     format: "date",
   })
-  birthDate?: string;
+  birthDate?: Date;
 
   @IsString()
   @IsOptional()

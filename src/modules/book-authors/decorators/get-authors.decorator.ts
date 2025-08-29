@@ -14,14 +14,12 @@ export function ApiGetAuthors() {
       required: false,
       type: String,
       description: "Término de búsqueda para filtrar por nombre o apellido",
-      example: "Stephen King",
     }),
     ApiQuery({
       name: "nationality",
       required: false,
       type: String,
       description: "Nacionalidad para filtrar autores",
-      example: "Estadounidense",
     }),
     ApiExtraModels(PaginationDto),
     ApiResponse({

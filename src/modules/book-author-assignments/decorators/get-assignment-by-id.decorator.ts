@@ -6,6 +6,7 @@ import {
   ApiUnauthorizedResponse,
   ApiNotFoundResponse
 } from '@nestjs/swagger';
+import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
 
 export function ApiGetAssignmentById() {
   return applyDecorators(
@@ -15,42 +16,28 @@ export function ApiGetAssignmentById() {
     }),
     ApiParam({
       name: 'id',
-      description: 'ID de la asignación libro-autor',
-      example: '550e8400-e29b-41d4-a716-446655440000'
-    }),
+      description: 'ID de la asignación libro-autor'}),
     ApiResponse({ 
       status: 200, 
       description: 'Asignación libro-autor obtenida exitosamente',
       schema: {
         type: 'object',
         properties: {
-          id: { type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' },
-          bookId: { type: 'string', example: '550e8400-e29b-41d4-a716-446655440001' },
-          authorId: { type: 'string', example: '550e8400-e29b-41d4-a716-446655440002' },
-          assignmentOrder: { type: 'number', example: 1 },
-          createdAt: { type: 'string', example: '2024-01-01T00:00:00.000Z' }
+          id: { type: 'string'},
+          bookId: { type: 'string'},
+          authorId: { type: 'string'},
+          assignmentOrder: { type: 'number'},
+          createdAt: { type: 'string'}
         }
       }
     }),
-    ApiUnauthorizedResponse({ 
+    ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 401 },
-          message: { type: 'string', example: 'No autorizado' }
-        }
-      }
+      type: UnauthorizedResponseDto,
     }),
     ApiNotFoundResponse({
       description: 'Asignación no encontrada',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 404 },
-          message: { type: 'string', example: 'Asignación no encontrada' }
-        }
-      }
-    })
+      type: NotFoundResponseDto,
+    }),
   );
 }

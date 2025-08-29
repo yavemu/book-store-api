@@ -1,0 +1,95 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { AuditSearchRepository } from '../audit-search.repository';
+import { AuditLog } from '../../entities/audit-log.entity';
+import { AuditAction } from '../../enums/audit-action.enum';
+import { PaginationDto } from '../../../../common/dto';
+
+describe('AuditSearchRepository', () => {
+    let repository: AuditSearchRepository;
+    let auditLogRepo: Repository<AuditLog>;
+
+    const mockAuditLogRepo = {
+        findAndCount: jest.fn(),
+    };
+
+    beforeEach(async () => {
+        const module: TestingModule = await Test.createTestingModule({
+            providers: [
+                AuditSearchRepository,
+                {
+                    provide: getRepositoryToken(AuditLog),
+                    useValue: mockAuditLogRepo,
+                },
+            ],
+        }).compile();
+
+        repository = module.get<AuditSearchRepository>(AuditSearchRepository);
+        auditLogRepo = module.get<Repository<AuditLog>>(getRepositoryToken(AuditLog));
+    });
+
+    it('should be defined', () => {
+        expect(repository).toBeDefined();
+    });
+
+    describe('getAuditTrail', () => {
+        it('should get audit trail', async () => {
+            const pagination = new PaginationDto();
+            mockAuditLogRepo.findAndCount.mockResolvedValue([[], 0]);
+            const result = await repository.getAuditTrail(pagination);
+            expect(mockAuditLogRepo.findAndCount).toHaveBeenCalled();
+            expect(result).toBeDefined();
+        });
+    });
+
+    describe('getUserAuditHistory', () => {
+        it('should get user audit history', async () => {
+            const pagination = new PaginationDto();
+            mockAuditLogRepo.findAndCount.mockResolvedValue([[], 0]);
+            const result = await repository.getUserAuditHistory('1', pagination);
+            expect(mockAuditLogRepo.findAndCount).toHaveBeenCalled();
+            expect(result).toBeDefined();
+        });
+    });
+
+    describe('getEntityAuditHistory', () => {
+        it('should get entity audit history', async () => {
+            const pagination = new PaginationDto();
+            mockAuditLogRepo.findAndCount.mockResolvedValue([[], 0]);
+            const result = await repository.getEntityAuditHistory('1', pagination);
+            expect(mockAuditLogRepo.findAndCount).toHaveBeenCalled();
+            expect(result).toBeDefined();
+        });
+    });
+
+    describe('getAuditsByAction', () => {
+        it('should get audits by action', async () => {
+            const pagination = new PaginationDto();
+            mockAuditLogRepo.findAndCount.mockResolvedValue([[], 0]);
+            const result = await repository.getAuditsByAction(AuditAction.CREATE, pagination);
+            expect(mockAuditLogRepo.findAndCount).toHaveBeenCalled();
+            expect(result).toBeDefined();
+        });
+    });
+
+    describe('getAuditsByEntityType', () => {
+        it('should get audits by entity type', async () => {
+            const pagination = new PaginationDto();
+            mockAuditLogRepo.findAndCount.mockResolvedValue([[], 0]);
+            const result = await repository.getAuditsByEntityType('User', pagination);
+            expect(mockAuditLogRepo.findAndCount).toHaveBeenCalled();
+            expect(result).toBeDefined();
+        });
+    });
+
+    describe('searchAuditLogs', () => {
+        it('should search audit logs', async () => {
+            const pagination = new PaginationDto();
+            mockAuditLogRepo.findAndCount.mockResolvedValue([[], 0]);
+            const result = await repository.searchAuditLogs('test', pagination);
+            expect(mockAuditLogRepo.findAndCount).toHaveBeenCalled();
+            expect(result).toBeDefined();
+        });
+    });
+});

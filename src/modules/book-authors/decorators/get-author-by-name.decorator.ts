@@ -6,6 +6,7 @@ import {
   ApiUnauthorizedResponse,
   ApiNotFoundResponse
 } from '@nestjs/swagger';
+import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
 import { BookAuthorResponseDto } from '../dto';
 
 export function ApiGetAuthorByName() {
@@ -16,38 +17,22 @@ export function ApiGetAuthorByName() {
     }),
     ApiParam({
       name: 'firstName',
-      description: 'Nombre del autor',
-      example: 'Stephen'
-    }),
+      description: 'Nombre del autor'}),
     ApiParam({
       name: 'lastName',
-      description: 'Apellido del autor',
-      example: 'King'
-    }),
+      description: 'Apellido del autor'}),
     ApiResponse({ 
       status: 200, 
       description: 'Autor obtenido exitosamente',
       type: BookAuthorResponseDto
     }),
-    ApiUnauthorizedResponse({ 
+    ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 401 },
-          message: { type: 'string', example: 'No autorizado' }
-        }
-      }
+      type: UnauthorizedResponseDto,
     }),
     ApiNotFoundResponse({
       description: 'Autor no encontrado',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number', example: 404 },
-          message: { type: 'string', example: 'Autor no encontrado' }
-        }
-      }
-    })
+      type: NotFoundResponseDto,
+    }),
   );
 }

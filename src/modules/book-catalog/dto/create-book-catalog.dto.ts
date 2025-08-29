@@ -68,15 +68,15 @@ export class CreateBookCatalogDto {
   })
   coverImageUrl?: string;
 
-  @IsDate()
+  @IsDateString()
   @IsOptional()
   @Type(() => Date)
   @ApiPropertyOptional({
     description: "Date when the book was published",
-    example: "1977-01-28",
+    example: "1947-09-21",
     format: "date",
   })
-  publicationDate?: string;
+  publicationDate?: Date;
 
   @IsNumber()
   @Min(1)

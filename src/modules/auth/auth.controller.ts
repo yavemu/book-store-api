@@ -11,7 +11,7 @@ import { AuthService } from "./services/auth.service";
 import { LoginDto } from "./dto";
 import { Public, Auth } from "../../common/decorators/auth.decorator";
 import { UserRole } from "../users/enums/user-role.enum";
-import { ERROR_MESSAGES } from "../../common/exceptions";
+import { ERROR_MESSAGES } from "../../common/constants";
 import { ApiLogin, ApiRegister, ApiGetProfile } from "./decorators";
 import { RegisterUserDto } from "../users/dto/register-user.dto";
 
