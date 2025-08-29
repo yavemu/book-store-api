@@ -8,10 +8,8 @@ export class ResponseFormatInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map((response) => {
-        const hasMessage = response && response.message;
-
         return {
-          data: response?.data ?? response ?? [],
+          data: response?.data ?? response.data ?? [],
           meta: response?.meta ?? undefined,
           message: response?.message ?? SUCCESS_MESSAGES.GENERAL.OPERATION_SUCCESS,
         };
