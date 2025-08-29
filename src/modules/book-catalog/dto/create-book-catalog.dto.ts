@@ -68,7 +68,7 @@ export class CreateBookCatalogDto {
   })
   coverImageUrl?: string;
 
-  @IsDateString()
+  @IsDate()
   @IsOptional()
   @Type(() => Date)
   @ApiPropertyOptional({

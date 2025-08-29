@@ -9,7 +9,7 @@ export class ResponseFormatInterceptor implements NestInterceptor {
     return next.handle().pipe(
       map((response) => {
         return {
-          data: response?.data ?? response.data ?? [],
+          data: response?.data ?? response ?? [],
           meta: response?.meta ?? undefined,
           message: response?.message ?? SUCCESS_MESSAGES.GENERAL.OPERATION_SUCCESS,
         };

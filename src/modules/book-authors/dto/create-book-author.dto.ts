@@ -36,12 +36,12 @@ export class CreateBookAuthorDto {
   })
   nationality?: string;
 
-  @IsDateString()
+  @IsDate()
   @IsOptional()
   @Type(() => Date)
   @ApiPropertyOptional({
     description: "Birth date of the author",
-    example: "1947-09-21",
+    example: "1947-10-21",
     format: "date",
   })
   birthDate?: Date;

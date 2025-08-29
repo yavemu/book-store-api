@@ -1,4 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from "class-transformer";
+import { IsDate, IsOptional } from "class-validator";
 
 export class BookCatalogResponseDto {
   @ApiProperty({
@@ -43,6 +45,9 @@ export class BookCatalogResponseDto {
   })
   coverImageUrl?: string;
 
+  @IsDate()
+  @IsOptional()
+  @Type(() => Date)
   @ApiPropertyOptional({
     description: "Fecha de publicación del libro",
     example: "1977-01-28T00:00:00.000Z",

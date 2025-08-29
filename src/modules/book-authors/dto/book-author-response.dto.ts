@@ -1,4 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from "class-transformer";
+import { IsDate, IsOptional } from "class-validator";
 
 export class BookAuthorResponseDto {
   @ApiProperty({
@@ -25,9 +27,13 @@ export class BookAuthorResponseDto {
   })
   nationality?: string;
 
+  @IsDate()
+  @IsOptional()
+  @Type(() => Date)
   @ApiPropertyOptional({
-    description: "Fecha de nacimiento del autor",
-    example: "1947-09-21T00:00:00.000Z",
+    description: "Birth date of the author",
+    example: "1947-10-21",
+    format: "date",
   })
   birthDate?: Date;
 
