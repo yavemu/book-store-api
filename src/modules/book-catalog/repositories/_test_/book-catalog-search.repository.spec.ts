@@ -52,7 +52,7 @@ describe('BookCatalogSearchRepository', () => {
           useValue: {
             log: jest.fn(),
           },
-        }
+        },
       ],
     }).compile();
 
@@ -69,7 +69,7 @@ describe('BookCatalogSearchRepository', () => {
     it('should search books by term', async () => {
       const pagination = new PaginationDto();
       const paginatedResult = { data: [mockBookCatalog], meta: { total: 1, page: 1, limit: 10 } };
-      
+
       (repository as any)._findManyWithPagination = jest.fn().mockResolvedValue(paginatedResult);
 
       const result = await repository.searchBooks('test', pagination);
@@ -90,10 +90,10 @@ describe('BookCatalogSearchRepository', () => {
         isAvailable: true,
       } as BookFiltersDto;
       const pagination = new PaginationDto();
-      
+
       (repository as any)._buildPaginatedResult = jest.fn().mockReturnValue({
         data: [mockBookCatalog],
-        meta: { total: 1, page: 1, limit: 10 }
+        meta: { total: 1, page: 1, limit: 10 },
       });
 
       const result = await repository.findBooksWithFilters(filters, pagination);
@@ -107,7 +107,7 @@ describe('BookCatalogSearchRepository', () => {
     it('should get books by genre', async () => {
       const pagination = new PaginationDto();
       const paginatedResult = { data: [mockBookCatalog], meta: { total: 1, page: 1, limit: 10 } };
-      
+
       (repository as any)._findManyWithPagination = jest.fn().mockResolvedValue(paginatedResult);
 
       const result = await repository.getBooksByGenre('genre-1', pagination);
@@ -121,7 +121,7 @@ describe('BookCatalogSearchRepository', () => {
     it('should get books by publisher', async () => {
       const pagination = new PaginationDto();
       const paginatedResult = { data: [mockBookCatalog], meta: { total: 1, page: 1, limit: 10 } };
-      
+
       (repository as any)._findManyWithPagination = jest.fn().mockResolvedValue(paginatedResult);
 
       const result = await repository.getBooksByPublisher('publisher-1', pagination);
@@ -135,7 +135,7 @@ describe('BookCatalogSearchRepository', () => {
     it('should get available books', async () => {
       const pagination = new PaginationDto();
       const paginatedResult = { data: [mockBookCatalog], meta: { total: 1, page: 1, limit: 10 } };
-      
+
       (repository as any)._findManyWithPagination = jest.fn().mockResolvedValue(paginatedResult);
 
       const result = await repository.getAvailableBooks(pagination);
@@ -152,7 +152,7 @@ describe('BookCatalogSearchRepository', () => {
       const result = await repository.checkIsbnExists('978-3-16-148410-0');
 
       expect(typeormRepo.count).toHaveBeenCalledWith({
-        where: { isbnCode: '978-3-16-148410-0' }
+        where: { isbnCode: '978-3-16-148410-0' },
       });
       expect(result).toBe(true);
     });
@@ -163,7 +163,7 @@ describe('BookCatalogSearchRepository', () => {
       const result = await repository.checkIsbnExists('978-3-16-148410-1');
 
       expect(typeormRepo.count).toHaveBeenCalledWith({
-        where: { isbnCode: '978-3-16-148410-1' }
+        where: { isbnCode: '978-3-16-148410-1' },
       });
       expect(result).toBe(false);
     });

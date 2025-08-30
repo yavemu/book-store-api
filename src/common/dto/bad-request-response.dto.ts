@@ -8,10 +8,7 @@ export class BadRequestResponseDto {
 
   @ApiProperty({
     description: 'Error message or array of validation errors',
-    oneOf: [
-      { type: 'string' },
-      { type: 'array', items: { type: 'string' } }
-    ]
+    oneOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
   })
   message: string | string[];
 

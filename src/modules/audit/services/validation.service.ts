@@ -11,7 +11,7 @@ export class ValidationService implements IValidationService {
       message: string;
       transform?: (value: any) => any;
     }>,
-    repository?: any
+    repository?: any,
   ): Promise<void> {
     if (!constraints || !repository) {
       return;

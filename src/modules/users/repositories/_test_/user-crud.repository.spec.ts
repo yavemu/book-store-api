@@ -74,7 +74,7 @@ describe('UserCrudRepository', () => {
           useValue: {
             log: jest.fn(),
           },
-        }
+        },
       ],
     }).compile();
 
@@ -96,7 +96,7 @@ describe('UserCrudRepository', () => {
         email: 'test@example.com',
         password: 'password123',
       } as CreateUserDto;
-      
+
       (repository as any)._validateUniqueConstraints = jest.fn().mockResolvedValue(undefined);
 
       const result = await repository.registerUser(createDto, 'test-user');
@@ -114,7 +114,7 @@ describe('UserCrudRepository', () => {
         email: 'test@example.com',
         password: 'password123',
       } as CreateUserDto;
-      
+
       (repository as any)._validateUniqueConstraints = jest.fn().mockResolvedValue(undefined);
 
       await repository.registerUser(createDto, 'test-user');
@@ -132,7 +132,8 @@ describe('UserCrudRepository', () => {
         password: 'password123',
       } as CreateUserDto;
 
-      (repository as any)._validateUniqueConstraints = jest.fn()
+      (repository as any)._validateUniqueConstraints = jest
+        .fn()
         .mockRejectedValue(new Error('Username already exists'));
 
       await expect(repository.registerUser(createDto, 'test-user')).rejects.toThrow(HttpException);
@@ -180,7 +181,9 @@ describe('UserCrudRepository', () => {
       jest.spyOn(repository, 'getUserProfile').mockResolvedValue(mockUser as User);
       (repository as any)._findOne = jest.fn().mockResolvedValue(existingUser);
 
-      await expect(repository.updateUserProfile('1', updateDto, 'test-user')).rejects.toThrow(ConflictException);
+      await expect(repository.updateUserProfile('1', updateDto, 'test-user')).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('should throw ConflictException when email already exists', async () => {
@@ -190,7 +193,9 @@ describe('UserCrudRepository', () => {
       jest.spyOn(repository, 'getUserProfile').mockResolvedValue(mockUser as User);
       (repository as any)._findOne = jest.fn().mockResolvedValue(existingUser);
 
-      await expect(repository.updateUserProfile('1', updateDto, 'test-user')).rejects.toThrow(ConflictException);
+      await expect(repository.updateUserProfile('1', updateDto, 'test-user')).rejects.toThrow(
+        ConflictException,
+      );
     });
   });
 
@@ -208,7 +213,7 @@ describe('UserCrudRepository', () => {
         '1',
         'test-user',
         'User',
-        expect.any(Function)
+        expect.any(Function),
       );
       expect(result).toEqual(deleteResult);
     });
@@ -218,7 +223,7 @@ describe('UserCrudRepository', () => {
     it('should get all users with pagination', async () => {
       const pagination = new PaginationDto();
       const paginatedResult = { data: [mockUser], meta: { total: 1, page: 1, limit: 10 } };
-      
+
       (repository as any)._findManyWithPagination = jest.fn().mockResolvedValue(paginatedResult);
 
       const result = await repository.getAllUsers(pagination);
@@ -260,25 +265,37 @@ describe('UserCrudRepository', () => {
     it('should pass validation when no conflicts', async () => {
       const dto = { username: 'newuser', email: 'new@example.com' };
       const constraints = [
-        { field: 'username', message: 'Username exists', transform: (v: string) => v.toLowerCase() },
+        {
+          field: 'username',
+          message: 'Username exists',
+          transform: (v: string) => v.toLowerCase(),
+        },
         { field: 'email', message: 'Email exists', transform: (v: string) => v.toLowerCase() },
       ];
 
       jest.spyOn(repository, 'findByUsername').mockResolvedValue(null);
       jest.spyOn(repository, 'findByEmail').mockResolvedValue(null);
 
-      await expect((repository as any)._validateUniqueConstraints(dto, undefined, constraints)).resolves.not.toThrow();
+      await expect(
+        (repository as any)._validateUniqueConstraints(dto, undefined, constraints),
+      ).resolves.not.toThrow();
     });
 
     it('should throw error when username conflict found', async () => {
       const dto = { username: 'existinguser' };
       const constraints = [
-        { field: 'username', message: 'Username exists', transform: (v: string) => v.toLowerCase() },
+        {
+          field: 'username',
+          message: 'Username exists',
+          transform: (v: string) => v.toLowerCase(),
+        },
       ];
 
       jest.spyOn(repository, 'findByUsername').mockResolvedValue(mockUser as User);
 
-      await expect((repository as any)._validateUniqueConstraints(dto, undefined, constraints)).rejects.toThrow('Username exists');
+      await expect(
+        (repository as any)._validateUniqueConstraints(dto, undefined, constraints),
+      ).rejects.toThrow('Username exists');
     });
   });
 });

@@ -11,20 +11,17 @@ import { RoleRepository } from './repositories/role.repository';
 import { AuditModule } from '../audit/audit.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Role]),
-    AuditModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Role]), AuditModule],
   controllers: [RolesController],
   providers: [
     // Core Services
     RoleCrudService,
     RoleSearchService,
     ValidationService,
-    ErrorHandlerService, 
+    ErrorHandlerService,
     UserContextService,
     RoleRepository,
-    
+
     // Interface Providers
     {
       provide: 'IRoleCrudService',
@@ -59,11 +56,6 @@ import { AuditModule } from '../audit/audit.module';
       useClass: RoleRepository,
     },
   ],
-  exports: [
-    TypeOrmModule,
-    RoleCrudService,
-    RoleSearchService,
-    RoleRepository,
-  ],
+  exports: [TypeOrmModule, RoleCrudService, RoleSearchService, RoleRepository],
 })
 export class RolesModule {}

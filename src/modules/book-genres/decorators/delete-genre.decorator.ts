@@ -1,32 +1,41 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
+import {
+  ApiOperation,
+  ApiResponse,
   ApiParam,
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
-  ApiNotFoundResponse
+  ApiNotFoundResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
-import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
+import {
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 
 export function ApiDeleteGenre() {
   return applyDecorators(
-    ApiOperation({ 
+    ApiOperation({
       summary: 'Eliminar género de libro - Acceso: ADMIN',
-      description: 'Elimina (soft delete) un género de libro del sistema. Solo accesible para administradores.' 
+      description:
+        'Elimina (soft delete) un género de libro del sistema. Solo accesible para administradores.',
     }),
     ApiParam({
       name: 'id',
-      description: 'ID único del género de libro a eliminar'}),
-    ApiResponse({ 
-      status: 200, 
+      description: 'ID único del género de libro a eliminar',
+    }),
+    ApiResponse({
+      status: 200,
       description: 'Género de libro eliminado exitosamente',
       schema: {
         type: 'object',
         properties: {
-          message: { type: 'string'}
-        }
-      }
+          message: { type: 'string' },
+        },
+      },
     }),
     ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',

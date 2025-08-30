@@ -1,32 +1,41 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
+import {
+  ApiOperation,
+  ApiResponse,
   ApiParam,
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
-  ApiNotFoundResponse
+  ApiNotFoundResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
-import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
+import {
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 
 export function ApiDeleteAssignment() {
   return applyDecorators(
-    ApiOperation({ 
+    ApiOperation({
       summary: 'Eliminar asignación autor-libro - Acceso: ADMIN',
-      description: 'Elimina (soft delete) una asignación entre un libro y un autor. Solo accesible para administradores.' 
+      description:
+        'Elimina (soft delete) una asignación entre un libro y un autor. Solo accesible para administradores.',
     }),
     ApiParam({
       name: 'id',
-      description: 'ID de la asignación libro-autor a eliminar'}),
-    ApiResponse({ 
-      status: 200, 
+      description: 'ID de la asignación libro-autor a eliminar',
+    }),
+    ApiResponse({
+      status: 200,
       description: 'Asignación libro-autor eliminada exitosamente',
       schema: {
         type: 'object',
         properties: {
-          message: { type: 'string'}
-        }
-      }
+          message: { type: 'string' },
+        },
+      },
     }),
     ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',

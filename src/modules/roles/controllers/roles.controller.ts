@@ -3,7 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
@@ -17,7 +17,7 @@ import { IUserContextService } from '../interfaces/user-context.service.interfac
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
 import { RoleResponseDto } from '../dto/role-response.dto';
-import { PaginationDto } from "../../../common/dto/pagination.dto";
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { Auth } from '../../../common/decorators/auth.decorator';
 import { UserRole } from '../../users/enums/user-role.enum';
 
@@ -38,10 +38,7 @@ export class RolesController {
   @ApiOperation({ summary: 'Create a new role' })
   @ApiResponse({ status: 201, description: 'Role created successfully', type: RoleResponseDto })
   @ApiResponse({ status: 409, description: 'Role name already exists' })
-  create(
-    @Body() createRoleDto: CreateRoleDto,
-    @Request() req: any,
-  ) {
+  create(@Body() createRoleDto: CreateRoleDto, @Request() req: any) {
     const userId = this.userContextService.extractUserId(req);
     return this.crudService.create(createRoleDto, userId);
   }
@@ -49,7 +46,11 @@ export class RolesController {
   @Get()
   @Auth(UserRole.ADMIN)
   @ApiOperation({ summary: 'Get all roles with pagination' })
-  @ApiResponse({ status: 200, description: 'Roles retrieved successfully', type: [RoleResponseDto] })
+  @ApiResponse({
+    status: 200,
+    description: 'Roles retrieved successfully',
+    type: [RoleResponseDto],
+  })
   findAll(@Query() pagination: PaginationDto) {
     return this.crudService.findAll(pagination);
   }
@@ -57,7 +58,11 @@ export class RolesController {
   @Get('active')
   @Auth(UserRole.ADMIN)
   @ApiOperation({ summary: 'Get all active roles with pagination' })
-  @ApiResponse({ status: 200, description: 'Active roles retrieved successfully', type: [RoleResponseDto] })
+  @ApiResponse({
+    status: 200,
+    description: 'Active roles retrieved successfully',
+    type: [RoleResponseDto],
+  })
   findActiveRoles(@Query() pagination: PaginationDto) {
     return this.searchService.findActiveRoles(pagination);
   }
@@ -66,20 +71,21 @@ export class RolesController {
   @Auth(UserRole.ADMIN)
   @ApiOperation({ summary: 'Search roles by term' })
   @ApiResponse({ status: 200, description: 'Roles found successfully', type: [RoleResponseDto] })
-  searchRoles(
-    @Query('term') term: string,
-    @Query() pagination: PaginationDto
-  ) {
+  searchRoles(@Query('term') term: string, @Query() pagination: PaginationDto) {
     return this.searchService.searchRoles(term, pagination);
   }
 
   @Get('by-permission/:permission')
   @Auth(UserRole.ADMIN)
   @ApiOperation({ summary: 'Find roles by permission' })
-  @ApiResponse({ status: 200, description: 'Roles with permission retrieved successfully', type: [RoleResponseDto] })
+  @ApiResponse({
+    status: 200,
+    description: 'Roles with permission retrieved successfully',
+    type: [RoleResponseDto],
+  })
   findRolesByPermission(
     @Param('permission') permission: string,
-    @Query() pagination: PaginationDto
+    @Query() pagination: PaginationDto,
   ) {
     return this.searchService.findRolesByPermission(permission, pagination);
   }
@@ -102,17 +108,13 @@ export class RolesController {
     return this.crudService.findOne(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @Auth(UserRole.ADMIN)
   @ApiOperation({ summary: 'Update role by ID' })
   @ApiResponse({ status: 200, description: 'Role updated successfully', type: RoleResponseDto })
   @ApiResponse({ status: 404, description: 'Role not found' })
   @ApiResponse({ status: 409, description: 'Role name already exists' })
-  update(
-    @Param('id') id: string,
-    @Body() updateRoleDto: UpdateRoleDto,
-    @Request() req: any,
-  ) {
+  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto, @Request() req: any) {
     const userId = this.userContextService.extractUserId(req);
     return this.crudService.update(id, updateRoleDto, userId);
   }
@@ -122,10 +124,7 @@ export class RolesController {
   @ApiOperation({ summary: 'Delete role by ID (soft delete)' })
   @ApiResponse({ status: 200, description: 'Role deleted successfully' })
   @ApiResponse({ status: 404, description: 'Role not found' })
-  remove(
-    @Param('id') id: string,
-    @Request() req: any,
-  ) {
+  remove(@Param('id') id: string, @Request() req: any) {
     const userId = this.userContextService.extractUserId(req);
     return this.crudService.remove(id, userId);
   }

@@ -10,7 +10,14 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { AuditLogListResponseDto } from '../dto/audit-response.dto';
-import { PaginationDto , BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto} from '../../../common/dto';
+import {
+  PaginationDto,
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 import { ApiResponseDto } from '../../../common/dto';
 
 export function ApiGetAuditByAction() {
@@ -29,8 +36,7 @@ export function ApiGetAuditByAction() {
     ApiExtraModels(PaginationDto, ApiResponseDto, AuditLogListResponseDto),
     ApiResponse({
       status: 200,
-      description:
-        'Registros de auditoría filtrados por acción obtenidos exitosamente',
+      description: 'Registros de auditoría filtrados por acción obtenidos exitosamente',
       schema: {
         allOf: [
           { $ref: getSchemaPath(ApiResponseDto) },
@@ -49,9 +55,9 @@ export function ApiGetAuditByAction() {
       schema: {
         type: 'object',
         properties: {
-          statusCode: { type: 'number'},
-          message: { type: 'string'},
-          error: { type: 'string'},
+          statusCode: { type: 'number' },
+          message: { type: 'string' },
+          error: { type: 'string' },
         },
       },
     }),
@@ -60,9 +66,9 @@ export function ApiGetAuditByAction() {
       schema: {
         type: 'object',
         properties: {
-          statusCode: { type: 'number'},
-          message: { type: 'string'},
-          error: { type: 'string'},
+          statusCode: { type: 'number' },
+          message: { type: 'string' },
+          error: { type: 'string' },
         },
       },
     }),

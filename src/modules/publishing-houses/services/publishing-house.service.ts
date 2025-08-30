@@ -5,6 +5,8 @@ import { IPublishingHouseSearchService } from '../interfaces/publishing-house-se
 import { PublishingHouse } from '../entities/publishing-house.entity';
 import { CreatePublishingHouseDto } from '../dto/create-publishing-house.dto';
 import { UpdatePublishingHouseDto } from '../dto/update-publishing-house.dto';
+import { PublishingHouseFiltersDto } from '../dto/publishing-house-filters.dto';
+import { PublishingHouseCsvExportFiltersDto } from '../dto/publishing-house-csv-export-filters.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 @Injectable()
@@ -23,9 +25,7 @@ export class PublishingHouseService implements IPublishingHouseService {
     return this.crudService.create(createPublishingHouseDto, performedBy);
   }
 
-  async findAll(
-    pagination: PaginationDto,
-  ): Promise<PaginatedResult<PublishingHouse>> {
+  async findAll(pagination: PaginationDto): Promise<PaginatedResult<PublishingHouse>> {
     return this.crudService.findAll(pagination);
   }
 
@@ -41,10 +41,7 @@ export class PublishingHouseService implements IPublishingHouseService {
     return this.crudService.update(id, updatePublishingHouseDto, performedBy);
   }
 
-  async softDelete(
-    id: string,
-    performedBy: string,
-  ): Promise<{ id: string }> {
+  async softDelete(id: string, performedBy: string): Promise<{ id: string }> {
     return this.crudService.softDelete(id, performedBy);
   }
 
@@ -60,5 +57,16 @@ export class PublishingHouseService implements IPublishingHouseService {
     pagination: PaginationDto,
   ): Promise<PaginatedResult<PublishingHouse>> {
     return this.searchService.findByCountry(country, pagination);
+  }
+
+  async findWithFilters(
+    filters: PublishingHouseFiltersDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<PublishingHouse>> {
+    return this.searchService.findWithFilters(filters, pagination);
+  }
+
+  async exportToCsv(filters: PublishingHouseCsvExportFiltersDto): Promise<string> {
+    return this.searchService.exportToCsv(filters);
   }
 }

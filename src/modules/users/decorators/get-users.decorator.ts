@@ -9,7 +9,12 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { UserListResponseDto } from '../dto';
-import { PaginationDto, ApiResponseDto, UnauthorizedResponseDto, ForbiddenResponseDto } from '../../../common/dto';
+import {
+  PaginationDto,
+  ApiResponseDto,
+  UnauthorizedResponseDto,
+  ForbiddenResponseDto,
+} from '../../../common/dto';
 
 export function ApiGetUsers() {
   return applyDecorators(

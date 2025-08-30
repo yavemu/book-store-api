@@ -1,11 +1,19 @@
-import { IsOptional, IsString, IsUUID, IsBoolean, IsNumber, Min, IsDateString } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsUUID,
+  IsBoolean,
+  IsNumber,
+  Min,
+  IsDateString,
+} from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 export class CsvExportFiltersDto {
   @IsOptional()
   @IsString()
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'Search term for book title',
     example: 'Harry Potter',
     required: false,
@@ -14,7 +22,7 @@ export class CsvExportFiltersDto {
 
   @IsOptional()
   @IsUUID()
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'Filter by genre ID',
     example: '550e8400-e29b-41d4-a716-446655440000',
     format: 'uuid',
@@ -24,7 +32,7 @@ export class CsvExportFiltersDto {
 
   @IsOptional()
   @IsUUID()
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'Filter by publisher ID',
     example: '550e8400-e29b-41d4-a716-446655440001',
     format: 'uuid',
@@ -35,7 +43,7 @@ export class CsvExportFiltersDto {
   @IsOptional()
   @IsBoolean()
   @Type(() => Boolean)
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'Filter by availability status',
     example: true,
     required: false,
@@ -46,9 +54,9 @@ export class CsvExportFiltersDto {
   @IsNumber()
   @Min(0)
   @Type(() => Number)
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'Minimum price filter',
-    example: 10.00,
+    example: 10.0,
     minimum: 0,
     required: false,
   })
@@ -58,9 +66,9 @@ export class CsvExportFiltersDto {
   @IsNumber()
   @Min(0)
   @Type(() => Number)
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'Maximum price filter',
-    example: 50.00,
+    example: 50.0,
     minimum: 0,
     required: false,
   })
@@ -68,7 +76,7 @@ export class CsvExportFiltersDto {
 
   @IsOptional()
   @IsString()
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'Search term for author name',
     example: 'J.K. Rowling',
     required: false,
@@ -77,7 +85,7 @@ export class CsvExportFiltersDto {
 
   @IsOptional()
   @IsDateString()
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'Start date for publication date range filter',
     example: '2020-01-01',
     format: 'date',
@@ -87,7 +95,7 @@ export class CsvExportFiltersDto {
 
   @IsOptional()
   @IsDateString()
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'End date for publication date range filter',
     example: '2023-12-31',
     format: 'date',
@@ -97,7 +105,7 @@ export class CsvExportFiltersDto {
 
   @IsOptional()
   @IsDateString()
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'Start date for creation date range filter',
     example: '2023-01-01',
     format: 'date',
@@ -107,7 +115,7 @@ export class CsvExportFiltersDto {
 
   @IsOptional()
   @IsDateString()
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'End date for creation date range filter',
     example: '2023-12-31',
     format: 'date',

@@ -5,6 +5,9 @@ import { PaginatedResult } from '../../../common/interfaces/paginated-result.int
 export interface IRoleSearchService {
   findByName(name: string): Promise<Role>;
   findActiveRoles(pagination: PaginationDto): Promise<PaginatedResult<Role>>;
-  findRolesByPermission(permission: string, pagination: PaginationDto): Promise<PaginatedResult<Role>>;
+  findRolesByPermission(
+    permission: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<Role>>;
   searchRoles(term: string, pagination: PaginationDto): Promise<PaginatedResult<Role>>;
 }

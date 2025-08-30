@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-  Inject,
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Inject } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { IAuditLoggerService } from '../../modules/audit/interfaces/audit-logger.service.interface';
@@ -13,7 +7,7 @@ import { AuditAction } from '../../modules/audit/enums/audit-action.enum';
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {
   constructor(
-    @Inject("IAuditLoggerService")
+    @Inject('IAuditLoggerService')
     private readonly auditLogService: IAuditLoggerService,
   ) {}
 
@@ -22,7 +16,7 @@ export class AuditInterceptor implements NestInterceptor {
     const method = request.method;
     const url = request.url;
     const user = request.user;
-    const userId = user?.userId || "unknown";
+    const userId = user?.userId || 'unknown';
 
     return next.handle().pipe(
       tap(async (response) => {
@@ -37,13 +31,13 @@ export class AuditInterceptor implements NestInterceptor {
 
   private getAuditAction(method: string): AuditAction | null {
     switch (method) {
-      case "POST":
+      case 'POST':
         return AuditAction.CREATE;
-      case "PUT":
+      case 'PUT':
         return AuditAction.UPDATE;
-      case "DELETE":
+      case 'DELETE':
         return AuditAction.DELETE;
-      case "GET":
+      case 'GET':
         return AuditAction.READ;
       default:
         return null;
@@ -51,7 +45,7 @@ export class AuditInterceptor implements NestInterceptor {
   }
 
   private getEntityId(url: string, response: any): string | null {
-    const urlParts = url.split("/");
+    const urlParts = url.split('/');
     const idFromUrl = urlParts[urlParts.length - 1];
 
     if (idFromUrl) {
@@ -66,6 +60,6 @@ export class AuditInterceptor implements NestInterceptor {
       return response.user.id;
     }
 
-    return "unknown";
+    return 'unknown';
   }
 }

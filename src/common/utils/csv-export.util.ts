@@ -5,11 +5,13 @@ export class CsvExportUtil {
     }
 
     const headers = columns.join(',');
-    const rows = data.map(item => 
-      columns.map(column => {
-        const value = item[column];
-        return value !== null && value !== undefined ? String(value) : '';
-      }).join(',')
+    const rows = data.map((item) =>
+      columns
+        .map((column) => {
+          const value = item[column];
+          return value !== null && value !== undefined ? String(value) : '';
+        })
+        .join(','),
     );
 
     return [headers, ...rows].join('\n');
@@ -17,7 +19,7 @@ export class CsvExportUtil {
 
   static generateCsvResponse<T>(data: T[], filename: string, columns: (keyof T)[]) {
     const csv = this.convertToCsv(data, columns);
-    
+
     return {
       content: csv,
       headers: {

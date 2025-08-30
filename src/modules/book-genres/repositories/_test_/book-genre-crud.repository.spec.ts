@@ -43,7 +43,7 @@ describe('BookGenreCrudRepository', () => {
           useValue: {
             log: jest.fn(),
           },
-        }
+        },
       ],
     }).compile();
 
@@ -63,7 +63,7 @@ describe('BookGenreCrudRepository', () => {
         name: 'Fantasy',
         description: 'Fantasy genre books',
       } as CreateBookGenreDto;
-      
+
       (repository as any)._validateUniqueConstraints = jest.fn().mockResolvedValue(undefined);
       (repository as any)._create = jest.fn().mockResolvedValue(mockBookGenre);
 
@@ -80,7 +80,8 @@ describe('BookGenreCrudRepository', () => {
         description: 'Fantasy genre books',
       } as CreateBookGenreDto;
 
-      (repository as any)._validateUniqueConstraints = jest.fn()
+      (repository as any)._validateUniqueConstraints = jest
+        .fn()
         .mockRejectedValue(new HttpException('Name already exists', HttpStatus.CONFLICT));
 
       await expect(repository.registerGenre(createDto, 'test-user')).rejects.toThrow(HttpException);
@@ -124,7 +125,7 @@ describe('BookGenreCrudRepository', () => {
         '1',
         'test-user',
         'BookGenre',
-        expect.any(Function)
+        expect.any(Function),
       );
       expect(result).toEqual({ id: '1' });
     });
@@ -134,7 +135,7 @@ describe('BookGenreCrudRepository', () => {
     it('should get all genres', async () => {
       const pagination = new PaginationDto();
       const paginatedResult = { data: [mockBookGenre], meta: { total: 1, page: 1, limit: 10 } };
-      
+
       (repository as any)._findManyWithPagination = jest.fn().mockResolvedValue(paginatedResult);
 
       const result = await repository.getAllGenres(pagination);

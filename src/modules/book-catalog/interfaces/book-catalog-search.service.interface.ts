@@ -5,9 +5,19 @@ import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.d
 
 export interface IBookCatalogSearchService {
   search(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
-  findWithFilters(filters: BookFiltersDto, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
+  filterSearch(
+    filterTerm: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookCatalog>>;
+  findWithFilters(
+    filters: BookFiltersDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookCatalog>>;
   findByGenre(genreId: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
-  findByPublisher(publisherId: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
+  findByPublisher(
+    publisherId: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookCatalog>>;
   findAvailableBooks(pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
   checkIsbnExists(isbn: string): Promise<{ exists: boolean }>;
   exportToCsv(filters?: CsvExportFiltersDto): Promise<string>;

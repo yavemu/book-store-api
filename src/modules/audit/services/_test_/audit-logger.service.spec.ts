@@ -15,13 +15,20 @@ describe('AuditLoggerService', () => {
     action: AuditAction.CREATE,
     details: 'User created a new book',
     entityType: 'Book',
+    result: 'SUCCESS',
+    ipAddress: '127.0.0.1',
+    environment: 'test',
+    processId: 1234,
+    executionContext: 'TestService',
+    entitySnapshot: null,
+    executionTimeMs: 10,
+    errorDetails: null,
     createdAt: new Date(),
   };
 
   const mockAuditLoggerRepository = {
     logUserAction: jest.fn(),
-    logSystemAction: jest.fn(),
-    logErrorAction: jest.fn(),
+    logEnhancedAction: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -54,13 +61,7 @@ describe('AuditLoggerService', () => {
 
       mockAuditLoggerRepository.logUserAction.mockResolvedValue(mockAuditLog);
 
-      const result = await service.logOperation(
-        performedBy,
-        entityId,
-        action,
-        details,
-        entityType,
-      );
+      const result = await service.logOperation(performedBy, entityId, action, details, entityType);
 
       expect(auditLoggerRepository.logUserAction).toHaveBeenCalledWith(
         performedBy,
@@ -91,13 +92,7 @@ describe('AuditLoggerService', () => {
 
       mockAuditLoggerRepository.logUserAction.mockResolvedValue(updateAuditLog);
 
-      const result = await service.logOperation(
-        performedBy,
-        entityId,
-        action,
-        details,
-        entityType,
-      );
+      const result = await service.logOperation(performedBy, entityId, action, details, entityType);
 
       expect(auditLoggerRepository.logUserAction).toHaveBeenCalledWith(
         performedBy,
@@ -128,13 +123,7 @@ describe('AuditLoggerService', () => {
 
       mockAuditLoggerRepository.logUserAction.mockResolvedValue(deleteAuditLog);
 
-      const result = await service.logOperation(
-        performedBy,
-        entityId,
-        action,
-        details,
-        entityType,
-      );
+      const result = await service.logOperation(performedBy, entityId, action, details, entityType);
 
       expect(auditLoggerRepository.logUserAction).toHaveBeenCalledWith(
         performedBy,
@@ -165,13 +154,7 @@ describe('AuditLoggerService', () => {
 
       mockAuditLoggerRepository.logUserAction.mockResolvedValue(loginAuditLog);
 
-      const result = await service.logOperation(
-        performedBy,
-        entityId,
-        action,
-        details,
-        entityType,
-      );
+      const result = await service.logOperation(performedBy, entityId, action, details, entityType);
 
       expect(auditLoggerRepository.logUserAction).toHaveBeenCalledWith(
         performedBy,
@@ -202,13 +185,7 @@ describe('AuditLoggerService', () => {
 
       mockAuditLoggerRepository.logUserAction.mockResolvedValue(registerAuditLog);
 
-      const result = await service.logOperation(
-        performedBy,
-        entityId,
-        action,
-        details,
-        entityType,
-      );
+      const result = await service.logOperation(performedBy, entityId, action, details, entityType);
 
       expect(auditLoggerRepository.logUserAction).toHaveBeenCalledWith(
         performedBy,
@@ -239,13 +216,7 @@ describe('AuditLoggerService', () => {
 
       mockAuditLoggerRepository.logUserAction.mockResolvedValue(readAuditLog);
 
-      const result = await service.logOperation(
-        performedBy,
-        entityId,
-        action,
-        details,
-        entityType,
-      );
+      const result = await service.logOperation(performedBy, entityId, action, details, entityType);
 
       expect(auditLoggerRepository.logUserAction).toHaveBeenCalledWith(
         performedBy,
@@ -291,13 +262,7 @@ describe('AuditLoggerService', () => {
 
       mockAuditLoggerRepository.logUserAction.mockResolvedValue(mockAuditLog);
 
-      const result = await service.log(
-        performedBy,
-        entityId,
-        action,
-        details,
-        entityType,
-      );
+      const result = await service.log(performedBy, entityId, action, details, entityType);
 
       expect(auditLoggerRepository.logUserAction).toHaveBeenCalledWith(
         performedBy,
@@ -319,9 +284,9 @@ describe('AuditLoggerService', () => {
 
       mockAuditLoggerRepository.logUserAction.mockRejectedValue(error);
 
-      await expect(
-        service.log(performedBy, entityId, action, details, entityType),
-      ).rejects.toThrow(error);
+      await expect(service.log(performedBy, entityId, action, details, entityType)).rejects.toThrow(
+        error,
+      );
     });
   });
 
@@ -343,13 +308,7 @@ describe('AuditLoggerService', () => {
 
       mockAuditLoggerRepository.logUserAction.mockResolvedValue(emptyAuditLog);
 
-      const result = await service.logOperation(
-        performedBy,
-        entityId,
-        action,
-        details,
-        entityType,
-      );
+      const result = await service.logOperation(performedBy, entityId, action, details, entityType);
 
       expect(auditLoggerRepository.logUserAction).toHaveBeenCalledWith(
         performedBy,
@@ -376,13 +335,7 @@ describe('AuditLoggerService', () => {
 
       mockAuditLoggerRepository.logUserAction.mockResolvedValue(longDetailsAuditLog);
 
-      const result = await service.logOperation(
-        performedBy,
-        entityId,
-        action,
-        details,
-        entityType,
-      );
+      const result = await service.logOperation(performedBy, entityId, action, details, entityType);
 
       expect(auditLoggerRepository.logUserAction).toHaveBeenCalledWith(
         performedBy,

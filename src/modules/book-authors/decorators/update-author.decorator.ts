@@ -1,33 +1,41 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
-  ApiBadRequestResponse, 
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiBadRequestResponse,
   ApiNotFoundResponse,
   ApiConflictResponse,
   ApiForbiddenResponse,
   ApiUnauthorizedResponse,
   ApiBearerAuth,
-  ApiParam
+  ApiParam,
 } from '@nestjs/swagger';
-import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
+import {
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 import { UpdateBookAuthorResponseDto } from '../dto';
 
 export function ApiUpdateAuthor() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
-    ApiOperation({ 
+    ApiOperation({
       summary: 'Actualizar información del autor - Acceso: ADMIN',
-      description: 'Actualiza la información de un autor existente. Solo accesible para administradores.' 
+      description:
+        'Actualiza la información de un autor existente. Solo accesible para administradores.',
     }),
     ApiParam({
       name: 'id',
       type: String,
-      description: 'ID único del autor a actualizar'}),
-    ApiResponse({ 
-      status: 200, 
+      description: 'ID único del autor a actualizar',
+    }),
+    ApiResponse({
+      status: 200,
       description: 'Autor actualizado exitosamente',
-      type: UpdateBookAuthorResponseDto
+      type: UpdateBookAuthorResponseDto,
     }),
     ApiBadRequestResponse({
       description: 'Datos de entrada inválidos o errores de validación',

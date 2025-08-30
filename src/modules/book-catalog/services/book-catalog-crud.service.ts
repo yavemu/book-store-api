@@ -13,7 +13,10 @@ export class BookCatalogCrudService implements IBookCatalogCrudService {
     private readonly bookCatalogCrudRepository: IBookCatalogCrudRepository,
   ) {}
 
-  async create(createBookCatalogDto: CreateBookCatalogDto, performedBy: string): Promise<BookCatalog> {
+  async create(
+    createBookCatalogDto: CreateBookCatalogDto,
+    performedBy: string,
+  ): Promise<BookCatalog> {
     return await this.bookCatalogCrudRepository.registerBook(createBookCatalogDto, performedBy);
   }
 
@@ -25,8 +28,16 @@ export class BookCatalogCrudService implements IBookCatalogCrudService {
     return await this.bookCatalogCrudRepository.getBookProfile(id);
   }
 
-  async update(id: string, updateBookCatalogDto: UpdateBookCatalogDto, performedBy: string): Promise<BookCatalog> {
-    return await this.bookCatalogCrudRepository.updateBookProfile(id, updateBookCatalogDto, performedBy);
+  async update(
+    id: string,
+    updateBookCatalogDto: UpdateBookCatalogDto,
+    performedBy: string,
+  ): Promise<BookCatalog> {
+    return await this.bookCatalogCrudRepository.updateBookProfile(
+      id,
+      updateBookCatalogDto,
+      performedBy,
+    );
   }
 
   async softDelete(id: string, performedBy: string): Promise<void> {

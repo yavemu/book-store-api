@@ -7,6 +7,6 @@ export interface IValidationService {
       message: string;
       transform?: (value: any) => any;
     }>,
-    repository?: any
+    repository?: any,
   ): Promise<void>;
 }

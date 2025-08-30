@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BookAuthorAssignmentsController } from '../book-author-assignments.controller';
 import { IBookAuthorAssignmentService } from '../interfaces/book-author-assignment.service.interface';
+import { IBookAuthorAssignmentSearchService } from '../interfaces/book-author-assignment-search.service.interface';
 import { CreateBookAuthorAssignmentDto } from '../dto/create-book-author-assignment.dto';
 import { UpdateBookAuthorAssignmentDto } from '../dto/update-book-author-assignment.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
@@ -8,16 +9,24 @@ import { PaginationDto } from '../../../common/dto/pagination.dto';
 describe('BookAuthorAssignmentsController', () => {
   let controller: BookAuthorAssignmentsController;
   let bookAuthorAssignmentService: IBookAuthorAssignmentService;
+  let searchService: IBookAuthorAssignmentSearchService;
 
   const mockBookAuthorAssignmentService = {
     create: jest.fn(),
     findAll: jest.fn(),
-    findByBook: jest.fn(),
-    findByAuthor: jest.fn(),
     checkAssignmentExists: jest.fn(),
     findById: jest.fn(),
     update: jest.fn(),
     softDelete: jest.fn(),
+  };
+
+  const mockSearchService = {
+    findByBook: jest.fn(),
+    findByAuthor: jest.fn(),
+    searchAssignments: jest.fn(),
+    findAssignmentsWithFilters: jest.fn(),
+    exportAssignmentsToCsv: jest.fn(),
+    checkAssignmentExists: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -25,11 +34,17 @@ describe('BookAuthorAssignmentsController', () => {
       controllers: [BookAuthorAssignmentsController],
       providers: [
         { provide: 'IBookAuthorAssignmentService', useValue: mockBookAuthorAssignmentService },
+        { provide: 'IBookAuthorAssignmentSearchService', useValue: mockSearchService },
       ],
     }).compile();
 
     controller = module.get<BookAuthorAssignmentsController>(BookAuthorAssignmentsController);
-    bookAuthorAssignmentService = module.get<IBookAuthorAssignmentService>('IBookAuthorAssignmentService');
+    bookAuthorAssignmentService = module.get<IBookAuthorAssignmentService>(
+      'IBookAuthorAssignmentService',
+    );
+    searchService = module.get<IBookAuthorAssignmentSearchService>(
+      'IBookAuthorAssignmentSearchService',
+    );
   });
 
   afterEach(() => {
@@ -45,7 +60,7 @@ describe('BookAuthorAssignmentsController', () => {
       const createDto = new CreateBookAuthorAssignmentDto();
       createDto.bookId = 'book-1';
       createDto.authorId = 'author-1';
-      
+
       const req = { user: { id: 'user-1' } };
       const mockAssignment = {
         id: 'assignment-1',
@@ -68,7 +83,7 @@ describe('BookAuthorAssignmentsController', () => {
       const pagination = new PaginationDto();
       pagination.page = 1;
       pagination.limit = 10;
-      
+
       const mockAssignments = {
         data: [
           {
@@ -91,67 +106,61 @@ describe('BookAuthorAssignmentsController', () => {
     });
   });
 
-  describe('findByBook', () => {
-    it('should find assignments by book', async () => {
-      const bookId = 'book-1';
+  describe('search', () => {
+    it('should search assignments by term', async () => {
+      const searchTerm = 'test';
       const pagination = new PaginationDto();
-      
-      const mockBookAssignments = {
-        data: [
-          {
-            id: 'assignment-1',
-            bookId: 'book-1',
-            authorId: 'author-1',
-          },
-          {
-            id: 'assignment-2',
-            bookId: 'book-1',
-            authorId: 'author-2',
-          },
-        ],
-        total: 2,
-        page: 1,
-        limit: 10,
+      const mockResult = {
+        data: [{ id: '1', bookId: '1', authorId: '1' }],
+        meta: { total: 1, page: 1, lastPage: 1 },
       };
 
-      mockBookAuthorAssignmentService.findByBook.mockResolvedValue(mockBookAssignments);
+      mockSearchService.searchAssignments.mockResolvedValue(mockResult);
 
-      const result = await controller.findByBook(bookId, pagination);
+      const result = await controller.search(searchTerm, pagination);
 
-      expect(bookAuthorAssignmentService.findByBook).toHaveBeenCalledWith(bookId, pagination);
-      expect(result).toEqual(mockBookAssignments);
+      expect(result).toEqual(mockResult);
+      expect(mockSearchService.searchAssignments).toHaveBeenCalledWith(searchTerm, pagination);
     });
   });
 
-  describe('findByAuthor', () => {
-    it('should find assignments by author', async () => {
-      const authorId = 'author-1';
+  describe('filter', () => {
+    it('should filter assignments', async () => {
+      const filters = { bookId: '1' };
       const pagination = new PaginationDto();
-      
-      const mockAuthorAssignments = {
-        data: [
-          {
-            id: 'assignment-1',
-            bookId: 'book-1',
-            authorId: 'author-1',
-          },
-          {
-            id: 'assignment-3',
-            bookId: 'book-2',
-            authorId: 'author-1',
-          },
-        ],
-        total: 2,
-        page: 1,
-        limit: 10,
+      const mockResult = {
+        data: [{ id: '1', bookId: '1', authorId: '1' }],
+        meta: { total: 1, page: 1, lastPage: 1 },
       };
 
-      mockBookAuthorAssignmentService.findByAuthor.mockResolvedValue(mockAuthorAssignments);
+      mockSearchService.findAssignmentsWithFilters.mockResolvedValue(mockResult);
 
-      const result = await controller.findByAuthor(authorId, pagination);
+      const result = await controller.filter(filters, pagination);
 
-      expect(bookAuthorAssignmentService.findByAuthor).toHaveBeenCalledWith(authorId, pagination);
-      expect(result).toEqual(mockAuthorAssignments);
+      expect(result).toEqual(mockResult);
+      expect(mockSearchService.findAssignmentsWithFilters).toHaveBeenCalledWith(
+        filters,
+        pagination,
+      );
+    });
+  });
+
+  describe('exportToCsv', () => {
+    it('should export assignments to CSV', async () => {
+      const filters = { bookId: '1' };
+      const csvData = 'ID,Book ID,Author ID\\n1,1,1';
+      const mockResponse = {
+        setHeader: jest.fn(),
+        send: jest.fn(),
+      } as any;
+
+      mockSearchService.exportAssignmentsToCsv.mockResolvedValue(csvData);
+
+      await controller.exportToCsv(filters, mockResponse);
+
+      expect(mockSearchService.exportAssignmentsToCsv).toHaveBeenCalledWith(filters);
+      expect(mockResponse.setHeader).toHaveBeenCalledWith('Content-Type', 'text/csv');
+      expect(mockResponse.send).toHaveBeenCalledWith(csvData);
     });
   });
 
@@ -165,7 +174,10 @@ describe('BookAuthorAssignmentsController', () => {
 
       const result = await controller.checkAssignment(bookId, authorId);
 
-      expect(bookAuthorAssignmentService.checkAssignmentExists).toHaveBeenCalledWith(bookId, authorId);
+      expect(bookAuthorAssignmentService.checkAssignmentExists).toHaveBeenCalledWith(
+        bookId,
+        authorId,
+      );
       expect(result).toEqual(mockCheckResult);
     });
 
@@ -178,7 +190,10 @@ describe('BookAuthorAssignmentsController', () => {
 
       const result = await controller.checkAssignment(bookId, authorId);
 
-      expect(bookAuthorAssignmentService.checkAssignmentExists).toHaveBeenCalledWith(bookId, authorId);
+      expect(bookAuthorAssignmentService.checkAssignmentExists).toHaveBeenCalledWith(
+        bookId,
+        authorId,
+      );
       expect(result).toEqual(mockCheckResult);
     });
   });
@@ -206,7 +221,7 @@ describe('BookAuthorAssignmentsController', () => {
       const id = 'assignment-1';
       const updateDto = new UpdateBookAuthorAssignmentDto();
       updateDto.authorId = 'author-2';
-      
+
       const req = { user: { id: 'user-1' } };
       const mockUpdatedAssignment = {
         id: 'assignment-1',

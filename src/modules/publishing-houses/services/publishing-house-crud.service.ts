@@ -4,10 +4,7 @@ import { IPublishingHouseCrudRepository } from '../interfaces/publishing-house-c
 import { PublishingHouse } from '../entities/publishing-house.entity';
 import { CreatePublishingHouseDto } from '../dto/create-publishing-house.dto';
 import { UpdatePublishingHouseDto } from '../dto/update-publishing-house.dto';
-import {
-  PaginationDto,
-  PaginatedResult,
-} from '../../../common/dto/pagination.dto';
+import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 @Injectable()
 export class PublishingHouseCrudService implements IPublishingHouseCrudService {
@@ -26,9 +23,7 @@ export class PublishingHouseCrudService implements IPublishingHouseCrudService {
     );
   }
 
-  async findAll(
-    pagination: PaginationDto,
-  ): Promise<PaginatedResult<PublishingHouse>> {
+  async findAll(pagination: PaginationDto): Promise<PaginatedResult<PublishingHouse>> {
     return this.publishingHouseCrudRepository.getAllPublishers(pagination);
   }
 
@@ -48,13 +43,7 @@ export class PublishingHouseCrudService implements IPublishingHouseCrudService {
     );
   }
 
-  async softDelete(
-    id: string,
-    performedBy: string,
-  ): Promise<{ id: string }> {
-    return this.publishingHouseCrudRepository.deactivatePublisher(
-      id,
-      performedBy,
-    );
+  async softDelete(id: string, performedBy: string): Promise<{ id: string }> {
+    return this.publishingHouseCrudRepository.deactivatePublisher(id, performedBy);
   }
 }

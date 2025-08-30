@@ -3,22 +3,27 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
   Inject,
   Request,
   Res,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiConsumes } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { IBookCatalogCrudService } from '../interfaces/book-catalog-crud.service.interface';
 import { IBookCatalogSearchService } from '../interfaces/book-catalog-search.service.interface';
+import { IFileUploadService } from '../interfaces/file-upload.service.interface';
 import { CreateBookCatalogDto } from '../dto/create-book-catalog.dto';
 import { UpdateBookCatalogDto } from '../dto/update-book-catalog.dto';
-import { BookFiltersDto } from "../dto/book-filters.dto";
-import { CsvExportFiltersDto } from "../dto/csv-export-filters.dto";
+import { BookFiltersDto } from '../dto/book-filters.dto';
+import { CsvExportFiltersDto } from '../dto/csv-export-filters.dto';
+import { UploadBookCoverDto } from '../dto/upload-book-cover.dto';
 import {
   ApiCreateBook,
   ApiGetBooks,
@@ -28,14 +33,15 @@ import {
   ApiSearchBooks,
   ApiFilterBooks,
   ApiGetAvailableBooks,
-  ApiGetBooksByGenre,
-  ApiGetBooksByPublisher,
   ApiCheckIsbn,
-  ApiExportBooksCsv
+  ApiExportBooksCsv,
+  ApiUploadBookCover,
+  ApiRemoveBookCover,
+  ApiAdvancedFilterBooks,
 } from '../decorators';
-import { UserRole } from "../../../modules/users/enums";
-import { Auth } from "../../../common/decorators/auth.decorator";
-import { PaginationDto } from "../../../common/dto/pagination.dto";
+import { UserRole } from '../../../modules/users/enums';
+import { Auth } from '../../../common/decorators/auth.decorator';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 
 @ApiTags('Book Catalog')
 @Controller('book-catalog')
@@ -45,15 +51,14 @@ export class BookCatalogController {
     private readonly bookCatalogCrudService: IBookCatalogCrudService,
     @Inject('IBookCatalogSearchService')
     private readonly bookCatalogSearchService: IBookCatalogSearchService,
+    @Inject('IFileUploadService')
+    private readonly fileUploadService: IFileUploadService,
   ) {}
 
   @Post()
   @Auth(UserRole.ADMIN)
   @ApiCreateBook()
-  create(
-    @Body() createBookCatalogDto: CreateBookCatalogDto,
-    @Request() req: any,
-  ) {
+  create(@Body() createBookCatalogDto: CreateBookCatalogDto, @Request() req: any) {
     return this.bookCatalogCrudService.create(createBookCatalogDto, req.user.id);
   }
 
@@ -67,20 +72,21 @@ export class BookCatalogController {
   @Get('search')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchBooks()
-  search(
-    @Query('term') searchTerm: string,
-    @Query() pagination: PaginationDto,
-  ) {
+  search(@Query('term') searchTerm: string, @Query() pagination: PaginationDto) {
     return this.bookCatalogSearchService.search(searchTerm, pagination);
   }
 
-  @Post('filter')
+  @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterBooks()
-  filter(
-    @Body() filters: BookFiltersDto,
-    @Query() pagination: PaginationDto,
-  ) {
+  filter(@Query('filter') filterTerm: string, @Query() pagination: PaginationDto) {
+    return this.bookCatalogSearchService.filterSearch(filterTerm, pagination);
+  }
+
+  @Post('advanced-filter')
+  @Auth(UserRole.ADMIN, UserRole.USER)
+  @ApiAdvancedFilterBooks()
+  advancedFilter(@Body() filters: BookFiltersDto, @Query() pagination: PaginationDto) {
     return this.bookCatalogSearchService.findWithFilters(filters, pagination);
   }
 
@@ -89,26 +95,6 @@ export class BookCatalogController {
   @ApiGetAvailableBooks()
   findAvailable(@Query() pagination: PaginationDto) {
     return this.bookCatalogSearchService.findAvailableBooks(pagination);
-  }
-
-  @Get('by-genre/:genreId')
-  @Auth(UserRole.ADMIN, UserRole.USER)
-  @ApiGetBooksByGenre()
-  findByGenre(
-    @Param('genreId') genreId: string,
-    @Query() pagination: PaginationDto,
-  ) {
-    return this.bookCatalogSearchService.findByGenre(genreId, pagination);
-  }
-
-  @Get('by-publisher/:publisherId')
-  @Auth(UserRole.ADMIN, UserRole.USER)
-  @ApiGetBooksByPublisher()
-  findByPublisher(
-    @Param('publisherId') publisherId: string,
-    @Query() pagination: PaginationDto,
-  ) {
-    return this.bookCatalogSearchService.findByPublisher(publisherId, pagination);
   }
 
   @Get('check-isbn/:isbn')
@@ -121,26 +107,23 @@ export class BookCatalogController {
   @Get('export/csv')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiExportBooksCsv()
-  async exportToCsv(
-    @Query() filters: CsvExportFiltersDto,
-    @Res() res: Response,
-  ) {
+  async exportToCsv(@Query() filters: CsvExportFiltersDto, @Res() res: Response) {
     const csvData = await this.bookCatalogSearchService.exportToCsv(filters);
-    
+
     // Generate filename with current date
     const currentDate = new Date().toISOString().split('T')[0];
     const filename = `catalogo-libros-${currentDate}.csv`;
-    
+
     // Set response headers for CSV download
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    
+
     // Add BOM for UTF-8 to ensure proper encoding in Excel
     const csvWithBom = '\uFEFF' + csvData;
-    
+
     return res.send(csvWithBom);
   }
 
@@ -151,7 +134,7 @@ export class BookCatalogController {
     return this.bookCatalogCrudService.findById(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @Auth(UserRole.ADMIN)
   @ApiUpdateBook()
   update(
@@ -167,5 +150,42 @@ export class BookCatalogController {
   @ApiDeleteBook()
   remove(@Param('id') id: string, @Request() req: any) {
     return this.bookCatalogCrudService.softDelete(id, req.user.id);
+  }
+
+  @Post(':id/upload-cover')
+  @Auth(UserRole.ADMIN)
+  @UseInterceptors(FileInterceptor('coverImage'))
+  @ApiUploadBookCover()
+  async uploadBookCover(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Request() req: any,
+  ) {
+    const book = await this.bookCatalogCrudService.findById(id);
+
+    if (book.coverImageUrl) {
+      await this.fileUploadService.deleteBookCover(book.coverImageUrl);
+    }
+
+    const coverImageUrl = await this.fileUploadService.uploadBookCover(file, book.title);
+
+    const updateDto: UpdateBookCatalogDto = { coverImageUrl };
+    return this.bookCatalogCrudService.update(id, updateDto, req.user.id);
+  }
+
+  @Delete(':id/cover')
+  @Auth(UserRole.ADMIN)
+  @ApiRemoveBookCover()
+  async removeBookCover(@Param('id') id: string, @Request() req: any) {
+    const book = await this.bookCatalogCrudService.findById(id);
+
+    if (book.coverImageUrl) {
+      await this.fileUploadService.deleteBookCover(book.coverImageUrl);
+
+      const updateDto: UpdateBookCatalogDto = { coverImageUrl: null };
+      return this.bookCatalogCrudService.update(id, updateDto, req.user.id);
+    }
+
+    return { message: 'No cover image to remove' };
   }
 }

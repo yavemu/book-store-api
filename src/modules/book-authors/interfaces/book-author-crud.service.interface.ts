@@ -7,6 +7,10 @@ export interface IBookAuthorCrudService {
   create(createBookAuthorDto: CreateBookAuthorDto, performedBy: string): Promise<BookAuthor>;
   findById(id: string): Promise<BookAuthor>;
   findAll(pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>>;
-  update(id: string, updateBookAuthorDto: UpdateBookAuthorDto, performedBy: string): Promise<BookAuthor>;
+  update(
+    id: string,
+    updateBookAuthorDto: UpdateBookAuthorDto,
+    performedBy: string,
+  ): Promise<BookAuthor>;
   softDelete(id: string, performedBy: string): Promise<void>;
 }

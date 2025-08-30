@@ -9,18 +9,21 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
   @Get('health')
   @Public()
-  @ApiOperation({ summary: 'Health check endpoint' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiOperation({ 
+    summary: 'Health check endpoint - Acceso: Público',
+    description: 'Verifica el estado de salud de la API y devuelve información del sistema.'
+  })
+  @ApiResponse({
+    status: 200,
     description: 'API is healthy',
     schema: {
       type: 'object',
       properties: {
         status: { type: 'string', example: 'ok' },
         timestamp: { type: 'string', example: '2024-01-01T00:00:00.000Z' },
-        uptime: { type: 'number', example: 123.456 }
-      }
-    }
+        uptime: { type: 'number', example: 123.456 },
+      },
+    },
   })
   getHealth() {
     return this.appService.getHealth();

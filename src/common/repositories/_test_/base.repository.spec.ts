@@ -24,7 +24,11 @@ class TestRepository extends BaseRepository<TestEntity> {
   }
 
   // Expose protected methods for testing
-  public async testCreate(data: Partial<TestEntity>, performedBy: string, entityName: string): Promise<TestEntity> {
+  public async testCreate(
+    data: Partial<TestEntity>,
+    performedBy: string,
+    entityName: string,
+  ): Promise<TestEntity> {
     return this._create(data, performedBy, entityName, (entity) => `Created ${entity.name}`);
   }
 
@@ -40,15 +44,27 @@ class TestRepository extends BaseRepository<TestEntity> {
     return this._findMany(options);
   }
 
-  public async testFindManyWithPagination(options: FindManyOptions<TestEntity>, pagination: PaginationDto) {
+  public async testFindManyWithPagination(
+    options: FindManyOptions<TestEntity>,
+    pagination: PaginationDto,
+  ) {
     return this._findManyWithPagination(options, pagination);
   }
 
-  public async testUpdate(id: string, data: Partial<TestEntity>, performedBy: string, entityName: string): Promise<TestEntity> {
+  public async testUpdate(
+    id: string,
+    data: Partial<TestEntity>,
+    performedBy: string,
+    entityName: string,
+  ): Promise<TestEntity> {
     return this._update(id, data, performedBy, entityName, (entity) => `Updated ${entity.name}`);
   }
 
-  public async testSoftDelete(id: string, performedBy: string, entityName: string): Promise<{ id: string }> {
+  public async testSoftDelete(
+    id: string,
+    performedBy: string,
+    entityName: string,
+  ): Promise<{ id: string }> {
     return this._softDelete(id, performedBy, entityName, (entity) => `Deleted ${entity.name}`);
   }
 
@@ -60,7 +76,11 @@ class TestRepository extends BaseRepository<TestEntity> {
     return this._exists(options);
   }
 
-  public async testValidateUniqueConstraints(dto: any, entityId?: string, uniqueFields?: any[]): Promise<void> {
+  public async testValidateUniqueConstraints(
+    dto: any,
+    entityId?: string,
+    uniqueFields?: any[],
+  ): Promise<void> {
     return this._validateUniqueConstraints(dto, entityId, uniqueFields);
   }
 }
@@ -122,7 +142,7 @@ describe('BaseRepository', () => {
   describe('_create', () => {
     it('should create an entity successfully', async () => {
       const createData = { name: 'New Entity', email: 'new@example.com' };
-      
+
       const result = await testRepository.testCreate(createData, 'user-1', 'TestEntity');
 
       expect(typeormRepo.create).toHaveBeenCalledWith(createData);
@@ -132,22 +152,28 @@ describe('BaseRepository', () => {
         mockEntity.id,
         AuditAction.CREATE,
         'Created Test Entity',
-        'TestEntity'
+        'TestEntity',
       );
       expect(result).toEqual(mockEntity);
     });
 
     it('should create with REGISTER action', async () => {
       const createData = { name: 'New Entity', email: 'new@example.com' };
-      
-      await testRepository['_create'](createData, 'user-1', 'TestEntity', (entity) => `Registered ${entity.name}`, AuditAction.REGISTER);
+
+      await testRepository['_create'](
+        createData,
+        'user-1',
+        'TestEntity',
+        (entity) => `Registered ${entity.name}`,
+        AuditAction.REGISTER,
+      );
 
       expect(auditLoggerService.log).toHaveBeenCalledWith(
         'user-1',
         mockEntity.id,
         AuditAction.REGISTER,
         expect.stringContaining('Registered'),
-        'TestEntity'
+        'TestEntity',
       );
     });
 
@@ -155,13 +181,14 @@ describe('BaseRepository', () => {
       (typeormRepo.save as jest.Mock).mockRejectedValue(new Error('Database error'));
       const createData = { name: 'New Entity' };
 
-      await expect(testRepository.testCreate(createData, 'user-1', 'TestEntity'))
-        .rejects.toThrow(new HttpException('Failed to create entity', HttpStatus.INTERNAL_SERVER_ERROR));
+      await expect(testRepository.testCreate(createData, 'user-1', 'TestEntity')).rejects.toThrow(
+        new HttpException('Failed to create entity', HttpStatus.INTERNAL_SERVER_ERROR),
+      );
     });
 
     it('should create without audit logging when no performedBy', async () => {
       const createData = { name: 'New Entity' };
-      
+
       await testRepository['_create'](createData, '', '');
 
       expect(auditLoggerService.log).not.toHaveBeenCalled();
@@ -187,15 +214,16 @@ describe('BaseRepository', () => {
     it('should handle findById errors', async () => {
       (typeormRepo.findOne as jest.Mock).mockRejectedValue(new Error('Database error'));
 
-      await expect(testRepository.testFindById('1'))
-        .rejects.toThrow(new HttpException('Failed to find entity', HttpStatus.INTERNAL_SERVER_ERROR));
+      await expect(testRepository.testFindById('1')).rejects.toThrow(
+        new HttpException('Failed to find entity', HttpStatus.INTERNAL_SERVER_ERROR),
+      );
     });
   });
 
   describe('_findOne', () => {
     it('should find one entity with options', async () => {
       const options = { where: { name: 'Test' } };
-      
+
       const result = await testRepository.testFindOne(options);
 
       expect(typeormRepo.findOne).toHaveBeenCalledWith(options);
@@ -205,15 +233,16 @@ describe('BaseRepository', () => {
     it('should handle findOne errors', async () => {
       (typeormRepo.findOne as jest.Mock).mockRejectedValue(new Error('Database error'));
 
-      await expect(testRepository.testFindOne({ where: { name: 'Test' } }))
-        .rejects.toThrow(new HttpException('Failed to find entity', HttpStatus.INTERNAL_SERVER_ERROR));
+      await expect(testRepository.testFindOne({ where: { name: 'Test' } })).rejects.toThrow(
+        new HttpException('Failed to find entity', HttpStatus.INTERNAL_SERVER_ERROR),
+      );
     });
   });
 
   describe('_findMany', () => {
     it('should find many entities', async () => {
       const options = { where: { isActive: true } };
-      
+
       const result = await testRepository.testFindMany(options);
 
       expect(typeormRepo.find).toHaveBeenCalledWith(options);
@@ -223,8 +252,9 @@ describe('BaseRepository', () => {
     it('should handle findMany errors', async () => {
       (typeormRepo.find as jest.Mock).mockRejectedValue(new Error('Database error'));
 
-      await expect(testRepository.testFindMany({}))
-        .rejects.toThrow(new HttpException('Failed to find entities', HttpStatus.INTERNAL_SERVER_ERROR));
+      await expect(testRepository.testFindMany({})).rejects.toThrow(
+        new HttpException('Failed to find entities', HttpStatus.INTERNAL_SERVER_ERROR),
+      );
     });
   });
 
@@ -273,8 +303,12 @@ describe('BaseRepository', () => {
       (typeormRepo.findAndCount as jest.Mock).mockRejectedValue(new Error('Database error'));
       const pagination = new PaginationDto();
 
-      await expect(testRepository.testFindManyWithPagination({}, pagination))
-        .rejects.toThrow(new HttpException('Failed to find entities with pagination', HttpStatus.INTERNAL_SERVER_ERROR));
+      await expect(testRepository.testFindManyWithPagination({}, pagination)).rejects.toThrow(
+        new HttpException(
+          'Failed to find entities with pagination',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        ),
+      );
     });
   });
 
@@ -292,14 +326,14 @@ describe('BaseRepository', () => {
         '1',
         AuditAction.UPDATE,
         'Updated Updated Entity',
-        'TestEntity'
+        'TestEntity',
       );
       expect(result).toEqual(updatedEntity);
     });
 
     it('should update without audit logging', async () => {
       const updateData = { name: 'Updated Entity' };
-      
+
       await testRepository['_update']('1', updateData);
 
       expect(typeormRepo.update).toHaveBeenCalledWith({ id: '1' }, updateData);
@@ -310,8 +344,11 @@ describe('BaseRepository', () => {
       (typeormRepo.update as jest.Mock).mockRejectedValue(new Error('Database error'));
       const updateData = { name: 'Updated Entity' };
 
-      await expect(testRepository.testUpdate('1', updateData, 'user-1', 'TestEntity'))
-        .rejects.toThrow(new HttpException('Failed to update entity', HttpStatus.INTERNAL_SERVER_ERROR));
+      await expect(
+        testRepository.testUpdate('1', updateData, 'user-1', 'TestEntity'),
+      ).rejects.toThrow(
+        new HttpException('Failed to update entity', HttpStatus.INTERNAL_SERVER_ERROR),
+      );
     });
   });
 
@@ -326,7 +363,7 @@ describe('BaseRepository', () => {
         '1',
         AuditAction.DELETE,
         'Deleted Test Entity',
-        'TestEntity'
+        'TestEntity',
       );
       expect(result).toEqual({ id: '1' });
     });
@@ -342,15 +379,16 @@ describe('BaseRepository', () => {
     it('should handle soft delete errors', async () => {
       (typeormRepo.softDelete as jest.Mock).mockRejectedValue(new Error('Database error'));
 
-      await expect(testRepository.testSoftDelete('1', 'user-1', 'TestEntity'))
-        .rejects.toThrow(new HttpException('Failed to delete entity', HttpStatus.INTERNAL_SERVER_ERROR));
+      await expect(testRepository.testSoftDelete('1', 'user-1', 'TestEntity')).rejects.toThrow(
+        new HttpException('Failed to delete entity', HttpStatus.INTERNAL_SERVER_ERROR),
+      );
     });
   });
 
   describe('_count', () => {
     it('should count entities', async () => {
       const options = { where: { isActive: true } };
-      
+
       const result = await testRepository.testCount(options);
 
       expect(typeormRepo.count).toHaveBeenCalledWith(options);
@@ -367,15 +405,16 @@ describe('BaseRepository', () => {
     it('should handle count errors', async () => {
       (typeormRepo.count as jest.Mock).mockRejectedValue(new Error('Database error'));
 
-      await expect(testRepository.testCount())
-        .rejects.toThrow(new HttpException('Failed to count entities', HttpStatus.INTERNAL_SERVER_ERROR));
+      await expect(testRepository.testCount()).rejects.toThrow(
+        new HttpException('Failed to count entities', HttpStatus.INTERNAL_SERVER_ERROR),
+      );
     });
   });
 
   describe('_exists', () => {
     it('should return true when entity exists', async () => {
       const options = { where: { id: '1' } };
-      
+
       const result = await testRepository.testExists(options);
 
       expect(typeormRepo.count).toHaveBeenCalledWith(options);
@@ -385,7 +424,7 @@ describe('BaseRepository', () => {
     it('should return false when entity does not exist', async () => {
       (typeormRepo.count as jest.Mock).mockResolvedValue(0);
       const options = { where: { id: '999' } };
-      
+
       const result = await testRepository.testExists(options);
 
       expect(result).toBe(false);
@@ -394,8 +433,9 @@ describe('BaseRepository', () => {
     it('should handle exists errors', async () => {
       (typeormRepo.count as jest.Mock).mockRejectedValue(new Error('Database error'));
 
-      await expect(testRepository.testExists({ where: { id: '1' } }))
-        .rejects.toThrow(new HttpException('Failed to check entity existence', HttpStatus.INTERNAL_SERVER_ERROR));
+      await expect(testRepository.testExists({ where: { id: '1' } })).rejects.toThrow(
+        new HttpException('Failed to check entity existence', HttpStatus.INTERNAL_SERVER_ERROR),
+      );
     });
   });
 
@@ -407,97 +447,117 @@ describe('BaseRepository', () => {
     it('should validate single field unique constraint successfully', async () => {
       (typeormRepo.findOne as jest.Mock).mockResolvedValue(null);
       const dto = { email: 'new@example.com' };
-      const uniqueFields = [{
-        field: 'email',
-        message: 'Email already exists'
-      }];
+      const uniqueFields = [
+        {
+          field: 'email',
+          message: 'Email already exists',
+        },
+      ];
 
-      await expect(testRepository.testValidateUniqueConstraints(dto, undefined, uniqueFields))
-        .resolves.toBeUndefined();
+      await expect(
+        testRepository.testValidateUniqueConstraints(dto, undefined, uniqueFields),
+      ).resolves.toBeUndefined();
 
       expect(typeormRepo.findOne).toHaveBeenCalledWith({
-        where: { email: 'new@example.com' }
+        where: { email: 'new@example.com' },
       });
     });
 
     it('should throw ConflictException when single field constraint violated', async () => {
       (typeormRepo.findOne as jest.Mock).mockResolvedValue(mockEntity);
       const dto = { email: 'test@example.com' };
-      const uniqueFields = [{
-        field: 'email',
-        message: 'Email already exists'
-      }];
+      const uniqueFields = [
+        {
+          field: 'email',
+          message: 'Email already exists',
+        },
+      ];
 
-      await expect(testRepository.testValidateUniqueConstraints(dto, undefined, uniqueFields))
-        .rejects.toThrow(new ConflictException('Email already exists'));
+      await expect(
+        testRepository.testValidateUniqueConstraints(dto, undefined, uniqueFields),
+      ).rejects.toThrow(new ConflictException('Email already exists'));
     });
 
     it('should allow update of same entity', async () => {
       (typeormRepo.findOne as jest.Mock).mockResolvedValue(mockEntity);
       const dto = { email: 'test@example.com' };
-      const uniqueFields = [{
-        field: 'email',
-        message: 'Email already exists'
-      }];
+      const uniqueFields = [
+        {
+          field: 'email',
+          message: 'Email already exists',
+        },
+      ];
 
-      await expect(testRepository.testValidateUniqueConstraints(dto, '1', uniqueFields))
-        .resolves.toBeUndefined();
+      await expect(
+        testRepository.testValidateUniqueConstraints(dto, '1', uniqueFields),
+      ).resolves.toBeUndefined();
     });
 
     it('should validate compound unique constraint successfully', async () => {
       (typeormRepo.findOne as jest.Mock).mockResolvedValue(null);
       const dto = { name: 'John', email: 'john@example.com' };
-      const uniqueFields = [{
-        field: ['name', 'email'],
-        message: 'Name and email combination already exists'
-      }];
+      const uniqueFields = [
+        {
+          field: ['name', 'email'],
+          message: 'Name and email combination already exists',
+        },
+      ];
 
-      await expect(testRepository.testValidateUniqueConstraints(dto, undefined, uniqueFields))
-        .resolves.toBeUndefined();
+      await expect(
+        testRepository.testValidateUniqueConstraints(dto, undefined, uniqueFields),
+      ).resolves.toBeUndefined();
 
       expect(typeormRepo.findOne).toHaveBeenCalledWith({
-        where: { name: 'John', email: 'john@example.com' }
+        where: { name: 'John', email: 'john@example.com' },
       });
     });
 
     it('should apply transform function', async () => {
       (typeormRepo.findOne as jest.Mock).mockResolvedValue(null);
       const dto = { email: 'Test@Example.COM' };
-      const uniqueFields = [{
-        field: 'email',
-        message: 'Email already exists',
-        transform: (value: string) => value.toLowerCase().trim()
-      }];
+      const uniqueFields = [
+        {
+          field: 'email',
+          message: 'Email already exists',
+          transform: (value: string) => value.toLowerCase().trim(),
+        },
+      ];
 
       await testRepository.testValidateUniqueConstraints(dto, undefined, uniqueFields);
 
       expect(typeormRepo.findOne).toHaveBeenCalledWith({
-        where: { email: 'test@example.com' }
+        where: { email: 'test@example.com' },
       });
     });
 
     it('should skip validation when field is undefined', async () => {
       const dto = { name: 'Test' }; // email is undefined
-      const uniqueFields = [{
-        field: 'email',
-        message: 'Email already exists'
-      }];
+      const uniqueFields = [
+        {
+          field: 'email',
+          message: 'Email already exists',
+        },
+      ];
 
-      await expect(testRepository.testValidateUniqueConstraints(dto, undefined, uniqueFields))
-        .resolves.toBeUndefined();
+      await expect(
+        testRepository.testValidateUniqueConstraints(dto, undefined, uniqueFields),
+      ).resolves.toBeUndefined();
 
       expect(typeormRepo.findOne).not.toHaveBeenCalled();
     });
 
     it('should skip validation when field is null', async () => {
       const dto = { email: null };
-      const uniqueFields = [{
-        field: 'email',
-        message: 'Email already exists'
-      }];
+      const uniqueFields = [
+        {
+          field: 'email',
+          message: 'Email already exists',
+        },
+      ];
 
-      await expect(testRepository.testValidateUniqueConstraints(dto, undefined, uniqueFields))
-        .resolves.toBeUndefined();
+      await expect(
+        testRepository.testValidateUniqueConstraints(dto, undefined, uniqueFields),
+      ).resolves.toBeUndefined();
 
       expect(typeormRepo.findOne).not.toHaveBeenCalled();
     });
@@ -505,8 +565,9 @@ describe('BaseRepository', () => {
     it('should return early when no unique fields provided', async () => {
       const dto = { email: 'test@example.com' };
 
-      await expect(testRepository.testValidateUniqueConstraints(dto, undefined, []))
-        .resolves.toBeUndefined();
+      await expect(
+        testRepository.testValidateUniqueConstraints(dto, undefined, []),
+      ).resolves.toBeUndefined();
 
       expect(typeormRepo.findOne).not.toHaveBeenCalled();
     });
@@ -514,13 +575,16 @@ describe('BaseRepository', () => {
     it('should handle database errors during validation', async () => {
       (typeormRepo.findOne as jest.Mock).mockRejectedValue(new Error('Database error'));
       const dto = { email: 'test@example.com' };
-      const uniqueFields = [{
-        field: 'email',
-        message: 'Email already exists'
-      }];
+      const uniqueFields = [
+        {
+          field: 'email',
+          message: 'Email already exists',
+        },
+      ];
 
-      await expect(testRepository.testValidateUniqueConstraints(dto, undefined, uniqueFields))
-        .rejects.toThrow(HttpException);
+      await expect(
+        testRepository.testValidateUniqueConstraints(dto, undefined, uniqueFields),
+      ).rejects.toThrow(HttpException);
     });
   });
 
@@ -546,12 +610,13 @@ describe('BaseRepository', () => {
       (auditLoggerService.log as jest.Mock).mockImplementation(() => {
         throw auditError;
       });
-      
+
       const createData = { name: 'New Entity' };
 
       // The operation should fail because audit logging error is not caught in _create
-      await expect(testRepository.testCreate(createData, 'user-1', 'TestEntity'))
-        .rejects.toThrow(HttpException);
+      await expect(testRepository.testCreate(createData, 'user-1', 'TestEntity')).rejects.toThrow(
+        HttpException,
+      );
     });
 
     it('should use different descriptions for different actions', async () => {
@@ -563,7 +628,7 @@ describe('BaseRepository', () => {
         '1',
         AuditAction.DELETE,
         'Deleted Test Entity',
-        'TestEntity'
+        'TestEntity',
       );
     });
   });

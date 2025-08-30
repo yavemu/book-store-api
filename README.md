@@ -110,12 +110,159 @@ pwd  # Debería mostrar: /ruta/hacia/tu/book-store/book-store-api
 npm run docker:up:build
 
 # Ejecutar seeds
-npm run docker:exec:seed
+npm run docker:run:seed
 ```
 
 Confirma en tu base de datos que se hayan ejecutado los seeds correctamente.
-- **Usuarios**: `SELECT * FROM users;` (el usuario `admin` y `user` debe estar presente y su contraseña `demodemo`)
+- **Usuarios**: `SELECT * FROM users;` (el usuario `admin@demo.com` y `user@demo.com` debe estar presente y su contraseña `demodemo`)
 - **Roles**: `SELECT * FROM roles;`
+
+## 🌱 Sistema de Seeding de Base de Datos
+
+El proyecto implementa un sistema de seeding unificado que crea automáticamente la base de datos con datos esenciales y de prueba.
+
+### ¿Qué es el Sistema de Seeds?
+
+El sistema de seeds es una herramienta automatizada que:
+- **Inicializa la base de datos** con datos básicos requeridos (roles, usuarios admin)
+- **Pobla con datos de prueba** para desarrollo y testing (libros, autores, géneros, editoriales)
+- **Garantiza consistencia** de datos entre diferentes entornos
+- **Proporciona trazabilidad** completa del proceso de inicialización
+
+### Componentes del Sistema 
+- Al ejecutar el comando `npm run docker:run:seed`:
+
+#### 1. **Inicialización de Base de Datos** (`init-db.sh`)
+Script que se ejecuta automáticamente al crear los contenedores Docker:
+- Crea usuario de base de datos de la aplicación
+- Configura permisos necesarios
+- Proporciona logging detallado del proceso
+
+#### 2. **Seeds de Roles** (`role.seed.ts`)
+Crea los roles básicos del sistema:
+- **ADMIN**: Rol administrador con acceso completo
+- **USER**: Rol usuario estándar con acceso básico
+
+#### 3. **Seeds de Usuarios** (`user.seed.ts`)
+Crea usuarios predeterminados para desarrollo:
+- **admin** - email: `admin@demo.com`, password: `demodemo`
+- **user** - email: `user@demo.com`, password: `demodemo`
+
+#### 4. **Seeds de Población Masiva** (`populate.seed.ts`)
+Puebla la base de datos con datos de prueba realistas:
+- **15 géneros literarios** (Ficción, Ciencia, Historia, Fantasía, etc.)
+- **15 autores** con biografías completas
+- **15 editoriales** con información de contacto
+- **15 libros** con metadatos completos (ISBN, precio, stock, etc.)
+- **Asignaciones autor-libro** automáticas
+
+#### 5. **Ejecutor Principal** (`run-seeds.ts`)
+Orquesta la ejecución de todos los seeds en el orden correcto:
+1. Roles (prerequisito para usuarios)
+2. Usuarios (requiere roles existentes)
+3. Población masiva (datos de prueba)
+
+### Cuándo se Ejecutan los Seeds
+
+#### **Automáticamente**:
+- Durante la inicialización de contenedores Docker (`npm run docker:up:build`)
+- Al crear una nueva base de datos desde cero
+
+#### **Manualmente**:
+```bash
+# Ejecutar todos los seeds
+npm run docker:exec:seed
+
+# Usando Docker directamente
+docker-compose exec api npm run seed
+```
+
+### Logging y Trazabilidad
+
+El sistema proporciona logging detallado durante la ejecución:
+
+```
+🌱 =================================
+🌱 INICIANDO PROCESO DE SEEDS
+🌱 =================================
+🔗 Conectando a la base de datos...
+✅ Conexión a la base de datos establecida
+
+🔄 PASO 1/3: ROLES
+----------------------------------------
+🌱 Creando roles...
+   ✅ Rol ADMIN creado
+   ✅ Rol USER creado
+💾 2 roles nuevos creados
+✅ Roles procesados correctamente
+
+🔄 PASO 2/3: USUARIOS
+----------------------------------------
+👤 Creando usuarios...
+   🔍 Roles encontrados correctamente
+   ✅ Usuario admin creado
+   ✅ Usuario user creado
+💾 2 usuarios nuevos creados
+✅ Usuarios procesados correctamente
+
+🔄 PASO 3/3: POBLACIÓN MASIVA
+----------------------------------------
+📚 Insertando géneros de libros...
+   💾 15 géneros nuevos insertados
+✅ Géneros insertados correctamente
+
+✍️ Insertando autores...
+   💾 15 autores nuevos insertados
+✅ Autores insertados correctamente
+
+🏢 Insertando editoriales...
+   💾 15 editoriales nuevas insertadas
+✅ Editoriales insertadas correctamente
+
+📖 Insertando catálogo de libros...
+   💾 15 libros nuevos insertados
+✅ Libros insertados correctamente
+
+🔗 Creando asignaciones autor-libro...
+   💾 15 asignaciones nuevas creadas
+✅ Asignaciones autor-libro creadas correctamente
+
+🎉 =================================
+🎉 TODOS LOS SEEDS EJECUTADOS CORRECTAMENTE
+🎉 Base de datos inicializada con éxito
+🎉 =================================
+```
+
+### Características Técnicas
+
+- **Idempotencia**: Los seeds pueden ejecutarse múltiples veces sin duplicar datos
+- **Validación**: Verifica datos existentes antes de insertar
+- **Transaccionalidad**: Usa transacciones de base de datos para garantizar consistencia
+- **Contadores**: Reporta exactamente cuántos registros nuevos se insertaron
+- **Manejo de errores**: Proporciona información detallada en caso de fallos
+
+### Estructura de Datos Generada
+
+Después de ejecutar los seeds, la base de datos contendrá:
+
+```
+👥 Usuarios:
+├── admin (ADMIN) - Acceso completo al sistema
+└── user (USER) - Acceso básico
+
+📚 Catálogo completo:
+├── 15 Géneros literarios
+├── 15 Autores con biografías
+├── 15 Editoriales con URLs
+├── 15 Libros con metadatos completos
+└── Relaciones autor-libro establecidas
+```
+
+Esta estructura permite:
+- **Desarrollo inmediato** sin necesidad de crear datos manualmente
+- **Testing completo** con datos realistas
+- **Demostración** de todas las funcionalidades del sistema
+- **Ambiente consistente** entre diferentes desarrolladores
 
 ## Ejecución de la Aplicación con Docker Compose
 

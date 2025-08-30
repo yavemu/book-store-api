@@ -28,20 +28,23 @@ export class BookAuthorAssignmentCrudService implements IBookAuthorAssignmentCru
     private errorHandler: IErrorHandlerService,
   ) {}
 
-  async create(createDto: CreateBookAuthorAssignmentDto, performedBy?: string): Promise<BookAuthorAssignment> {
+  async create(
+    createDto: CreateBookAuthorAssignmentDto,
+    performedBy?: string,
+  ): Promise<BookAuthorAssignment> {
     try {
       await this.validationService.validateUniqueConstraints(
         createDto,
         undefined,
         UNIQUE_CONSTRAINTS,
-        this.crudRepository
+        this.crudRepository,
       );
 
       return await this.crudRepository.createAssignment(createDto, performedBy);
     } catch (error) {
       this.errorHandler.handleError(
         error,
-        ERROR_MESSAGES.BOOK_AUTHOR_ASSIGNMENTS?.FAILED_TO_CREATE || 'Failed to create assignment'
+        ERROR_MESSAGES.BOOK_AUTHOR_ASSIGNMENTS?.FAILED_TO_CREATE || 'Failed to create assignment',
       );
     }
   }
@@ -52,7 +55,8 @@ export class BookAuthorAssignmentCrudService implements IBookAuthorAssignmentCru
     } catch (error) {
       this.errorHandler.handleError(
         error,
-        ERROR_MESSAGES.BOOK_AUTHOR_ASSIGNMENTS?.FAILED_TO_GET_ALL || 'Failed to retrieve assignments'
+        ERROR_MESSAGES.BOOK_AUTHOR_ASSIGNMENTS?.FAILED_TO_GET_ALL ||
+          'Failed to retrieve assignments',
       );
     }
   }
@@ -62,33 +66,38 @@ export class BookAuthorAssignmentCrudService implements IBookAuthorAssignmentCru
       const assignment = await this.crudRepository.getAssignmentProfile(id);
       if (!assignment) {
         this.errorHandler.createNotFoundException(
-          ERROR_MESSAGES.BOOK_AUTHOR_ASSIGNMENTS?.NOT_FOUND || 'Assignment not found'
+          ERROR_MESSAGES.BOOK_AUTHOR_ASSIGNMENTS?.NOT_FOUND || 'Assignment not found',
         );
       }
       return assignment;
     } catch (error) {
       this.errorHandler.handleError(
         error,
-        ERROR_MESSAGES.BOOK_AUTHOR_ASSIGNMENTS?.FAILED_TO_GET_ALL || 'Failed to retrieve assignment'
+        ERROR_MESSAGES.BOOK_AUTHOR_ASSIGNMENTS?.FAILED_TO_GET_ALL ||
+          'Failed to retrieve assignment',
       );
     }
   }
 
-  async update(id: string, updateDto: UpdateBookAuthorAssignmentDto, performedBy?: string): Promise<BookAuthorAssignment> {
+  async update(
+    id: string,
+    updateDto: UpdateBookAuthorAssignmentDto,
+    performedBy?: string,
+  ): Promise<BookAuthorAssignment> {
     try {
       await this.findById(id);
       await this.validationService.validateUniqueConstraints(
         updateDto,
         id,
         UNIQUE_CONSTRAINTS,
-        this.crudRepository
+        this.crudRepository,
       );
 
       return await this.crudRepository.updateAssignment(id, updateDto, performedBy);
     } catch (error) {
       this.errorHandler.handleError(
         error,
-        ERROR_MESSAGES.BOOK_AUTHOR_ASSIGNMENTS?.FAILED_TO_UPDATE || 'Failed to update assignment'
+        ERROR_MESSAGES.BOOK_AUTHOR_ASSIGNMENTS?.FAILED_TO_UPDATE || 'Failed to update assignment',
       );
     }
   }
@@ -100,7 +109,7 @@ export class BookAuthorAssignmentCrudService implements IBookAuthorAssignmentCru
     } catch (error) {
       this.errorHandler.handleError(
         error,
-        ERROR_MESSAGES.BOOK_AUTHOR_ASSIGNMENTS?.FAILED_TO_DELETE || 'Failed to delete assignment'
+        ERROR_MESSAGES.BOOK_AUTHOR_ASSIGNMENTS?.FAILED_TO_DELETE || 'Failed to delete assignment',
       );
     }
   }

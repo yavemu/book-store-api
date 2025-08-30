@@ -4,9 +4,16 @@ import { UpdatePublishingHouseDto } from '../dto/update-publishing-house.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 export interface IPublishingHouseCrudService {
-  create(createPublishingHouseDto: CreatePublishingHouseDto, performedBy: string): Promise<PublishingHouse>;
+  create(
+    createPublishingHouseDto: CreatePublishingHouseDto,
+    performedBy: string,
+  ): Promise<PublishingHouse>;
   findAll(pagination: PaginationDto): Promise<PaginatedResult<PublishingHouse>>;
   findById(id: string): Promise<PublishingHouse>;
-  update(id: string, updatePublishingHouseDto: UpdatePublishingHouseDto, performedBy: string): Promise<PublishingHouse>;
+  update(
+    id: string,
+    updatePublishingHouseDto: UpdatePublishingHouseDto,
+    performedBy: string,
+  ): Promise<PublishingHouse>;
   softDelete(id: string, performedBy: string): Promise<{ id: string }>;
 }

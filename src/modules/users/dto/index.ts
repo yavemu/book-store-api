@@ -1,4 +1,6 @@
 export * from './create-user.dto';
 export * from './update-user.dto';
 export * from './user-response.dto';
-export * from "./register-user.dto";
+export * from './register-user.dto';
+export * from './user-filters.dto';
+export * from './user-csv-export-filters.dto';

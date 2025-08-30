@@ -1,40 +1,37 @@
-import {
-  Injectable,
-  NotFoundException,
-  HttpException,
-  HttpStatus,
-  Inject,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, HttpException, HttpStatus, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindManyOptions } from 'typeorm';
 import { PublishingHouse } from '../entities/publishing-house.entity';
 import { IPublishingHouseCrudRepository } from '../interfaces/publishing-house-crud.repository.interface';
 import { CreatePublishingHouseDto } from '../dto/create-publishing-house.dto';
 import { UpdatePublishingHouseDto } from '../dto/update-publishing-house.dto';
-import {
-  PaginationDto,
-  PaginatedResult,
-} from '../../../common/dto/pagination.dto';
+import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import { BaseRepository } from '../../../common/repositories/base.repository';
 import { IAuditLoggerService } from '../../../modules/audit/interfaces/audit-logger.service.interface';
 
 @Injectable()
-export class PublishingHouseCrudRepository extends BaseRepository<PublishingHouse> implements IPublishingHouseCrudRepository {
+export class PublishingHouseCrudRepository
+  extends BaseRepository<PublishingHouse>
+  implements IPublishingHouseCrudRepository
+{
   constructor(
     @InjectRepository(PublishingHouse)
     private readonly publisherRepository: Repository<PublishingHouse>,
-    @Inject("IAuditLoggerService")
+    @Inject('IAuditLoggerService')
     protected readonly auditLogService: IAuditLoggerService,
   ) {
     super(publisherRepository, auditLogService);
   }
 
-  async registerPublisher(createPublishingHouseDto: CreatePublishingHouseDto, performedBy: string): Promise<PublishingHouse> {
+  async registerPublisher(
+    createPublishingHouseDto: CreatePublishingHouseDto,
+    performedBy: string,
+  ): Promise<PublishingHouse> {
     try {
       await this._validateUniqueConstraints(createPublishingHouseDto, undefined, [
         {
-          field: "name",
-          message: "Publisher name already exists",
+          field: 'name',
+          message: 'Publisher name already exists',
           transform: (value: string) => value.trim(),
         },
       ]);
@@ -42,14 +39,14 @@ export class PublishingHouseCrudRepository extends BaseRepository<PublishingHous
       return await this._create(
         createPublishingHouseDto,
         performedBy,
-        "PublishingHouse",
+        'PublishingHouse',
         (publisher) => `Publisher registered: ${publisher.name}`,
       );
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException("Failed to register publisher", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Failed to register publisher', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -57,14 +54,14 @@ export class PublishingHouseCrudRepository extends BaseRepository<PublishingHous
     try {
       const publisher = await this._findById(publisherId);
       if (!publisher) {
-        throw new NotFoundException("Publisher not found");
+        throw new NotFoundException('Publisher not found');
       }
       return publisher;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException("Failed to get publisher profile", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Failed to get publisher profile', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -78,8 +75,8 @@ export class PublishingHouseCrudRepository extends BaseRepository<PublishingHous
 
       await this._validateUniqueConstraints(updatePublishingHouseDto, publisherId, [
         {
-          field: "name",
-          message: "Publisher name already exists",
+          field: 'name',
+          message: 'Publisher name already exists',
           transform: (value: string) => value.trim(),
         },
       ]);
@@ -88,14 +85,17 @@ export class PublishingHouseCrudRepository extends BaseRepository<PublishingHous
         publisherId,
         updatePublishingHouseDto,
         performedBy,
-        "PublishingHouse",
+        'PublishingHouse',
         (publisher) => `Publisher ${publisher.id} updated.`,
       );
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException("Failed to update publisher profile", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to update publisher profile',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -105,14 +105,14 @@ export class PublishingHouseCrudRepository extends BaseRepository<PublishingHous
       return await this._softDelete(
         publisherId,
         performedBy,
-        "PublishingHouse",
+        'PublishingHouse',
         () => `Publisher ${publisher.id} deactivated.`,
       );
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException("Failed to deactivate publisher", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Failed to deactivate publisher', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -126,7 +126,7 @@ export class PublishingHouseCrudRepository extends BaseRepository<PublishingHous
 
       return await this._findManyWithPagination(options, pagination);
     } catch (error) {
-      throw new HttpException("Failed to get all publishers", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Failed to get all publishers', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

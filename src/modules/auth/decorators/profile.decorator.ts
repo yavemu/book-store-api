@@ -1,28 +1,24 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
-  ApiUnauthorizedResponse, 
-  ApiBearerAuth 
-} from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiUnauthorizedResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UserProfileResponseDto } from '../dto';
 import { UnauthorizedResponseDto } from '../../../common/dto';
 
 export function ApiGetProfile() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
-    ApiOperation({ 
+    ApiOperation({
       summary: 'Obtener perfil del usuario actual - Acceso: ADMIN, USER',
-      description: 'Obtiene la información del perfil del usuario autenticado' 
+      description:
+        'Obtiene la información completa del perfil del usuario autenticado, incluyendo roles y permisos. - Acceso: Usuarios autenticados.',
     }),
-    ApiResponse({ 
-      status: 200, 
+    ApiResponse({
+      status: 200,
       description: 'Perfil de usuario obtenido exitosamente',
-      type: UserProfileResponseDto
+      type: UserProfileResponseDto,
     }),
-    ApiUnauthorizedResponse({ 
+    ApiUnauthorizedResponse({
       description: 'No autorizado - Token inválido o faltante',
       type: UnauthorizedResponseDto,
-    })
+    }),
   );
 }

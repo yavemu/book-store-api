@@ -3,17 +3,21 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
   Inject,
   Request,
+  Res,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 import { IBookAuthorAssignmentService } from './interfaces/book-author-assignment.service.interface';
+import { IBookAuthorAssignmentSearchService } from './interfaces/book-author-assignment-search.service.interface';
 import { CreateBookAuthorAssignmentDto } from './dto/create-book-author-assignment.dto';
 import { UpdateBookAuthorAssignmentDto } from './dto/update-book-author-assignment.dto';
+import { AssignmentFiltersDto, AssignmentCsvExportFiltersDto } from './dto';
 import { PaginationDto, PaginatedResult } from '../../common/dto/pagination.dto';
 import { BookAuthorAssignment } from './entities/book-author-assignment.entity';
 import { Auth } from '../../common/decorators/auth.decorator';
@@ -22,11 +26,12 @@ import {
   ApiCreateAssignment,
   ApiGetAssignments,
   ApiGetAssignmentById,
-  ApiGetAssignmentsByBook,
-  ApiGetAssignmentsByAuthor,
   ApiCheckAssignment,
   ApiUpdateAssignment,
-  ApiDeleteAssignment
+  ApiDeleteAssignment,
+  ApiFilterAssignments,
+  ApiExportAssignmentsCsv,
+  ApiSearchAssignments,
 } from './decorators';
 
 @ApiTags('Book Author Assignments')
@@ -35,6 +40,8 @@ export class BookAuthorAssignmentsController {
   constructor(
     @Inject('IBookAuthorAssignmentService')
     private readonly bookAuthorAssignmentService: IBookAuthorAssignmentService,
+    @Inject('IBookAuthorAssignmentSearchService')
+    private readonly bookAuthorAssignmentSearchService: IBookAuthorAssignmentSearchService,
   ) {}
 
   @Post()
@@ -54,33 +61,36 @@ export class BookAuthorAssignmentsController {
     return this.bookAuthorAssignmentService.findAll(pagination);
   }
 
-  @Get('by-book/:bookId')
+  @Get('search')
   @Auth(UserRole.ADMIN, UserRole.USER)
-  @ApiGetAssignmentsByBook()
-  findByBook(
-    @Param('bookId') bookId: string,
-    @Query() pagination: PaginationDto,
-  ) {
-    return this.bookAuthorAssignmentService.findByBook(bookId, pagination);
+  @ApiSearchAssignments()
+  async search(@Query('term') searchTerm: string, @Query() pagination: PaginationDto) {
+    return this.bookAuthorAssignmentSearchService.searchAssignments(searchTerm, pagination);
   }
 
-  @Get('by-author/:authorId')
+  @Post('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
-  @ApiGetAssignmentsByAuthor()
-  findByAuthor(
-    @Param('authorId') authorId: string,
-    @Query() pagination: PaginationDto,
-  ) {
-    return this.bookAuthorAssignmentService.findByAuthor(authorId, pagination);
+  @ApiFilterAssignments()
+  async filter(@Body() filters: AssignmentFiltersDto, @Query() pagination: PaginationDto) {
+    return this.bookAuthorAssignmentSearchService.findAssignmentsWithFilters(filters, pagination);
+  }
+
+  @Get('export/csv')
+  @Auth(UserRole.ADMIN)
+  @ApiExportAssignmentsCsv()
+  async exportToCsv(@Query() filters: AssignmentCsvExportFiltersDto, @Res() res: Response) {
+    const csvData = await this.bookAuthorAssignmentSearchService.exportAssignmentsToCsv(filters);
+    const filename = `book_author_assignments_${new Date().toISOString().split('T')[0]}.csv`;
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csvData);
   }
 
   @Get('check/:bookId/:authorId')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiCheckAssignment()
-  async checkAssignment(
-    @Param('bookId') bookId: string,
-    @Param('authorId') authorId: string,
-  ) {
+  async checkAssignment(@Param('bookId') bookId: string, @Param('authorId') authorId: string) {
     return this.bookAuthorAssignmentService.checkAssignmentExists(bookId, authorId);
   }
 
@@ -91,7 +101,7 @@ export class BookAuthorAssignmentsController {
     return this.bookAuthorAssignmentService.findById(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @Auth(UserRole.ADMIN)
   @ApiUpdateAssignment()
   update(

@@ -37,20 +37,17 @@ export class UserCrudRepository
     super(userRepository, auditLogService);
   }
 
-  async registerUser(
-    createUserDto: CreateUserDto,
-    performedBy?: string,
-  ): Promise<User> {
+  async registerUser(createUserDto: CreateUserDto, performedBy?: string): Promise<User> {
     try {
       await this._validateUniqueConstraints(createUserDto, undefined, [
         {
           field: 'username',
-          message: 'Username already exists',
+          message: 'El nombre de usuario ya está en uso',
           transform: (value: string) => value.toLowerCase().trim(),
         },
         {
           field: 'email',
-          message: 'Email already exists',
+          message: 'El correo electrónico ya está registrado',
           transform: (value: string) => value.toLowerCase().trim(),
         },
       ]);
@@ -80,13 +77,13 @@ export class UserCrudRepository
 
       return savedEntity;
     } catch (error) {
+      if (error instanceof ConflictException) {
+        throw error;
+      }
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException(
-        'Failed to register user',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('Error al registrar el usuario', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -94,7 +91,7 @@ export class UserCrudRepository
     try {
       const user = await this._findById(userId);
       if (!user) {
-        throw new NotFoundException('User not found');
+        throw new NotFoundException('Usuario no encontrado');
       }
       return user;
     } catch (error) {
@@ -102,7 +99,7 @@ export class UserCrudRepository
         throw error;
       }
       throw new HttpException(
-        'Failed to get user profile',
+        'Error al obtener el perfil del usuario',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -134,27 +131,21 @@ export class UserCrudRepository
         }
       }
 
-      return await this._update(userId, updateUserDto, performedBy, "User", (user) => {
+      return await this._update(userId, updateUserDto, performedBy, 'User', (user) => {
         const changes = Object.keys(updateUserDto)
           .map((key) => `${key}: ${updateUserDto[key]}`)
-          .join(", ");
+          .join(', ');
         return `User updated: ${changes}`;
       });
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException(
-        'Failed to update user profile',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('Failed to update user profile', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async deactivateUser(
-    userId: string,
-    performedBy?: string,
-  ): Promise<{ id: string }> {
+  async deactivateUser(userId: string, performedBy?: string): Promise<{ id: string }> {
     try {
       const user = await this.getUserProfile(userId);
       return await this._softDelete(
@@ -167,16 +158,11 @@ export class UserCrudRepository
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException(
-        'Failed to deactivate user',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('Failed to deactivate user', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async getAllUsers(
-    pagination: PaginationDto,
-  ): Promise<PaginatedResult<User>> {
+  async getAllUsers(pagination: PaginationDto): Promise<PaginatedResult<User>> {
     try {
       const options: FindManyOptions<User> = {
         order: { [pagination.sortBy]: pagination.sortOrder },
@@ -184,15 +170,9 @@ export class UserCrudRepository
         take: pagination.limit,
       };
 
-      return await this._findManyWithPagination(
-        options,
-        pagination,
-      );
+      return await this._findManyWithPagination(options, pagination);
     } catch (error) {
-      throw new HttpException(
-        'Failed to get all users',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('Failed to get all users', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -231,7 +211,11 @@ export class UserCrudRepository
     });
   }
 
-  async _validateUniqueConstraints(dto: Partial<User>, entityId?: string, constraints?: any[]): Promise<void> {
+  async _validateUniqueConstraints(
+    dto: Partial<User>,
+    entityId?: string,
+    constraints?: any[],
+  ): Promise<void> {
     if (!constraints) return;
 
     for (const constraint of constraints) {
@@ -239,7 +223,7 @@ export class UserCrudRepository
       if (!fieldValue) continue;
 
       const transformedValue = constraint.transform ? constraint.transform(fieldValue) : fieldValue;
-      
+
       let existingEntity: User;
       if (constraint.field === 'email') {
         if (entityId) {
@@ -256,7 +240,7 @@ export class UserCrudRepository
       }
 
       if (existingEntity) {
-        throw new Error(constraint.message);
+        throw new ConflictException(constraint.message);
       }
     }
   }

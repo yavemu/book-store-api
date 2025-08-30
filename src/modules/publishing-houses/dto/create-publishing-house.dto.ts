@@ -6,8 +6,8 @@ export class CreatePublishingHouseDto {
   @IsNotEmpty()
   @Length(2, 100)
   @ApiProperty({
-    description: "Name of the publishing house",
-    example: "Penguin Random House",
+    description: 'Name of the publishing house',
+    example: 'Penguin Random House',
     minLength: 2,
     maxLength: 100,
   })
@@ -17,8 +17,8 @@ export class CreatePublishingHouseDto {
   @IsOptional()
   @Length(2, 50)
   @ApiPropertyOptional({
-    description: "Country where the publishing house is located",
-    example: "United States",
+    description: 'Country where the publishing house is located',
+    example: 'United States',
     minLength: 2,
     maxLength: 50,
     required: false,
@@ -28,9 +28,9 @@ export class CreatePublishingHouseDto {
   @IsUrl()
   @IsOptional()
   @ApiPropertyOptional({
-    description: "Official website URL of the publishing house",
-    example: "https://www.penguinrandomhouse.com",
-    format: "url",
+    description: 'Official website URL of the publishing house',
+    example: 'https://www.penguinrandomhouse.com',
+    format: 'url',
     required: false,
   })
   websiteUrl?: string;

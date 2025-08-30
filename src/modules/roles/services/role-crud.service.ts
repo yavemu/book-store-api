@@ -35,14 +35,14 @@ export class RoleCrudService implements IRoleCrudService {
         createRoleDto,
         undefined,
         UNIQUE_CONSTRAINTS,
-        this.crudRepository
+        this.crudRepository,
       );
 
       return await this.crudRepository.create(createRoleDto, performedBy);
     } catch (error) {
       throw this.errorHandler.handleError(
         error,
-        ERROR_MESSAGES.ROLES?.FAILED_TO_CREATE || 'Failed to create role'
+        ERROR_MESSAGES.ROLES?.FAILED_TO_CREATE || 'Failed to create role',
       );
     }
   }
@@ -53,7 +53,7 @@ export class RoleCrudService implements IRoleCrudService {
     } catch (error) {
       throw this.errorHandler.handleError(
         error,
-        ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to retrieve roles'
+        ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to retrieve roles',
       );
     }
   }
@@ -63,14 +63,14 @@ export class RoleCrudService implements IRoleCrudService {
       const role = await this.crudRepository.findOne(id);
       if (!role) {
         throw this.errorHandler.createNotFoundException(
-          ERROR_MESSAGES.ROLES?.NOT_FOUND || 'Role not found'
+          ERROR_MESSAGES.ROLES?.NOT_FOUND || 'Role not found',
         );
       }
       return role;
     } catch (error) {
       throw this.errorHandler.handleError(
         error,
-        ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to retrieve role'
+        ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to retrieve role',
       );
     }
   }
@@ -82,14 +82,14 @@ export class RoleCrudService implements IRoleCrudService {
         updateRoleDto,
         id,
         UNIQUE_CONSTRAINTS,
-        this.crudRepository
+        this.crudRepository,
       );
 
       return await this.crudRepository.update(id, updateRoleDto, performedBy);
     } catch (error) {
       throw this.errorHandler.handleError(
         error,
-        ERROR_MESSAGES.ROLES?.FAILED_TO_UPDATE || 'Failed to update role'
+        ERROR_MESSAGES.ROLES?.FAILED_TO_UPDATE || 'Failed to update role',
       );
     }
   }
@@ -101,7 +101,7 @@ export class RoleCrudService implements IRoleCrudService {
     } catch (error) {
       throw this.errorHandler.handleError(
         error,
-        ERROR_MESSAGES.ROLES?.FAILED_TO_DELETE || 'Failed to delete role'
+        ERROR_MESSAGES.ROLES?.FAILED_TO_DELETE || 'Failed to delete role',
       );
     }
   }

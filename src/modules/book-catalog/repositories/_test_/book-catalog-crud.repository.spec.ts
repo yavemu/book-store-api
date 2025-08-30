@@ -52,7 +52,7 @@ describe('BookCatalogCrudRepository', () => {
           useValue: {
             log: jest.fn(),
           },
-        }
+        },
       ],
     }).compile();
 
@@ -77,7 +77,7 @@ describe('BookCatalogCrudRepository', () => {
         publisherId: 'publisher-1',
         publicationDate: new Date('2023-01-01'),
       } as CreateBookCatalogDto;
-      
+
       (repository as any)._validateUniqueConstraints = jest.fn().mockResolvedValue(undefined);
       (repository as any)._create = jest.fn().mockResolvedValue(mockBookCatalog);
 
@@ -99,7 +99,8 @@ describe('BookCatalogCrudRepository', () => {
         publicationDate: new Date('2023-01-01'),
       } as CreateBookCatalogDto;
 
-      (repository as any)._validateUniqueConstraints = jest.fn()
+      (repository as any)._validateUniqueConstraints = jest
+        .fn()
         .mockRejectedValue(new HttpException('ISBN code already exists', HttpStatus.CONFLICT));
 
       await expect(repository.registerBook(createDto, 'test-user')).rejects.toThrow(HttpException);
@@ -146,7 +147,7 @@ describe('BookCatalogCrudRepository', () => {
         '1',
         'test-user',
         'BookCatalog',
-        expect.any(Function)
+        expect.any(Function),
       );
     });
   });
@@ -155,7 +156,7 @@ describe('BookCatalogCrudRepository', () => {
     it('should get all books', async () => {
       const pagination = new PaginationDto();
       const paginatedResult = { data: [mockBookCatalog], meta: { total: 1, page: 1, limit: 10 } };
-      
+
       (repository as any)._findManyWithPagination = jest.fn().mockResolvedValue(paginatedResult);
 
       const result = await repository.getAllBooks(pagination);
@@ -164,5 +165,4 @@ describe('BookCatalogCrudRepository', () => {
       expect(result).toEqual(paginatedResult);
     });
   });
-
 });

@@ -1,22 +1,29 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
+import {
+  ApiOperation,
+  ApiResponse,
   ApiParam,
   ApiUnauthorizedResponse,
-  ApiNotFoundResponse
+  ApiNotFoundResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
-import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
+import {
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 
 export function ApiGetGenreById() {
   return applyDecorators(
     ApiOperation({
-      summary: "Obtener género por ID - Acceso: ADMIN, USER",
-      description: "Obtiene un género específico de libros utilizando su ID único.",
+      summary: 'Obtener género por ID - Acceso: ADMIN, USER',
+      description: 'Obtiene un género específico de libros utilizando su ID único.',
     }),
     ApiParam({
-      name: "id",
-      description: "ID único del género de libro",
+      name: 'id',
+      description: 'ID único del género de libro',
     }),
     ApiResponse({
       status: 200,
@@ -24,7 +31,7 @@ export function ApiGetGenreById() {
       schema: {
         type: 'object',
         properties: {
-          success: { type: 'boolean'},
+          success: { type: 'boolean' },
           message: {
             type: 'string',
           },
@@ -34,7 +41,7 @@ export function ApiGetGenreById() {
               id: {
                 type: 'string',
               },
-              name: { type: 'string'},
+              name: { type: 'string' },
               description: {
                 type: 'string',
               },
@@ -52,22 +59,22 @@ export function ApiGetGenreById() {
       },
     }),
     ApiUnauthorizedResponse({
-      description: "No autorizado - Token JWT inválido o faltante",
+      description: 'No autorizado - Token JWT inválido o faltante',
       schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          statusCode: { type: "number"},
-          message: { type: "string"},
+          statusCode: { type: 'number' },
+          message: { type: 'string' },
         },
       },
     }),
     ApiNotFoundResponse({
-      description: "Género no encontrado",
+      description: 'Género no encontrado',
       schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          statusCode: { type: "number"},
-          message: { type: "string"},
+          statusCode: { type: 'number' },
+          message: { type: 'string' },
         },
       },
     }),

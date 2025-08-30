@@ -13,8 +13,14 @@ export class BookAuthorAssignmentService implements IBookAuthorAssignmentService
     private readonly bookAuthorAssignmentRepository: IBookAuthorAssignmentRepository,
   ) {}
 
-  async create(createBookAuthorAssignmentDto: CreateBookAuthorAssignmentDto, performedBy: string): Promise<BookAuthorAssignment> {
-    return await this.bookAuthorAssignmentRepository.createAssignment(createBookAuthorAssignmentDto, performedBy);
+  async create(
+    createBookAuthorAssignmentDto: CreateBookAuthorAssignmentDto,
+    performedBy: string,
+  ): Promise<BookAuthorAssignment> {
+    return await this.bookAuthorAssignmentRepository.createAssignment(
+      createBookAuthorAssignmentDto,
+      performedBy,
+    );
   }
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<BookAuthorAssignment>> {
@@ -25,24 +31,41 @@ export class BookAuthorAssignmentService implements IBookAuthorAssignmentService
     return await this.bookAuthorAssignmentRepository.getAssignmentProfile(id);
   }
 
-  async update(id: string, updateBookAuthorAssignmentDto: UpdateBookAuthorAssignmentDto, performedBy: string): Promise<BookAuthorAssignment> {
-    return await this.bookAuthorAssignmentRepository.updateAssignment(id, updateBookAuthorAssignmentDto, performedBy);
+  async update(
+    id: string,
+    updateBookAuthorAssignmentDto: UpdateBookAuthorAssignmentDto,
+    performedBy: string,
+  ): Promise<BookAuthorAssignment> {
+    return await this.bookAuthorAssignmentRepository.updateAssignment(
+      id,
+      updateBookAuthorAssignmentDto,
+      performedBy,
+    );
   }
 
   async softDelete(id: string, performedBy: string): Promise<void> {
     await this.bookAuthorAssignmentRepository.deactivateAssignment(id, performedBy);
   }
 
-  async findByBook(bookId: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthorAssignment>> {
+  async findByBook(
+    bookId: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthorAssignment>> {
     return await this.bookAuthorAssignmentRepository.getAssignmentsByBook(bookId, pagination);
   }
 
-  async findByAuthor(authorId: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthorAssignment>> {
+  async findByAuthor(
+    authorId: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthorAssignment>> {
     return await this.bookAuthorAssignmentRepository.getAssignmentsByAuthor(authorId, pagination);
   }
 
   async checkAssignmentExists(bookId: string, authorId: string): Promise<{ exists: boolean }> {
-    const exists = await this.bookAuthorAssignmentRepository.checkAssignmentExists(bookId, authorId);
+    const exists = await this.bookAuthorAssignmentRepository.checkAssignmentExists(
+      bookId,
+      authorId,
+    );
     return { exists };
   }
 }

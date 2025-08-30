@@ -121,9 +121,10 @@ describe('BookAuthorSearchService', () => {
         throw repositoryError;
       });
 
-      await expect(service.findByFullName(firstName, lastName)).rejects.toThrow('Database connection failed');
+      await expect(service.findByFullName(firstName, lastName)).rejects.toThrow(
+        'Database connection failed',
+      );
       expect(errorHandler.handleError).toHaveBeenCalled();
     });
-
   });
 });

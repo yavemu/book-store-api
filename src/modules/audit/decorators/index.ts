@@ -4,3 +4,7 @@ export * from './get-audit-by-entity.decorator';
 export * from './get-audit-by-action.decorator';
 export * from './get-audit-by-entity-type.decorator';
 export * from './search-audit-logs.decorator';
+export * from './api-filter-audit-realtime.decorator';
+export * from './api-export-audit-csv.decorator';
+export * from './api-get-audit-by-id.decorator';
+export * from './api-advanced-filter-audit.decorator';

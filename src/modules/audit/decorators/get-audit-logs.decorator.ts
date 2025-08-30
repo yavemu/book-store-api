@@ -47,9 +47,9 @@ export function ApiGetAuditLogs() {
       schema: {
         type: 'object',
         properties: {
-          statusCode: { type: 'number'},
-          message: { type: 'string'},
-          error: { type: 'string'},
+          statusCode: { type: 'number' },
+          message: { type: 'string' },
+          error: { type: 'string' },
         },
       },
     }),

@@ -61,7 +61,7 @@ describe('RolesController', () => {
       const createDto = new CreateRoleDto();
       createDto.name = 'TEST_ROLE';
       createDto.description = 'Test role description';
-      
+
       const req = { user: { id: 'user-1' } };
       const mockRole = {
         id: 'role-1',
@@ -85,7 +85,7 @@ describe('RolesController', () => {
       const pagination = new PaginationDto();
       pagination.page = 1;
       pagination.limit = 10;
-      
+
       const mockRoles = {
         data: [{ id: 'role-1', name: 'ADMIN' }],
         total: 1,
@@ -194,7 +194,7 @@ describe('RolesController', () => {
       const id = 'role-1';
       const updateDto = new UpdateRoleDto();
       updateDto.description = 'Updated description';
-      
+
       const req = { user: { id: 'user-1' } };
       const mockUpdatedRole = {
         id: 'role-1',

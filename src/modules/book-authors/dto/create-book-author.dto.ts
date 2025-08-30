@@ -1,14 +1,14 @@
-import { IsString, IsNotEmpty, Length, IsOptional, IsDate, IsDateString } from "class-validator";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
+import { IsString, IsNotEmpty, Length, IsOptional, IsDate, IsDateString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class CreateBookAuthorDto {
   @IsString()
   @IsNotEmpty()
   @Length(1, 50)
   @ApiProperty({
-    description: "First name of the author",
-    example: "Stephen",
+    description: 'First name of the author',
+    example: 'Stephen',
     minLength: 1,
     maxLength: 50,
   })
@@ -18,8 +18,8 @@ export class CreateBookAuthorDto {
   @IsNotEmpty()
   @Length(1, 50)
   @ApiProperty({
-    description: "Last name of the author",
-    example: "King",
+    description: 'Last name of the author',
+    example: 'King',
     minLength: 1,
     maxLength: 50,
   })
@@ -29,8 +29,8 @@ export class CreateBookAuthorDto {
   @IsOptional()
   @Length(2, 50)
   @ApiPropertyOptional({
-    description: "Nationality of the author",
-    example: "American",
+    description: 'Nationality of the author',
+    example: 'American',
     minLength: 2,
     maxLength: 50,
     required: false,
@@ -41,9 +41,9 @@ export class CreateBookAuthorDto {
   @IsOptional()
   @Type(() => Date)
   @ApiPropertyOptional({
-    description: "Birth date of the author",
-    example: "1947-10-21",
-    format: "date",
+    description: 'Birth date of the author',
+    example: '1947-10-21',
+    format: 'date',
     required: false,
   })
   birthDate?: Date;
@@ -51,8 +51,9 @@ export class CreateBookAuthorDto {
   @IsString()
   @IsOptional()
   @ApiPropertyOptional({
-    description: "Biography or description of the author",
-    example: "Stephen Edwin King is an American author of horror, supernatural fiction, suspense, crime, science-fiction, and fantasy novels.",
+    description: 'Biography or description of the author',
+    example:
+      'Stephen Edwin King is an American author of horror, supernatural fiction, suspense, crime, science-fiction, and fantasy novels.',
     required: false,
   })
   biography?: string;

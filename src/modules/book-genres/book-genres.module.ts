@@ -12,10 +12,7 @@ import { BookGenresController } from './controllers/book-genres.controller';
 import { AuditModule } from '../audit/audit.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([BookGenre]),
-    AuditModule
-  ],
+  imports: [TypeOrmModule.forFeature([BookGenre]), AuditModule],
   controllers: [BookGenresController],
   providers: [
     // Core Services
@@ -26,7 +23,7 @@ import { AuditModule } from '../audit/audit.module';
     UserContextService,
     BookGenreCrudRepository,
     BookGenreSearchRepository,
-    
+
     // Interface Providers
     {
       provide: 'IBookGenreCrudService',
@@ -57,10 +54,6 @@ import { AuditModule } from '../audit/audit.module';
       useClass: BookGenreSearchRepository,
     },
   ],
-  exports: [
-    TypeOrmModule,
-    'IBookGenreCrudService',
-    'IBookGenreSearchService',
-  ],
+  exports: [TypeOrmModule, 'IBookGenreCrudService', 'IBookGenreSearchService'],
 })
 export class BookGenresModule {}

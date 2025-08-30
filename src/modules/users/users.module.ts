@@ -11,10 +11,7 @@ import { UsersController } from './controllers/users.controller';
 import { AuditModule } from '../audit/audit.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User, Role]),
-    AuditModule,
-  ],
+  imports: [TypeOrmModule.forFeature([User, Role]), AuditModule],
   controllers: [UsersController],
   providers: [
     {
@@ -38,10 +35,6 @@ import { AuditModule } from '../audit/audit.module';
       useClass: UserSearchRepository,
     },
   ],
-  exports: [
-    'IUserCrudService',
-    'IUserSearchService',
-    'IUserAuthService',
-  ],
+  exports: ['IUserCrudService', 'IUserSearchService', 'IUserAuthService'],
 })
 export class UsersModule {}

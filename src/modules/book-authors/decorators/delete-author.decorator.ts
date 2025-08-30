@@ -1,31 +1,39 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
+import {
+  ApiOperation,
+  ApiResponse,
   ApiNotFoundResponse,
   ApiForbiddenResponse,
   ApiUnauthorizedResponse,
   ApiBearerAuth,
-  ApiParam
+  ApiParam,
 } from '@nestjs/swagger';
-import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
+import {
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 import { DeleteBookAuthorResponseDto } from '../dto';
 
 export function ApiDeleteAuthor() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
-    ApiOperation({ 
+    ApiOperation({
       summary: 'Eliminar autor del sistema - Acceso: ADMIN',
-      description: 'Elimina un autor del sistema (eliminación lógica). Solo accesible para administradores.' 
+      description:
+        'Elimina un autor del sistema (eliminación lógica). Solo accesible para administradores.',
     }),
     ApiParam({
       name: 'id',
       type: String,
-      description: 'ID único del autor a eliminar'}),
-    ApiResponse({ 
-      status: 200, 
+      description: 'ID único del autor a eliminar',
+    }),
+    ApiResponse({
+      status: 200,
       description: 'Autor eliminado exitosamente',
-      type: DeleteBookAuthorResponseDto
+      type: DeleteBookAuthorResponseDto,
     }),
     ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',

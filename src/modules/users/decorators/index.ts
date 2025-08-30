@@ -3,3 +3,7 @@ export * from './get-users.decorator';
 export * from './get-user-by-id.decorator';
 export * from './update-user.decorator';
 export * from './delete-user.decorator';
+export * from './search-users.decorator';
+export * from './filter-users.decorator';
+export * from './filter-users-realtime.decorator';
+export * from './export-users-csv.decorator';

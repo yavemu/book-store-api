@@ -7,6 +7,10 @@ export interface IBookCatalogCrudService {
   create(createBookCatalogDto: CreateBookCatalogDto, performedBy: string): Promise<BookCatalog>;
   findAll(pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
   findById(id: string): Promise<BookCatalog>;
-  update(id: string, updateBookCatalogDto: UpdateBookCatalogDto, performedBy: string): Promise<BookCatalog>;
+  update(
+    id: string,
+    updateBookCatalogDto: UpdateBookCatalogDto,
+    performedBy: string,
+  ): Promise<BookCatalog>;
   softDelete(id: string, performedBy: string): Promise<void>;
 }

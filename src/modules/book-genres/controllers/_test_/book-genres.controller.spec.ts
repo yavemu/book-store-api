@@ -20,6 +20,7 @@ describe('BookGenresController', () => {
 
   const mockSearchService = {
     search: jest.fn(),
+    exportToCsv: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -48,9 +49,9 @@ describe('BookGenresController', () => {
     it('should create a genre', async () => {
       const createDto = new CreateBookGenreDto();
       const req = { user: { userId: 'user-1' } };
-      
+
       await controller.create(createDto, req);
-      
+
       expect(crudService.create).toHaveBeenCalledWith(createDto, 'user-1');
     });
   });
@@ -58,9 +59,9 @@ describe('BookGenresController', () => {
   describe('findAll', () => {
     it('should find all genres', async () => {
       const pagination = new PaginationDto();
-      
+
       await controller.findAll(pagination);
-      
+
       expect(crudService.findAll).toHaveBeenCalledWith(pagination);
     });
   });
@@ -69,9 +70,9 @@ describe('BookGenresController', () => {
     it('should search genres', async () => {
       const pagination = new PaginationDto();
       const searchTerm = 'test';
-      
+
       await controller.search(searchTerm, pagination);
-      
+
       expect(searchService.search).toHaveBeenCalledWith(searchTerm, pagination);
     });
   });
@@ -79,9 +80,9 @@ describe('BookGenresController', () => {
   describe('findOne', () => {
     it('should find a genre by id', async () => {
       const id = '1';
-      
+
       await controller.findOne(id);
-      
+
       expect(crudService.findById).toHaveBeenCalledWith(id);
     });
   });
@@ -91,9 +92,9 @@ describe('BookGenresController', () => {
       const id = '1';
       const updateDto = new UpdateBookGenreDto();
       const req = { user: { userId: 'user-1' } };
-      
+
       await controller.update(id, updateDto, req);
-      
+
       expect(crudService.update).toHaveBeenCalledWith(id, updateDto, 'user-1');
     });
   });
@@ -102,10 +103,30 @@ describe('BookGenresController', () => {
     it('should soft delete a genre', async () => {
       const id = '1';
       const req = { user: { userId: 'user-1' } };
-      
+
       await controller.softDelete(id, req);
-      
+
       expect(crudService.softDelete).toHaveBeenCalledWith(id, 'user-1');
+    });
+  });
+
+  describe('exportToCsv', () => {
+    it('should export genres to CSV', async () => {
+      const filters = { name: 'Fiction' };
+      const csvData = 'ID,Name,Description\\n1,Fiction,Fiction books';
+      const mockResponse = {
+        setHeader: jest.fn(),
+        send: jest.fn(),
+      } as any;
+
+      mockSearchService.exportToCsv.mockResolvedValue(csvData);
+
+      await controller.exportToCsv(filters, mockResponse);
+
+      expect(searchService.exportToCsv).toHaveBeenCalledWith(filters);
+      expect(mockResponse.setHeader).toHaveBeenCalledWith('Content-Type', 'text/csv');
+      expect(mockResponse.setHeader).toHaveBeenCalledWith('Content-Disposition', expect.stringContaining('attachment; filename='));
+      expect(mockResponse.send).toHaveBeenCalledWith(csvData);
     });
   });
 });

@@ -1,15 +1,43 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Request, Query, Inject } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
-import { IBookGenreCrudService } from "../interfaces/book-genre-crud.service.interface";
-import { IBookGenreSearchService } from "../interfaces/book-genre-search.service.interface";
-import { CreateBookGenreDto, UpdateBookGenreDto } from "../dto";
-import { Auth } from "../../../common/decorators/auth.decorator";
-import { UserRole } from "../../users/enums/user-role.enum";
-import { PaginationDto } from "../../../common/dto/pagination.dto";
-import { ApiCreateBookGenre, ApiGetGenres, ApiGetGenreById, ApiUpdateGenre, ApiDeleteGenre, ApiSearchGenres } from "../decorators";
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  Request,
+  Query,
+  Inject,
+  Res,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
+import { IBookGenreCrudService } from '../interfaces/book-genre-crud.service.interface';
+import { IBookGenreSearchService } from '../interfaces/book-genre-search.service.interface';
+import {
+  CreateBookGenreDto,
+  UpdateBookGenreDto,
+  BookGenreFiltersDto,
+  BookGenreCsvExportFiltersDto,
+} from '../dto';
+import { Auth } from '../../../common/decorators/auth.decorator';
+import { UserRole } from '../../users/enums/user-role.enum';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
+import {
+  ApiCreateBookGenre,
+  ApiGetGenres,
+  ApiGetGenreById,
+  ApiUpdateGenre,
+  ApiDeleteGenre,
+  ApiSearchGenres,
+  ApiExportGenresCsv,
+  ApiFilterGenres,
+  ApiAdvancedFilterGenres,
+} from '../decorators';
 
-@ApiTags("Book Genres")
-@Controller("genres")
+@ApiTags('Book Genres')
+@Controller('genres')
 export class BookGenresController {
   constructor(
     @Inject('IBookGenreCrudService')
@@ -32,31 +60,61 @@ export class BookGenresController {
     return this.genreCrudService.findAll(pagination);
   }
 
-  @Get("search")
+  @Get('search')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchGenres()
-  async search(@Query("q") searchTerm: string, @Query() pagination: PaginationDto) {
+  async search(@Query('term') searchTerm: string, @Query() pagination: PaginationDto) {
     return this.genreSearchService.search(searchTerm, pagination);
   }
 
-  @Get(":id")
+  @Get('filter')
+  @Auth(UserRole.ADMIN, UserRole.USER)
+  @ApiFilterGenres()
+  async filter(@Query('filter') filterTerm: string, @Query() pagination: PaginationDto) {
+    return this.genreSearchService.filterSearch(filterTerm, pagination);
+  }
+
+  @Post('advanced-filter')
+  @Auth(UserRole.ADMIN, UserRole.USER)
+  @ApiAdvancedFilterGenres()
+  async advancedFilter(@Body() filters: BookGenreFiltersDto, @Query() pagination: PaginationDto) {
+    return this.genreSearchService.findWithFilters(filters, pagination);
+  }
+
+  @Get('export/csv')
+  @Auth(UserRole.ADMIN)
+  @ApiExportGenresCsv()
+  async exportToCsv(@Query() filters: BookGenreCsvExportFiltersDto, @Res() res: Response) {
+    const csvData = await this.genreSearchService.exportToCsv(filters);
+    const filename = `book_genres_${new Date().toISOString().split('T')[0]}.csv`;
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csvData);
+  }
+
+  @Get(':id')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetGenreById()
-  async findOne(@Param("id") id: string) {
+  async findOne(@Param('id') id: string) {
     return this.genreCrudService.findById(id);
   }
 
-  @Put(":id")
+  @Put(':id')
   @Auth(UserRole.ADMIN)
   @ApiUpdateGenre()
-  async update(@Param("id") id: string, @Body() updateBookGenreDto: UpdateBookGenreDto, @Request() req) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateBookGenreDto: UpdateBookGenreDto,
+    @Request() req,
+  ) {
     return this.genreCrudService.update(id, updateBookGenreDto, req.user.userId);
   }
 
-  @Delete(":id")
+  @Delete(':id')
   @Auth(UserRole.ADMIN)
   @ApiDeleteGenre()
-  async softDelete(@Param("id") id: string, @Request() req) {
+  async softDelete(@Param('id') id: string, @Request() req) {
     return this.genreCrudService.softDelete(id, req.user.userId);
   }
 }

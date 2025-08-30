@@ -1,12 +1,12 @@
-import { 
-  Entity, 
-  PrimaryGeneratedColumn, 
-  Column, 
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
   CreateDateColumn,
   Index,
   ManyToOne,
   JoinColumn,
-  Unique
+  Unique,
 } from 'typeorm';
 import { BookCatalog } from '../../book-catalog/entities/book-catalog.entity';
 import { BookAuthor } from '../../book-authors/entities/book-author.entity';
@@ -18,7 +18,7 @@ import { BookAuthor } from '../../book-authors/entities/book-author.entity';
 @Index(['createdAt'])
 export class BookAuthorAssignment {
   @PrimaryGeneratedColumn('uuid', {
-    comment: 'Primary key identifier for book-author assignment'
+    comment: 'Primary key identifier for book-author assignment',
   })
   id: string;
 
@@ -26,7 +26,7 @@ export class BookAuthorAssignment {
     name: 'book_id',
     type: 'uuid',
     nullable: false,
-    comment: 'Foreign key reference to book catalog'
+    comment: 'Foreign key reference to book catalog',
   })
   bookId: string;
 
@@ -34,7 +34,7 @@ export class BookAuthorAssignment {
     name: 'author_id',
     type: 'uuid',
     nullable: false,
-    comment: 'Foreign key reference to book author'
+    comment: 'Foreign key reference to book author',
   })
   authorId: string;
 
@@ -50,7 +50,7 @@ export class BookAuthorAssignment {
     name: 'created_at',
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
-    comment: 'Timestamp when assignment was created'
+    comment: 'Timestamp when assignment was created',
   })
   createdAt: Date;
 }

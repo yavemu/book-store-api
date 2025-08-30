@@ -41,7 +41,7 @@ describe('PublishingHouseSearchRepository', () => {
           useValue: {
             log: jest.fn(),
           },
-        }
+        },
       ],
     }).compile();
 
@@ -57,8 +57,11 @@ describe('PublishingHouseSearchRepository', () => {
   describe('searchPublishers', () => {
     it('should search publishing houses by term', async () => {
       const pagination = new PaginationDto();
-      const paginatedResult = { data: [mockPublishingHouse], meta: { total: 1, page: 1, limit: 10 } };
-      
+      const paginatedResult = {
+        data: [mockPublishingHouse],
+        meta: { total: 1, page: 1, limit: 10 },
+      };
+
       (repository as any)._findManyWithPagination = jest.fn().mockResolvedValue(paginatedResult);
 
       const result = await repository.searchPublishers('test', pagination);
@@ -72,8 +75,11 @@ describe('PublishingHouseSearchRepository', () => {
   describe('getPublishersByCountry', () => {
     it('should get publishing houses by country', async () => {
       const pagination = new PaginationDto();
-      const paginatedResult = { data: [mockPublishingHouse], meta: { total: 1, page: 1, limit: 10 } };
-      
+      const paginatedResult = {
+        data: [mockPublishingHouse],
+        meta: { total: 1, page: 1, limit: 10 },
+      };
+
       (repository as any)._findManyWithPagination = jest.fn().mockResolvedValue(paginatedResult);
 
       const result = await repository.getPublishersByCountry('USA', pagination);
@@ -90,7 +96,7 @@ describe('PublishingHouseSearchRepository', () => {
       const result = await repository.checkNameExists('Test Publishing House');
 
       expect(typeormRepo.count).toHaveBeenCalledWith({
-        where: { name: 'Test Publishing House' }
+        where: { name: 'Test Publishing House' },
       });
       expect(result).toBe(true);
     });
@@ -101,7 +107,7 @@ describe('PublishingHouseSearchRepository', () => {
       const result = await repository.checkNameExists('Nonexistent Publishing House');
 
       expect(typeormRepo.count).toHaveBeenCalledWith({
-        where: { name: 'Nonexistent Publishing House' }
+        where: { name: 'Nonexistent Publishing House' },
       });
       expect(result).toBe(false);
     });

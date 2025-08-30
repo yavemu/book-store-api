@@ -1,48 +1,48 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class RoleResponseDto {
-  @ApiProperty({ 
-    description: 'ID único del rol', 
-    example: 'b8c4e4b2-1234-5678-9abc-def123456789' 
+  @ApiProperty({
+    description: 'ID único del rol',
+    example: 'b8c4e4b2-1234-5678-9abc-def123456789',
   })
   id: string;
 
-  @ApiProperty({ 
-    description: 'Nombre del rol', 
-    example: 'MANAGER' 
+  @ApiProperty({
+    description: 'Nombre del rol',
+    example: 'MANAGER',
   })
   name: string;
 
-  @ApiPropertyOptional({ 
-    description: 'Descripción del rol', 
+  @ApiPropertyOptional({
+    description: 'Descripción del rol',
     example: 'Manager con permisos de gestión de libros y usuarios',
     required: false,
   })
   description?: string;
 
-  @ApiProperty({ 
-    description: 'Estado del rol (activo/inactivo)', 
-    example: true 
+  @ApiProperty({
+    description: 'Estado del rol (activo/inactivo)',
+    example: true,
   })
   isActive: boolean;
 
-  @ApiProperty({ 
-    description: 'Fecha de creación del rol', 
-    example: '2024-01-01T00:00:00.000Z' 
+  @ApiProperty({
+    description: 'Fecha de creación del rol',
+    example: '2024-01-01T00:00:00.000Z',
   })
   createdAt: Date;
 
-  @ApiProperty({ 
-    description: 'Fecha de última actualización del rol', 
-    example: '2024-01-02T00:00:00.000Z' 
+  @ApiProperty({
+    description: 'Fecha de última actualización del rol',
+    example: '2024-01-02T00:00:00.000Z',
   })
   updatedAt: Date;
 }
 
 export class RoleListResponseDto {
-  @ApiProperty({ 
-    description: 'Lista de roles', 
-    type: [RoleResponseDto] 
+  @ApiProperty({
+    description: 'Lista de roles',
+    type: [RoleResponseDto],
   })
   data: RoleResponseDto[];
 
@@ -54,8 +54,8 @@ export class RoleListResponseDto {
       limit: 10,
       totalPages: 1,
       hasNext: false,
-      hasPrev: false
-    }
+      hasPrev: false,
+    },
   })
   meta: {
     total: number;

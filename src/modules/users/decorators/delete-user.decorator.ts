@@ -9,7 +9,12 @@ import {
   ApiParam,
   getSchemaPath,
 } from '@nestjs/swagger';
-import { ApiResponseDto, UnauthorizedResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
+import {
+  ApiResponseDto,
+  UnauthorizedResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 
 export function ApiDeleteUser() {
   return applyDecorators(
@@ -17,7 +22,7 @@ export function ApiDeleteUser() {
     ApiOperation({
       summary: 'Eliminar usuario del sistema - Acceso: ADMIN',
       description:
-        'Realiza una eliminación lógica (soft delete) de un usuario del sistema. Solo accesible para administradores.',
+        'Realiza una eliminación lógica (soft delete) de un usuario del sistema preservando registros históricos. - Acceso: Solo administradores.',
     }),
     ApiParam({
       name: 'id',

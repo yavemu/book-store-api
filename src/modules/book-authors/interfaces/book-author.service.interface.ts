@@ -7,7 +7,11 @@ export interface IBookAuthorService {
   create(createBookAuthorDto: CreateBookAuthorDto, performedBy: string): Promise<BookAuthor>;
   findAll(pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>>;
   findById(id: string): Promise<BookAuthor>;
-  update(id: string, updateBookAuthorDto: UpdateBookAuthorDto, performedBy: string): Promise<BookAuthor>;
+  update(
+    id: string,
+    updateBookAuthorDto: UpdateBookAuthorDto,
+    performedBy: string,
+  ): Promise<BookAuthor>;
   softDelete(id: string, performedBy: string): Promise<void>;
   search(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>>;
   findByFullName(firstName: string, lastName: string): Promise<BookAuthor>;

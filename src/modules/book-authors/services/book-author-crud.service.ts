@@ -1,25 +1,25 @@
-import { Injectable, Inject } from "@nestjs/common";
-import { IBookAuthorCrudRepository } from "../interfaces/book-author-crud.repository.interface";
-import { IBookAuthorValidationRepository } from "../interfaces/book-author-validation.repository.interface";
-import { IBookAuthorCrudService } from "../interfaces/book-author-crud.service.interface";
-import { IValidationService } from "../interfaces/validation.service.interface";
-import { IErrorHandlerService } from "../interfaces/error-handler.service.interface";
-import { BookAuthor } from "../entities/book-author.entity";
-import { CreateBookAuthorDto } from "../dto/create-book-author.dto";
-import { UpdateBookAuthorDto } from "../dto/update-book-author.dto";
-import { PaginationDto, PaginatedResult } from "../../../common/dto/pagination.dto";
-import { ERROR_MESSAGES } from "../../../common/constants/error-messages";
+import { Injectable, Inject } from '@nestjs/common';
+import { IBookAuthorCrudRepository } from '../interfaces/book-author-crud.repository.interface';
+import { IBookAuthorValidationRepository } from '../interfaces/book-author-validation.repository.interface';
+import { IBookAuthorCrudService } from '../interfaces/book-author-crud.service.interface';
+import { IValidationService } from '../interfaces/validation.service.interface';
+import { IErrorHandlerService } from '../interfaces/error-handler.service.interface';
+import { BookAuthor } from '../entities/book-author.entity';
+import { CreateBookAuthorDto } from '../dto/create-book-author.dto';
+import { UpdateBookAuthorDto } from '../dto/update-book-author.dto';
+import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { ERROR_MESSAGES } from '../../../common/constants/error-messages';
 
 @Injectable()
 export class BookAuthorCrudService implements IBookAuthorCrudService {
   constructor(
-    @Inject("IBookAuthorCrudRepository")
+    @Inject('IBookAuthorCrudRepository')
     private readonly crudRepository: IBookAuthorCrudRepository,
-    @Inject("IBookAuthorValidationRepository")
+    @Inject('IBookAuthorValidationRepository')
     private readonly validationRepository: IBookAuthorValidationRepository,
-    @Inject("IValidationService")
+    @Inject('IValidationService')
     private readonly validationService: IValidationService,
-    @Inject("IErrorHandlerService")
+    @Inject('IErrorHandlerService')
     private readonly errorHandler: IErrorHandlerService,
   ) {}
 
@@ -27,7 +27,7 @@ export class BookAuthorCrudService implements IBookAuthorCrudService {
     try {
       const uniqueConstraints = [
         {
-          field: ["firstName", "lastName"] as string[],
+          field: ['firstName', 'lastName'] as string[],
           message: ERROR_MESSAGES.BOOK_AUTHORS.ALREADY_EXISTS,
           transform: (value: string) => value.trim(),
         },
@@ -37,7 +37,7 @@ export class BookAuthorCrudService implements IBookAuthorCrudService {
         createBookAuthorDto,
         undefined,
         uniqueConstraints,
-        this.validationRepository
+        this.validationRepository,
       );
 
       return await this.crudRepository.create(createBookAuthorDto, performedBy);
@@ -66,7 +66,11 @@ export class BookAuthorCrudService implements IBookAuthorCrudService {
     }
   }
 
-  async update(id: string, updateBookAuthorDto: UpdateBookAuthorDto, performedBy: string): Promise<BookAuthor> {
+  async update(
+    id: string,
+    updateBookAuthorDto: UpdateBookAuthorDto,
+    performedBy: string,
+  ): Promise<BookAuthor> {
     try {
       const existingAuthor = await this.crudRepository.findById(id);
       if (!existingAuthor) {
@@ -80,7 +84,7 @@ export class BookAuthorCrudService implements IBookAuthorCrudService {
 
       const uniqueConstraints = [
         {
-          field: ["firstName", "lastName"] as string[],
+          field: ['firstName', 'lastName'] as string[],
           message: ERROR_MESSAGES.BOOK_AUTHORS.ALREADY_EXISTS,
           transform: (value: string) => value.trim(),
         },
@@ -90,7 +94,7 @@ export class BookAuthorCrudService implements IBookAuthorCrudService {
         validationDto,
         id,
         uniqueConstraints,
-        this.validationRepository
+        this.validationRepository,
       );
 
       return await this.crudRepository.update(id, updateBookAuthorDto, performedBy);

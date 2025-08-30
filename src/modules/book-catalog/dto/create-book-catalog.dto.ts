@@ -1,14 +1,26 @@
-import { IsString, IsNotEmpty, Length, IsOptional, IsNumber, IsBoolean, IsUUID, IsDateString, Min, IsUrl, IsDate } from "class-validator";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Type, Transform } from "class-transformer";
+import {
+  IsString,
+  IsNotEmpty,
+  Length,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  IsUUID,
+  IsDateString,
+  Min,
+  IsUrl,
+  IsDate,
+} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type, Transform } from 'class-transformer';
 
 export class CreateBookCatalogDto {
   @IsString()
   @IsNotEmpty()
   @Length(1, 255)
   @ApiProperty({
-    description: "Title of the book",
-    example: "The Shining",
+    description: 'Title of the book',
+    example: 'The Shining',
     minLength: 1,
     maxLength: 255,
   })
@@ -18,8 +30,8 @@ export class CreateBookCatalogDto {
   @IsNotEmpty()
   @Length(10, 13)
   @ApiProperty({
-    description: "Unique ISBN code for the book",
-    example: "9780307743657",
+    description: 'Unique ISBN code for the book',
+    example: '9780307743657',
     minLength: 10,
     maxLength: 13,
   })
@@ -29,11 +41,11 @@ export class CreateBookCatalogDto {
   @Min(0)
   @Type(() => Number)
   @ApiProperty({
-    description: "Price of the book",
+    description: 'Price of the book',
     example: 19.99,
     minimum: 0,
-    type: "number",
-    format: "decimal",
+    type: 'number',
+    format: 'decimal',
   })
   price: number;
 
@@ -41,7 +53,7 @@ export class CreateBookCatalogDto {
   @IsOptional()
   @Type(() => Boolean)
   @ApiPropertyOptional({
-    description: "Indicates if the book is available for purchase",
+    description: 'Indicates if the book is available for purchase',
     example: true,
     default: true,
     required: false,
@@ -53,7 +65,7 @@ export class CreateBookCatalogDto {
   @IsOptional()
   @Type(() => Number)
   @ApiPropertyOptional({
-    description: "Available stock quantity of the book",
+    description: 'Available stock quantity of the book',
     example: 25,
     minimum: 0,
     default: 0,
@@ -61,13 +73,14 @@ export class CreateBookCatalogDto {
   })
   stockQuantity?: number = 0;
 
-  @IsUrl()
+  @IsString()
   @IsOptional()
   @ApiPropertyOptional({
-    description: "URL of the book cover image",
-    example: "https://example.com/covers/the-shining.jpg",
-    format: "url",
+    description:
+      'URL of the book cover image (auto-generated when uploading via /upload-cover endpoint)',
+    example: '/uploads/books/the_shining.cover_image.jpg',
     required: false,
+    readOnly: true,
   })
   coverImageUrl?: string;
 
@@ -75,9 +88,9 @@ export class CreateBookCatalogDto {
   @IsOptional()
   @Type(() => Date)
   @ApiPropertyOptional({
-    description: "Date when the book was published",
-    example: "1947-09-21",
-    format: "date",
+    description: 'Date when the book was published',
+    example: '1947-09-21',
+    format: 'date',
     required: false,
   })
   publicationDate?: Date;
@@ -87,7 +100,7 @@ export class CreateBookCatalogDto {
   @IsOptional()
   @Type(() => Number)
   @ApiPropertyOptional({
-    description: "Number of pages in the book",
+    description: 'Number of pages in the book',
     example: 447,
     minimum: 1,
     required: false,
@@ -97,26 +110,26 @@ export class CreateBookCatalogDto {
   @IsString()
   @IsOptional()
   @ApiPropertyOptional({
-    description: "Summary or description of the book",
+    description: 'Summary or description of the book',
     example:
-      "A psychological horror novel that tells the story of Jack Torrance, an aspiring writer and recovering alcoholic who accepts a position as the off-season caretaker of the isolated historic Overlook Hotel.",
+      'A psychological horror novel that tells the story of Jack Torrance, an aspiring writer and recovering alcoholic who accepts a position as the off-season caretaker of the isolated historic Overlook Hotel.',
     required: false,
   })
   summary?: string;
 
   @IsUUID()
   @ApiProperty({
-    description: "Foreign key reference to book genre",
-    example: "550e8400-e29b-41d4-a716-446655440000",
-    format: "uuid",
+    description: 'Foreign key reference to book genre',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+    format: 'uuid',
   })
   genreId: string;
 
   @IsUUID()
   @ApiProperty({
-    description: "Foreign key reference to publishing house",
-    example: "550e8400-e29b-41d4-a716-446655440001",
-    format: "uuid",
+    description: 'Foreign key reference to publishing house',
+    example: '550e8400-e29b-41d4-a716-446655440001',
+    format: 'uuid',
   })
   publisherId: string;
 }

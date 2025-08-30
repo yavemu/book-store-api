@@ -1,23 +1,30 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
-  ApiBadRequestResponse, 
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiBadRequestResponse,
   ApiConflictResponse,
   ApiForbiddenResponse,
   ApiUnauthorizedResponse,
   ApiBearerAuth,
-  getSchemaPath
+  getSchemaPath,
 } from '@nestjs/swagger';
 import { BookCatalogResponseDto } from '../dto';
-import { ApiResponseDto, BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto } from '../../../common/dto';
+import {
+  ApiResponseDto,
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+} from '../../../common/dto';
 
 export function ApiCreateBook() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
-    ApiOperation({ 
+    ApiOperation({
       summary: 'Crear nuevo libro en el catálogo - Acceso: ADMIN',
-      description: 'Crea un nuevo libro en el catálogo del sistema. Solo accesible para administradores.' 
+      description:
+        'Crea un nuevo libro en el catálogo del sistema con toda la información bibliográfica requerida. - Acceso: Solo administradores y gestores de inventario.',
     }),
     ApiResponse({
       status: 201,
@@ -39,7 +46,7 @@ export function ApiCreateBook() {
       description: 'Datos de entrada inválidos o errores de validación',
       type: BadRequestResponseDto,
     }),
-    ApiUnauthorizedResponse({ 
+    ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',
       type: UnauthorizedResponseDto,
     }),
@@ -50,6 +57,6 @@ export function ApiCreateBook() {
     ApiForbiddenResponse({
       description: 'Acceso denegado - Se requieren permisos de administrador',
       type: ForbiddenResponseDto,
-    })
+    }),
   );
 }

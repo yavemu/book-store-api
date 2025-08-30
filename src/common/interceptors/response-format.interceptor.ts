@@ -1,7 +1,7 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from "@nestjs/common";
-import { Observable } from "rxjs";
-import { map } from "rxjs/operators";
-import { SUCCESS_MESSAGES } from "../constants";
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { SUCCESS_MESSAGES } from '../constants';
 
 @Injectable()
 export class ResponseFormatInterceptor implements NestInterceptor {

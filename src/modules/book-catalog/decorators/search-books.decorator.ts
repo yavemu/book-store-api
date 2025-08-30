@@ -1,25 +1,41 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiQuery, ApiExtraModels, getSchemaPath, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiExtraModels,
+  getSchemaPath,
+  ApiUnauthorizedResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { BookCatalogResponseDto } from '../dto';
-import { PaginationDto , BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto} from '../../../common/dto';
+import {
+  PaginationDto,
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 import { ApiResponseDto } from '../../../common/dto';
 
 export function ApiSearchBooks() {
   return applyDecorators(
     ApiOperation({
-      summary: "Buscar libros en el catálogo - Acceso: ADMIN, USER",
-      description: "Busca libros en el catálogo por un término de búsqueda en el título, código ISBN o resumen. Endpoint público.",
+      summary: 'Buscar libros en el catálogo - Acceso: ADMIN, USER',
+      description:
+        'Busca libros en el catálogo por un término de búsqueda en el título, código ISBN o resumen. Endpoint público.',
     }),
     ApiQuery({
-      name: "term",
+      name: 'term',
       required: true,
       type: String,
-      description: "Término de búsqueda",
+      description: 'Término de búsqueda',
     }),
     ApiExtraModels(PaginationDto, ApiResponseDto, BookCatalogResponseDto),
     ApiResponse({
       status: 200,
-      description: "Resultados de la búsqueda de libros",
+      description: 'Resultados de la búsqueda de libros',
       schema: {
         allOf: [
           { $ref: getSchemaPath(ApiResponseDto) },
@@ -40,9 +56,9 @@ export function ApiSearchBooks() {
                       totalPages: { type: 'number' },
                       hasNext: { type: 'boolean' },
                       hasPrev: { type: 'boolean' },
-                    }
-                  }
-                }
+                    },
+                  },
+                },
               },
             },
           },
@@ -50,12 +66,12 @@ export function ApiSearchBooks() {
       },
     }),
     ApiUnauthorizedResponse({
-      description: "No autorizado - Token JWT inválido o faltante",
+      description: 'No autorizado - Token JWT inválido o faltante',
       schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          statusCode: { type: "number"},
-          message: { type: "string"},
+          statusCode: { type: 'number' },
+          message: { type: 'string' },
         },
       },
     }),

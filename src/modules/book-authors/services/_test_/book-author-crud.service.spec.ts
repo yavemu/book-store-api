@@ -62,7 +62,9 @@ describe('BookAuthorCrudService', () => {
 
     service = module.get<BookAuthorCrudService>(BookAuthorCrudService);
     crudRepository = module.get<IBookAuthorCrudRepository>('IBookAuthorCrudRepository');
-    validationRepository = module.get<IBookAuthorValidationRepository>('IBookAuthorValidationRepository');
+    validationRepository = module.get<IBookAuthorValidationRepository>(
+      'IBookAuthorValidationRepository',
+    );
     validationService = module.get<IValidationService>('IValidationService');
     errorHandler = module.get<IErrorHandlerService>('IErrorHandlerService');
   });
@@ -96,9 +98,9 @@ describe('BookAuthorCrudService', () => {
         expect.arrayContaining([
           expect.objectContaining({
             field: ['firstName', 'lastName'],
-          })
+          }),
         ]),
-        validationRepository
+        validationRepository,
       );
       expect(crudRepository.create).toHaveBeenCalledWith(createDto, performedBy);
       expect(result).toEqual(mockBookAuthor);
@@ -157,7 +159,7 @@ describe('BookAuthorCrudService', () => {
     it('should call error handler when author not found', async () => {
       const id = 'non-existent-id';
       mockCrudRepository.findById.mockResolvedValue(null);
-      
+
       // Mock createNotFoundException to not throw for this test
       mockErrorHandler.createNotFoundException.mockImplementation(() => {
         // Just record that it was called, don't actually throw
@@ -189,7 +191,7 @@ describe('BookAuthorCrudService', () => {
       updateDto.firstName = 'Jane';
       const performedBy = 'user-1';
       const updatedAuthor = { ...mockBookAuthor, firstName: 'Jane' };
-      
+
       mockCrudRepository.findById.mockResolvedValue(mockBookAuthor);
       mockValidationService.validateUniqueConstraints.mockResolvedValue(undefined);
       mockCrudRepository.update.mockResolvedValue(updatedAuthor);
@@ -206,9 +208,9 @@ describe('BookAuthorCrudService', () => {
         expect.arrayContaining([
           expect.objectContaining({
             field: ['firstName', 'lastName'],
-          })
+          }),
         ]),
-        validationRepository
+        validationRepository,
       );
       expect(crudRepository.update).toHaveBeenCalledWith(id, updateDto, performedBy);
       expect(result).toEqual(updatedAuthor);
@@ -218,7 +220,7 @@ describe('BookAuthorCrudService', () => {
       const id = 'non-existent-id';
       const updateDto = new UpdateBookAuthorDto();
       const performedBy = 'user-1';
-      
+
       mockCrudRepository.findById.mockResolvedValue(null);
       mockErrorHandler.createNotFoundException.mockImplementation(() => {
         // Just record that it was called, don't actually throw
@@ -235,13 +237,15 @@ describe('BookAuthorCrudService', () => {
       const updateDto = new UpdateBookAuthorDto();
       const performedBy = 'user-1';
       const repositoryError = new Error('Database connection failed');
-      
+
       mockCrudRepository.findById.mockRejectedValue(repositoryError);
       mockErrorHandler.handleError.mockImplementation(() => {
         throw repositoryError;
       });
 
-      await expect(service.update(id, updateDto, performedBy)).rejects.toThrow('Database connection failed');
+      await expect(service.update(id, updateDto, performedBy)).rejects.toThrow(
+        'Database connection failed',
+      );
       expect(errorHandler.handleError).toHaveBeenCalled();
     });
   });

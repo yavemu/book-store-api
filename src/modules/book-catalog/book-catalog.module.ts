@@ -7,15 +7,15 @@ import { BookCatalogSearchService } from './services/book-catalog-search.service
 import { ValidationService } from './services/validation.service';
 import { ErrorHandlerService } from './services/error-handler.service';
 import { UserContextService } from './services/user-context.service';
+import { FileUploadService } from './services/file-upload.service';
+import { ImageValidationService } from './services/image-validation.service';
 import { BookCatalogCrudRepository } from './repositories/book-catalog-crud.repository';
 import { BookCatalogSearchRepository } from './repositories/book-catalog-search.repository';
 import { AuditModule } from '../audit/audit.module';
+import { InventoryMovementsModule } from '../inventory-movements/inventory-movements.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([BookCatalog]),
-    AuditModule,
-  ],
+  imports: [TypeOrmModule.forFeature([BookCatalog]), AuditModule, InventoryMovementsModule],
   controllers: [BookCatalogController],
   providers: [
     // Core Services
@@ -24,9 +24,11 @@ import { AuditModule } from '../audit/audit.module';
     ValidationService,
     ErrorHandlerService,
     UserContextService,
+    FileUploadService,
+    ImageValidationService,
     BookCatalogCrudRepository,
     BookCatalogSearchRepository,
-    
+
     // Interface Providers
     {
       provide: 'IBookCatalogCrudService',
@@ -59,6 +61,14 @@ import { AuditModule } from '../audit/audit.module';
     {
       provide: 'IBookCatalogValidationRepository',
       useClass: BookCatalogCrudRepository,
+    },
+    {
+      provide: 'IFileUploadService',
+      useClass: FileUploadService,
+    },
+    {
+      provide: 'IImageValidationService',
+      useClass: ImageValidationService,
     },
   ],
   exports: [

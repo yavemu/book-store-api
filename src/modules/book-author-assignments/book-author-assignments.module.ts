@@ -12,10 +12,7 @@ import { BookAuthorAssignmentRepository } from './repositories/book-author-assig
 import { AuditModule } from '../audit/audit.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([BookAuthorAssignment]),
-    AuditModule,
-  ],
+  imports: [TypeOrmModule.forFeature([BookAuthorAssignment]), AuditModule],
   controllers: [BookAuthorAssignmentsController],
   providers: [
     // Core Services
@@ -26,7 +23,7 @@ import { AuditModule } from '../audit/audit.module';
     ErrorHandlerService,
     UserContextService,
     BookAuthorAssignmentRepository,
-    
+
     // Interface Providers
     {
       provide: 'IBookAuthorAssignmentService',

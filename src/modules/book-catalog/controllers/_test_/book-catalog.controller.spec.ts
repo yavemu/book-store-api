@@ -20,11 +20,17 @@ describe('BookCatalogController', () => {
 
   const mockSearchService = {
     search: jest.fn(),
+    filterSearch: jest.fn(),
     findWithFilters: jest.fn(),
     findAvailableBooks: jest.fn(),
     findByGenre: jest.fn(),
     findByPublisher: jest.fn(),
     checkIsbnExists: jest.fn(),
+  };
+
+  const mockFileUploadService = {
+    uploadBookCover: jest.fn(),
+    deleteBookCover: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -33,6 +39,7 @@ describe('BookCatalogController', () => {
       providers: [
         { provide: 'IBookCatalogCrudService', useValue: mockCrudService },
         { provide: 'IBookCatalogSearchService', useValue: mockSearchService },
+        { provide: 'IFileUploadService', useValue: mockFileUploadService },
       ],
     }).compile();
 
@@ -53,9 +60,9 @@ describe('BookCatalogController', () => {
     it('should create a book', async () => {
       const createDto = new CreateBookCatalogDto();
       const req = { user: { id: 'user-1' } };
-      
+
       await controller.create(createDto, req);
-      
+
       expect(crudService.create).toHaveBeenCalledWith(createDto, 'user-1');
     });
   });
@@ -63,9 +70,9 @@ describe('BookCatalogController', () => {
   describe('findAll', () => {
     it('should find all books', async () => {
       const pagination = new PaginationDto();
-      
+
       await controller.findAll(pagination);
-      
+
       expect(crudService.findAll).toHaveBeenCalledWith(pagination);
     });
   });
@@ -74,62 +81,40 @@ describe('BookCatalogController', () => {
     it('should search books', async () => {
       const pagination = new PaginationDto();
       const searchTerm = 'test';
-      
+
       await controller.search(searchTerm, pagination);
-      
+
       expect(searchService.search).toHaveBeenCalledWith(searchTerm, pagination);
     });
   });
 
   describe('filter', () => {
-    it('should filter books', async () => {
-      const filters = new BookFiltersDto();
+    it('should filter books with query parameter', async () => {
+      const filterTerm = 'test book';
       const pagination = new PaginationDto();
-      
-      await controller.filter(filters, pagination);
-      
-      expect(searchService.findWithFilters).toHaveBeenCalledWith(filters, pagination);
+
+      await controller.filter(filterTerm, pagination);
+
+      expect(searchService.filterSearch).toHaveBeenCalledWith(filterTerm, pagination);
     });
   });
 
   describe('findAvailable', () => {
     it('should find available books', async () => {
       const pagination = new PaginationDto();
-      
+
       await controller.findAvailable(pagination);
-      
+
       expect(searchService.findAvailableBooks).toHaveBeenCalledWith(pagination);
-    });
-  });
-
-  describe('findByGenre', () => {
-    it('should find books by genre', async () => {
-      const genreId = 'genre-1';
-      const pagination = new PaginationDto();
-      
-      await controller.findByGenre(genreId, pagination);
-      
-      expect(searchService.findByGenre).toHaveBeenCalledWith(genreId, pagination);
-    });
-  });
-
-  describe('findByPublisher', () => {
-    it('should find books by publisher', async () => {
-      const publisherId = 'publisher-1';
-      const pagination = new PaginationDto();
-      
-      await controller.findByPublisher(publisherId, pagination);
-      
-      expect(searchService.findByPublisher).toHaveBeenCalledWith(publisherId, pagination);
     });
   });
 
   describe('checkIsbn', () => {
     it('should check if ISBN exists', async () => {
       const isbn = '978-3-16-148410-0';
-      
+
       await controller.checkIsbn(isbn);
-      
+
       expect(searchService.checkIsbnExists).toHaveBeenCalledWith(isbn);
     });
   });
@@ -137,9 +122,9 @@ describe('BookCatalogController', () => {
   describe('findOne', () => {
     it('should find a book by id', async () => {
       const id = '1';
-      
+
       await controller.findOne(id);
-      
+
       expect(crudService.findById).toHaveBeenCalledWith(id);
     });
   });
@@ -149,9 +134,9 @@ describe('BookCatalogController', () => {
       const id = '1';
       const updateDto = new UpdateBookCatalogDto();
       const req = { user: { id: 'user-1' } };
-      
+
       await controller.update(id, updateDto, req);
-      
+
       expect(crudService.update).toHaveBeenCalledWith(id, updateDto, 'user-1');
     });
   });
@@ -160,9 +145,9 @@ describe('BookCatalogController', () => {
     it('should remove a book', async () => {
       const id = '1';
       const req = { user: { id: 'user-1' } };
-      
+
       await controller.remove(id, req);
-      
+
       expect(crudService.softDelete).toHaveBeenCalledWith(id, 'user-1');
     });
   });

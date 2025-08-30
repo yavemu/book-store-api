@@ -10,7 +10,14 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { AuditLogListResponseDto } from '../dto/audit-response.dto';
-import { PaginationDto , BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto} from '../../../common/dto';
+import {
+  PaginationDto,
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 import { ApiResponseDto } from '../../../common/dto';
 
 export function ApiGetAuditByEntityType() {
@@ -28,8 +35,7 @@ export function ApiGetAuditByEntityType() {
     ApiExtraModels(PaginationDto, ApiResponseDto, AuditLogListResponseDto),
     ApiResponse({
       status: 200,
-      description:
-        'Registros de auditoría filtrados por tipo de entidad obtenidos exitosamente',
+      description: 'Registros de auditoría filtrados por tipo de entidad obtenidos exitosamente',
       schema: {
         allOf: [
           { $ref: getSchemaPath(ApiResponseDto) },
@@ -48,9 +54,9 @@ export function ApiGetAuditByEntityType() {
       schema: {
         type: 'object',
         properties: {
-          statusCode: { type: 'number'},
-          message: { type: 'string'},
-          error: { type: 'string'},
+          statusCode: { type: 'number' },
+          message: { type: 'string' },
+          error: { type: 'string' },
         },
       },
     }),
@@ -59,9 +65,9 @@ export function ApiGetAuditByEntityType() {
       schema: {
         type: 'object',
         properties: {
-          statusCode: { type: 'number'},
-          message: { type: 'string'},
-          error: { type: 'string'},
+          statusCode: { type: 'number' },
+          message: { type: 'string' },
+          error: { type: 'string' },
         },
       },
     }),

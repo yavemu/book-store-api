@@ -1,24 +1,34 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
+import {
+  ApiOperation,
   ApiResponse,
   ApiNotFoundResponse,
   ApiParam,
-  getSchemaPath
+  getSchemaPath,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { BookCatalogResponseDto } from '../dto';
-import { ApiResponseDto , BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto} from '../../../common/dto';
+import {
+  ApiResponseDto,
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 
 export function ApiGetBookById() {
   return applyDecorators(
-    ApiOperation({ 
+    ApiOperation({
       summary: 'Obtener libro por ID - Acceso: ADMIN, USER',
-      description: 'Obtiene los detalles completos de un libro específico del catálogo usando su ID único. Endpoint público.' 
+      description:
+        'Obtiene los detalles completos de un libro específico del catálogo usando su ID único. Endpoint público.',
     }),
     ApiParam({
       name: 'id',
       type: String,
-      description: 'ID único del libro en el catálogo'}),
+      description: 'ID único del libro en el catálogo',
+    }),
     ApiResponse({
       status: 200,
       description: 'Libro encontrado y devuelto exitosamente',

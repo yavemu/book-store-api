@@ -1,12 +1,14 @@
-import { NestFactory } from "@nestjs/core";
-import { ValidationPipe } from "@nestjs/common";
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { AppModule } from "./app.module";
-import { LoggingInterceptor, ResponseFormatInterceptor } from "./common/interceptors";
-import { AllExceptionsFilter } from "./common/filters/all-exception.filter";
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+import { AppModule } from './app.module';
+import { LoggingInterceptor, ResponseFormatInterceptor } from './common/interceptors';
+import { AllExceptionsFilter } from './common/filters/all-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // Global pipes
   app.useGlobalPipes(
@@ -26,28 +28,33 @@ async function bootstrap() {
 
   // CORS configuration
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || "*",
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    origin: process.env.CORS_ORIGIN || '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  app.setGlobalPrefix("api");
+  app.setGlobalPrefix('api');
+
+  // Static file serving for uploaded images
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads/',
+  });
 
   // Swagger configuration
   const swaggerConfig = new DocumentBuilder()
-    .setTitle("Store API Documentation")
-    .setDescription("Store API is a simple API that allows you to manage books.")
-    .setVersion("1.0")
+    .setTitle('Store API Documentation')
+    .setDescription('Store API is a simple API that allows you to manage books.')
+    .setVersion('1.0')
     .addBearerAuth(
       {
-        type: "http",
-        scheme: "bearer",
-        bearerFormat: "JWT",
-        name: "JWT",
-        description: "Enter JWT token",
-        in: "header",
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
       },
-      "JWT-auth",
+      'JWT-auth',
     )
     .build();
 

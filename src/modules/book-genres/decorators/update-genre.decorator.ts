@@ -1,30 +1,37 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
+import {
+  ApiOperation,
+  ApiResponse,
   ApiParam,
   ApiBody,
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
-  ApiBadRequestResponse
+  ApiBadRequestResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
-import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
+import {
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 import { UpdateBookGenreDto } from '../dto';
 
 export function ApiUpdateGenre() {
   return applyDecorators(
     ApiOperation({
-      summary: "Actualizar género de libro - Acceso: ADMIN",
-      description: "Actualiza un género de libro existente. Solo accesible para administradores.",
+      summary: 'Actualizar género de libro - Acceso: ADMIN',
+      description: 'Actualiza un género de libro existente. Solo accesible para administradores.',
     }),
     ApiParam({
-      name: "id",
-      description: "ID único del género de libro a actualizar",
+      name: 'id',
+      description: 'ID único del género de libro a actualizar',
     }),
     ApiBody({
       type: UpdateBookGenreDto,
-      description: "Datos para actualizar el género de libro",
+      description: 'Datos para actualizar el género de libro',
     }),
     ApiResponse({
       status: 200,
@@ -32,7 +39,7 @@ export function ApiUpdateGenre() {
       schema: {
         type: 'object',
         properties: {
-          success: { type: 'boolean'},
+          success: { type: 'boolean' },
           message: {
             type: 'string',
           },
@@ -42,7 +49,7 @@ export function ApiUpdateGenre() {
               id: {
                 type: 'string',
               },
-              name: { type: 'string'},
+              name: { type: 'string' },
               description: {
                 type: 'string',
               },
@@ -60,46 +67,46 @@ export function ApiUpdateGenre() {
       },
     }),
     ApiBadRequestResponse({
-      description: "Solicitud incorrecta - Datos de entrada inválidos",
+      description: 'Solicitud incorrecta - Datos de entrada inválidos',
       schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          statusCode: { type: "number"},
+          statusCode: { type: 'number' },
           message: {
-            type: "array",
-            items: { type: "string" },
+            type: 'array',
+            items: { type: 'string' },
           },
-          error: { type: "string"},
+          error: { type: 'string' },
         },
       },
     }),
     ApiUnauthorizedResponse({
-      description: "No autorizado - Token JWT inválido o faltante",
+      description: 'No autorizado - Token JWT inválido o faltante',
       schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          statusCode: { type: "number"},
-          message: { type: "string"},
+          statusCode: { type: 'number' },
+          message: { type: 'string' },
         },
       },
     }),
     ApiForbiddenResponse({
-      description: "Acceso denegado - Se requieren permisos de administrador",
+      description: 'Acceso denegado - Se requieren permisos de administrador',
       schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          statusCode: { type: "number"},
-          message: { type: "string"},
+          statusCode: { type: 'number' },
+          message: { type: 'string' },
         },
       },
     }),
     ApiNotFoundResponse({
-      description: "Género no encontrado",
+      description: 'Género no encontrado',
       schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          statusCode: { type: "number"},
-          message: { type: "string"},
+          statusCode: { type: 'number' },
+          message: { type: 'string' },
         },
       },
     }),

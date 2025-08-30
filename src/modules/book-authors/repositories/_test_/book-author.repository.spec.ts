@@ -174,7 +174,7 @@ describe('BookAuthorRepository', () => {
         {
           ...updateDto,
           birthDate: new Date('1975-05-15'),
-        }
+        },
       );
     });
   });
@@ -217,7 +217,7 @@ describe('BookAuthorRepository', () => {
           order: { [pagination.sortBy]: pagination.sortOrder },
           skip: 0,
           take: pagination.limit,
-        })
+        }),
       );
       expect(result.data).toEqual([mockBookAuthor]);
       expect(result.meta.total).toBe(1);

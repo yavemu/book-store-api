@@ -1,27 +1,36 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
+import {
+  ApiOperation,
+  ApiResponse,
   ApiNotFoundResponse,
   ApiForbiddenResponse,
   ApiUnauthorizedResponse,
   ApiBearerAuth,
   ApiParam,
-  getSchemaPath
+  getSchemaPath,
 } from '@nestjs/swagger';
-import { ApiResponseDto , BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto} from '../../../common/dto';
+import {
+  ApiResponseDto,
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 
 export function ApiDeleteBook() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
-    ApiOperation({ 
+    ApiOperation({
       summary: 'Eliminar libro del catálogo - Acceso: ADMIN',
-      description: 'Elimina un libro del catálogo del sistema (eliminación lógica). Solo accesible para administradores.' 
+      description:
+        'Elimina un libro del catálogo del sistema mediante eliminación lógica, preservando registros históricos. - Acceso: Solo administradores.',
     }),
     ApiParam({
       name: 'id',
       type: String,
-      description: 'ID único del libro a eliminar'}),
+      description: 'ID único del libro a eliminar',
+    }),
     ApiResponse({
       status: 200,
       description: 'Libro eliminado exitosamente del catálogo',

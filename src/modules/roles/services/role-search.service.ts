@@ -21,14 +21,14 @@ export class RoleSearchService implements IRoleSearchService {
       const role = await this.searchRepository.findByName(name);
       if (!role) {
         throw this.errorHandler.createNotFoundException(
-          ERROR_MESSAGES.ROLES?.NOT_FOUND || 'Role not found'
+          ERROR_MESSAGES.ROLES?.NOT_FOUND || 'Role not found',
         );
       }
       return role;
     } catch (error) {
       throw this.errorHandler.handleError(
         error,
-        ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to retrieve role'
+        ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to retrieve role',
       );
     }
   }
@@ -39,18 +39,21 @@ export class RoleSearchService implements IRoleSearchService {
     } catch (error) {
       throw this.errorHandler.handleError(
         error,
-        ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to retrieve active roles'
+        ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to retrieve active roles',
       );
     }
   }
 
-  async findRolesByPermission(permission: string, pagination: PaginationDto): Promise<PaginatedResult<Role>> {
+  async findRolesByPermission(
+    permission: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<Role>> {
     try {
       return await this.searchRepository.findRolesByPermission(permission, pagination);
     } catch (error) {
       throw this.errorHandler.handleError(
         error,
-        ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to retrieve roles by permission'
+        ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to retrieve roles by permission',
       );
     }
   }
@@ -61,7 +64,7 @@ export class RoleSearchService implements IRoleSearchService {
     } catch (error) {
       throw this.errorHandler.handleError(
         error,
-        ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to search roles'
+        ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to search roles',
       );
     }
   }

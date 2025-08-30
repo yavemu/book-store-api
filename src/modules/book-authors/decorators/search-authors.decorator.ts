@@ -1,33 +1,40 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiQuery, ApiUnauthorizedResponse, ApiExtraModels } from "@nestjs/swagger";
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiUnauthorizedResponse,
+  ApiExtraModels,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { BookAuthorListResponseDto } from '../dto';
-import { PaginationDto } from "../../../common/dto/pagination.dto";
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 
 export function ApiSearchAuthors() {
   return applyDecorators(
     ApiOperation({
-      summary: "Buscar autores - Acceso: ADMIN, USER",
-      description: "Busca autores por término en nombre, apellido o biografía.",
+      summary: 'Buscar autores - Acceso: ADMIN, USER',
+      description: 'Busca autores por término en nombre, apellido o biografía.',
     }),
     ApiQuery({
-      name: "term",
+      name: 'term',
       required: true,
       type: String,
-      description: "Término de búsqueda para filtrar autores",
+      description: 'Término de búsqueda para filtrar autores',
     }),
     ApiExtraModels(PaginationDto),
     ApiResponse({
       status: 200,
-      description: "Resultados de búsqueda de autores obtenidos exitosamente",
+      description: 'Resultados de búsqueda de autores obtenidos exitosamente',
       type: BookAuthorListResponseDto,
     }),
     ApiUnauthorizedResponse({
-      description: "No autorizado - Token JWT inválido o faltante",
+      description: 'No autorizado - Token JWT inválido o faltante',
       schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          statusCode: { type: "number"},
-          message: { type: "string"},
+          statusCode: { type: 'number' },
+          message: { type: 'string' },
         },
       },
     }),

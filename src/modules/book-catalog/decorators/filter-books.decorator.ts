@@ -1,23 +1,32 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiBody, ApiUnauthorizedResponse, ApiExtraModels, getSchemaPath } from "@nestjs/swagger";
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiUnauthorizedResponse,
+  ApiExtraModels,
+  getSchemaPath,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { BookCatalogResponseDto, BookFiltersDto } from '../dto';
-import { PaginationDto } from "../../../common/dto/pagination.dto";
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { ApiResponseDto } from '../../../common/dto/api-response.dto';
 
 export function ApiFilterBooks() {
   return applyDecorators(
     ApiOperation({
-      summary: "Filtrar libros con criterios avanzados - Acceso: ADMIN, USER",
-      description: "Filtra libros del catálogo utilizando criterios avanzados como género, precio, disponibilidad, etc.",
+      summary: 'Filtrar libros con criterios avanzados - Acceso: ADMIN, USER',
+      description:
+        'Filtra libros del catálogo utilizando criterios avanzados como género, precio, disponibilidad, etc.',
     }),
     ApiBody({
       type: BookFiltersDto,
-      description: "Criterios de filtrado para los libros",
+      description: 'Criterios de filtrado para los libros',
     }),
     ApiExtraModels(PaginationDto, ApiResponseDto, BookCatalogResponseDto),
     ApiResponse({
       status: 200,
-      description: "Libros filtrados obtenidos exitosamente",
+      description: 'Libros filtrados obtenidos exitosamente',
       schema: {
         allOf: [
           { $ref: getSchemaPath(ApiResponseDto) },
@@ -38,9 +47,9 @@ export function ApiFilterBooks() {
                       totalPages: { type: 'number' },
                       hasNext: { type: 'boolean' },
                       hasPrev: { type: 'boolean' },
-                    }
-                  }
-                }
+                    },
+                  },
+                },
               },
             },
           },
@@ -48,14 +57,15 @@ export function ApiFilterBooks() {
       },
     }),
     ApiUnauthorizedResponse({
-      description: "No autorizado - Token JWT inválido o faltante",
+      description: 'No autorizado - Token JWT inválido o faltante',
       schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          statusCode: { type: "number"},
-          message: { type: "string"},
+          statusCode: { type: 'number' },
+          message: { type: 'string' },
         },
       },
     }),
+    ApiBearerAuth(),
   );
 }

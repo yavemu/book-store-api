@@ -1,18 +1,25 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiQuery, ApiUnauthorizedResponse, ApiExtraModels } from "@nestjs/swagger";
-import { PaginationDto } from "../../../common/dto";
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiUnauthorizedResponse,
+  ApiExtraModels,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import { PaginationDto } from '../../../common/dto';
 
 export function ApiSearchGenres() {
   return applyDecorators(
     ApiOperation({
-      summary: "Buscar géneros de libros - Acceso: ADMIN, USER",
-      description: "Busca géneros de libros por término en nombre o descripción.",
+      summary: 'Buscar géneros de libros - Acceso: ADMIN, USER',
+      description: 'Busca géneros de libros por término en nombre o descripción.',
     }),
     ApiQuery({
-      name: "q",
+      name: 'q',
       required: true,
       type: String,
-      description: "Término de búsqueda para filtrar géneros por nombre o descripción",
+      description: 'Término de búsqueda para filtrar géneros por nombre o descripción',
     }),
     ApiExtraModels(PaginationDto),
     ApiResponse({
@@ -21,7 +28,7 @@ export function ApiSearchGenres() {
       schema: {
         type: 'object',
         properties: {
-          success: { type: 'boolean'},
+          success: { type: 'boolean' },
           message: {
             type: 'string',
           },
@@ -36,7 +43,7 @@ export function ApiSearchGenres() {
                     id: {
                       type: 'string',
                     },
-                    name: { type: 'string'},
+                    name: { type: 'string' },
                     description: {
                       type: 'string',
                     },
@@ -54,12 +61,12 @@ export function ApiSearchGenres() {
               meta: {
                 type: 'object',
                 properties: {
-                  total: { type: 'number'},
-                  page: { type: 'number'},
-                  limit: { type: 'number'},
-                  totalPages: { type: 'number'},
-                  hasNext: { type: 'boolean'},
-                  hasPrev: { type: 'boolean'},
+                  total: { type: 'number' },
+                  page: { type: 'number' },
+                  limit: { type: 'number' },
+                  totalPages: { type: 'number' },
+                  hasNext: { type: 'boolean' },
+                  hasPrev: { type: 'boolean' },
                 },
               },
             },
@@ -68,12 +75,12 @@ export function ApiSearchGenres() {
       },
     }),
     ApiUnauthorizedResponse({
-      description: "No autorizado - Token JWT inválido o faltante",
+      description: 'No autorizado - Token JWT inválido o faltante',
       schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          statusCode: { type: "number"},
-          message: { type: "string"},
+          statusCode: { type: 'number' },
+          message: { type: 'string' },
         },
       },
     }),

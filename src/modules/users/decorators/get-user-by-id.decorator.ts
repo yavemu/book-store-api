@@ -10,15 +10,19 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { UserResponseDto } from '../dto/user-response.dto';
-import { ApiResponseDto, UnauthorizedResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
+import {
+  ApiResponseDto,
+  UnauthorizedResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 
 export function ApiGetUserById() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Obtener usuario por ID - Acceso: ADMIN',
-      description:
-        'Obtiene la información detallada de un usuario específico por su ID único.',
+      description: 'Obtiene la información detallada de un usuario específico por su ID único.',
     }),
     ApiParam({
       name: 'id',

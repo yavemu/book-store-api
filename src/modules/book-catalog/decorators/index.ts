@@ -10,3 +10,6 @@ export * from './get-books-by-genre.decorator';
 export * from './get-books-by-publisher.decorator';
 export * from './check-isbn.decorator';
 export * from './export-books-csv.decorator';
+export * from './api-upload-book-cover.decorator';
+export * from './api-remove-book-cover.decorator';
+export * from './api-advanced-filter-books.decorator';

@@ -110,7 +110,6 @@ describe('RoleSearchService', () => {
       expect(result).toEqual(mockRole);
     });
 
-
     it('should handle repository errors during findByName', async () => {
       const name = 'admin';
       const error = new Error('Database connection failed');
@@ -458,7 +457,7 @@ describe('RoleSearchService', () => {
       const pagination = new PaginationDto();
       pagination.page = 0;
       pagination.limit = 10;
-      
+
       mockSearchRepository.findActiveRoles.mockResolvedValue(mockPaginatedResult);
 
       const result = await service.findActiveRoles(pagination);
@@ -471,7 +470,7 @@ describe('RoleSearchService', () => {
       const pagination = new PaginationDto();
       pagination.page = -1;
       pagination.limit = 10;
-      
+
       mockSearchRepository.findActiveRoles.mockResolvedValue(mockPaginatedResult);
 
       const result = await service.findActiveRoles(pagination);
@@ -483,7 +482,7 @@ describe('RoleSearchService', () => {
       const pagination = new PaginationDto();
       pagination.page = 1;
       pagination.limit = 999999;
-      
+
       mockSearchRepository.findActiveRoles.mockResolvedValue(mockPaginatedResult);
 
       const result = await service.findActiveRoles(pagination);
@@ -499,7 +498,7 @@ describe('RoleSearchService', () => {
         data: [],
         meta: { total: 2, page: 1, limit: 0, totalPages: Infinity, hasNext: false, hasPrev: false },
       };
-      
+
       mockSearchRepository.findActiveRoles.mockResolvedValue(emptyResult);
 
       const result = await service.findActiveRoles(pagination);

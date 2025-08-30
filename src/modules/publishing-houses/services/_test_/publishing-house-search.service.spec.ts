@@ -33,7 +33,9 @@ describe('PublishingHouseSearchService', () => {
     }).compile();
 
     service = module.get<PublishingHouseSearchService>(PublishingHouseSearchService);
-    searchRepository = module.get<IPublishingHouseSearchRepository>('IPublishingHouseSearchRepository');
+    searchRepository = module.get<IPublishingHouseSearchRepository>(
+      'IPublishingHouseSearchRepository',
+    );
   });
 
   afterEach(() => {
@@ -48,7 +50,10 @@ describe('PublishingHouseSearchService', () => {
     it('should search publishing houses by term', async () => {
       const searchTerm = 'test';
       const pagination = new PaginationDto();
-      const paginatedResult = { data: [mockPublishingHouse], meta: { total: 1, page: 1, limit: 10 } };
+      const paginatedResult = {
+        data: [mockPublishingHouse],
+        meta: { total: 1, page: 1, limit: 10 },
+      };
       mockSearchRepository.searchPublishers.mockResolvedValue(paginatedResult);
 
       const result = await service.search(searchTerm, pagination);
@@ -62,7 +67,10 @@ describe('PublishingHouseSearchService', () => {
     it('should find publishing houses by country', async () => {
       const country = 'USA';
       const pagination = new PaginationDto();
-      const paginatedResult = { data: [mockPublishingHouse], meta: { total: 1, page: 1, limit: 10 } };
+      const paginatedResult = {
+        data: [mockPublishingHouse],
+        meta: { total: 1, page: 1, limit: 10 },
+      };
       mockSearchRepository.getPublishersByCountry.mockResolvedValue(paginatedResult);
 
       const result = await service.findByCountry(country, pagination);

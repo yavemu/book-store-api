@@ -2,54 +2,54 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { AuditAction } from '../enums/audit-action.enum';
 
 export class AuditLogResponseDto {
-  @ApiProperty({ 
-    description: 'ID único del registro de auditoría', 
-    example: 'b8c4e4b2-1234-5678-9abc-def123456789' 
+  @ApiProperty({
+    description: 'ID único del registro de auditoría',
+    example: 'b8c4e4b2-1234-5678-9abc-def123456789',
   })
   id: string;
 
-  @ApiProperty({ 
-    description: 'ID del usuario que realizó la acción', 
-    example: 'user-uuid-123' 
+  @ApiProperty({
+    description: 'ID del usuario que realizó la acción',
+    example: 'user-uuid-123',
   })
   performedBy: string;
 
-  @ApiProperty({ 
-    description: 'ID de la entidad afectada por la acción', 
-    example: 'entity-uuid-456' 
+  @ApiProperty({
+    description: 'ID de la entidad afectada por la acción',
+    example: 'entity-uuid-456',
   })
   entityId: string;
 
-  @ApiProperty({ 
-    description: 'Tipo de acción realizada', 
+  @ApiProperty({
+    description: 'Tipo de acción realizada',
     enum: AuditAction,
-    example: AuditAction.CREATE 
+    example: AuditAction.CREATE,
   })
   action: AuditAction;
 
-  @ApiProperty({ 
-    description: 'Descripción detallada de la acción realizada', 
-    example: 'Usuario creado exitosamente con email: john@example.com' 
+  @ApiProperty({
+    description: 'Descripción detallada de la acción realizada',
+    example: 'Usuario creado exitosamente con email: john@example.com',
   })
   details: string;
 
-  @ApiProperty({ 
-    description: 'Tipo de entidad afectada', 
-    example: 'User' 
+  @ApiProperty({
+    description: 'Tipo de entidad afectada',
+    example: 'User',
   })
   entityType: string;
 
-  @ApiProperty({ 
-    description: 'Fecha y hora cuando se registró la auditoría', 
-    example: '2024-01-01T00:00:00.000Z' 
+  @ApiProperty({
+    description: 'Fecha y hora cuando se registró la auditoría',
+    example: '2024-01-01T00:00:00.000Z',
   })
   createdAt: Date;
 }
 
 export class AuditLogListResponseDto {
-  @ApiProperty({ 
-    description: 'Lista de registros de auditoría', 
-    type: [AuditLogResponseDto] 
+  @ApiProperty({
+    description: 'Lista de registros de auditoría',
+    type: [AuditLogResponseDto],
   })
   data: AuditLogResponseDto[];
 
@@ -61,8 +61,8 @@ export class AuditLogListResponseDto {
       limit: 20,
       totalPages: 8,
       hasNext: true,
-      hasPrev: false
-    }
+      hasPrev: false,
+    },
   })
   meta: {
     total: number;

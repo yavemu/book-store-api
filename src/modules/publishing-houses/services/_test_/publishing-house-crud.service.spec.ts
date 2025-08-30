@@ -63,7 +63,10 @@ describe('PublishingHouseCrudService', () => {
   describe('findAll', () => {
     it('should find all publishing houses', async () => {
       const pagination = new PaginationDto();
-      const paginatedResult = { data: [mockPublishingHouse], meta: { total: 1, page: 1, limit: 10 } };
+      const paginatedResult = {
+        data: [mockPublishingHouse],
+        meta: { total: 1, page: 1, limit: 10 },
+      };
       mockCrudRepository.getAllPublishers.mockResolvedValue(paginatedResult);
 
       const result = await service.findAll(pagination);
@@ -95,7 +98,11 @@ describe('PublishingHouseCrudService', () => {
 
       const result = await service.update(id, updateDto, performedBy);
 
-      expect(crudRepository.updatePublisherProfile).toHaveBeenCalledWith(id, updateDto, performedBy);
+      expect(crudRepository.updatePublisherProfile).toHaveBeenCalledWith(
+        id,
+        updateDto,
+        performedBy,
+      );
       expect(result).toEqual(updatedPublishingHouse);
     });
   });

@@ -1,25 +1,41 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiParam, ApiUnauthorizedResponse, ApiExtraModels, getSchemaPath } from "@nestjs/swagger";
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiUnauthorizedResponse,
+  ApiExtraModels,
+  getSchemaPath,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { BookCatalogResponseDto } from '../dto';
-import { PaginationDto , BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto} from '../../../common/dto';
+import {
+  PaginationDto,
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 import { ApiResponseDto } from '../../../common/dto';
 
 export function ApiGetBooksByPublisher() {
   return applyDecorators(
     ApiOperation({
-      summary: "Obtener libros por editorial - Acceso: ADMIN, USER",
-      description: "Obtiene una lista paginada de libros que pertenecen a una editorial específica.",
+      summary: 'Obtener libros por editorial - Acceso: ADMIN, USER',
+      description:
+        'Obtiene una lista paginada de libros que pertenecen a una editorial específica.',
     }),
     ApiParam({
-      name: "publisherId",
+      name: 'publisherId',
       required: true,
       type: String,
-      description: "ID de la editorial para filtrar los libros",
+      description: 'ID de la editorial para filtrar los libros',
     }),
     ApiExtraModels(PaginationDto, ApiResponseDto, BookCatalogResponseDto),
     ApiResponse({
       status: 200,
-      description: "Libros de la editorial especificada obtenidos exitosamente",
+      description: 'Libros de la editorial especificada obtenidos exitosamente',
       schema: {
         allOf: [
           { $ref: getSchemaPath(ApiResponseDto) },
@@ -40,9 +56,9 @@ export function ApiGetBooksByPublisher() {
                       totalPages: { type: 'number' },
                       hasNext: { type: 'boolean' },
                       hasPrev: { type: 'boolean' },
-                    }
-                  }
-                }
+                    },
+                  },
+                },
               },
             },
           },
@@ -50,12 +66,12 @@ export function ApiGetBooksByPublisher() {
       },
     }),
     ApiUnauthorizedResponse({
-      description: "No autorizado - Token JWT inválido o faltante",
+      description: 'No autorizado - Token JWT inválido o faltante',
       schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          statusCode: { type: "number"},
-          message: { type: "string"},
+          statusCode: { type: 'number' },
+          message: { type: 'string' },
         },
       },
     }),

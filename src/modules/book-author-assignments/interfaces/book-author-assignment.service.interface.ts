@@ -4,12 +4,25 @@ import { UpdateBookAuthorAssignmentDto } from '../dto/update-book-author-assignm
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 export interface IBookAuthorAssignmentService {
-  create(createBookAuthorAssignmentDto: CreateBookAuthorAssignmentDto, performedBy: string): Promise<BookAuthorAssignment>;
+  create(
+    createBookAuthorAssignmentDto: CreateBookAuthorAssignmentDto,
+    performedBy: string,
+  ): Promise<BookAuthorAssignment>;
   findAll(pagination: PaginationDto): Promise<PaginatedResult<BookAuthorAssignment>>;
   findById(id: string): Promise<BookAuthorAssignment>;
-  update(id: string, updateBookAuthorAssignmentDto: UpdateBookAuthorAssignmentDto, performedBy: string): Promise<BookAuthorAssignment>;
+  update(
+    id: string,
+    updateBookAuthorAssignmentDto: UpdateBookAuthorAssignmentDto,
+    performedBy: string,
+  ): Promise<BookAuthorAssignment>;
   softDelete(id: string, performedBy: string): Promise<void>;
-  findByBook(bookId: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthorAssignment>>;
-  findByAuthor(authorId: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthorAssignment>>;
+  findByBook(
+    bookId: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthorAssignment>>;
+  findByAuthor(
+    authorId: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthorAssignment>>;
   checkAssignmentExists(bookId: string, authorId: string): Promise<{ exists: boolean }>;
 }

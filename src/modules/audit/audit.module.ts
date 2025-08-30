@@ -22,7 +22,7 @@ import { AuditController } from './controllers/audit.controller';
     UserContextService,
     AuditSearchRepository,
     AuditLoggerRepository,
-    
+
     // Interface Providers
     {
       provide: 'IAuditSearchService',

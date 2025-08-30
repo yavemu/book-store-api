@@ -12,5 +12,8 @@ export interface IRoleRepository {
   updateRole(id: string, updateRoleDto: UpdateRoleDto): Promise<Role>;
   deleteRole(id: string): Promise<void>;
   getActiveRoles(pagination: PaginationDto): Promise<PaginatedResult<Role>>;
-  getRolesByPermission(permission: string, pagination: PaginationDto): Promise<PaginatedResult<Role>>;
+  getRolesByPermission(
+    permission: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<Role>>;
 }

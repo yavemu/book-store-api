@@ -44,7 +44,7 @@ describe('PublishingHouseCrudRepository', () => {
           useValue: {
             log: jest.fn(),
           },
-        }
+        },
       ],
     }).compile();
 
@@ -65,7 +65,7 @@ describe('PublishingHouseCrudRepository', () => {
         country: 'USA',
         websiteUrl: 'https://test-publishing.com',
       } as CreatePublishingHouseDto;
-      
+
       (repository as any)._validateUniqueConstraints = jest.fn().mockResolvedValue(undefined);
       (repository as any)._create = jest.fn().mockResolvedValue(mockPublishingHouse);
 
@@ -83,10 +83,15 @@ describe('PublishingHouseCrudRepository', () => {
         websiteUrl: 'https://test-publishing.com',
       } as CreatePublishingHouseDto;
 
-      (repository as any)._validateUniqueConstraints = jest.fn()
-        .mockRejectedValue(new HttpException('Publishing house name already exists', HttpStatus.CONFLICT));
+      (repository as any)._validateUniqueConstraints = jest
+        .fn()
+        .mockRejectedValue(
+          new HttpException('Publishing house name already exists', HttpStatus.CONFLICT),
+        );
 
-      await expect(repository.registerPublisher(createDto, 'test-user')).rejects.toThrow(HttpException);
+      await expect(repository.registerPublisher(createDto, 'test-user')).rejects.toThrow(
+        HttpException,
+      );
     });
   });
 
@@ -128,7 +133,7 @@ describe('PublishingHouseCrudRepository', () => {
         '1',
         'test-user',
         'PublishingHouse',
-        expect.any(Function)
+        expect.any(Function),
       );
       expect(result).toEqual(deleteResult);
     });
@@ -137,8 +142,11 @@ describe('PublishingHouseCrudRepository', () => {
   describe('getAllPublishers', () => {
     it('should get all publishing houses', async () => {
       const pagination = new PaginationDto();
-      const paginatedResult = { data: [mockPublishingHouse], meta: { total: 1, page: 1, limit: 10 } };
-      
+      const paginatedResult = {
+        data: [mockPublishingHouse],
+        meta: { total: 1, page: 1, limit: 10 },
+      };
+
       (repository as any)._findManyWithPagination = jest.fn().mockResolvedValue(paginatedResult);
 
       const result = await repository.getAllPublishers(pagination);
@@ -147,5 +155,4 @@ describe('PublishingHouseCrudRepository', () => {
       expect(result).toEqual(paginatedResult);
     });
   });
-
 });

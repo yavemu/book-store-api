@@ -3,20 +3,23 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
   Inject,
   Request,
+  Res,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 import { IBookAuthorCrudService } from './interfaces/book-author-crud.service.interface';
 import { IBookAuthorSearchService } from './interfaces/book-author-search.service.interface';
 import { IUserContextService } from './interfaces/user-context.service.interface';
 import { CreateBookAuthorDto } from './dto/create-book-author.dto';
 import { UpdateBookAuthorDto } from './dto/update-book-author.dto';
-import { PaginationDto } from "../../common/dto/pagination.dto";
+import { BookAuthorFiltersDto, BookAuthorCsvExportFiltersDto } from './dto';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 import { Auth } from '../../common/decorators/auth.decorator';
 import { UserRole } from '../users/enums/user-role.enum';
 import {
@@ -25,8 +28,9 @@ import {
   ApiGetAuthorById,
   ApiUpdateAuthor,
   ApiDeleteAuthor,
-  ApiGetAuthorByName,
-  ApiSearchAuthors
+  ApiSearchAuthors,
+  ApiFilterAuthors,
+  ApiExportAuthorsCsv,
 } from './decorators';
 
 @ApiTags('Book Authors')
@@ -44,10 +48,7 @@ export class BookAuthorsController {
   @Post()
   @Auth(UserRole.ADMIN)
   @ApiCreateAuthor()
-  create(
-    @Body() createBookAuthorDto: CreateBookAuthorDto,
-    @Request() req: any,
-  ) {
+  create(@Body() createBookAuthorDto: CreateBookAuthorDto, @Request() req: any) {
     const userId = this.userContextService.extractUserId(req);
     return this.crudService.create(createBookAuthorDto, userId);
   }
@@ -62,21 +63,27 @@ export class BookAuthorsController {
   @Get('search')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchAuthors()
-  search(
-    @Query('term') searchTerm: string,
-    @Query() pagination: PaginationDto,
-  ) {
+  search(@Query('term') searchTerm: string, @Query() pagination: PaginationDto) {
     return this.searchService.search(searchTerm, pagination);
   }
 
-  @Get('by-name/:firstName/:lastName')
+  @Post('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
-  @ApiGetAuthorByName()
-  findByFullName(
-    @Param('firstName') firstName: string,
-    @Param('lastName') lastName: string,
-  ) {
-    return this.searchService.findByFullName(firstName, lastName);
+  @ApiFilterAuthors()
+  async filter(@Body() filters: BookAuthorFiltersDto, @Query() pagination: PaginationDto) {
+    return this.searchService.findWithFilters(filters, pagination);
+  }
+
+  @Get('export/csv')
+  @Auth(UserRole.ADMIN)
+  @ApiExportAuthorsCsv()
+  async exportToCsv(@Query() filters: BookAuthorCsvExportFiltersDto, @Res() res: Response) {
+    const csvData = await this.searchService.exportToCsv(filters);
+    const filename = `book_authors_${new Date().toISOString().split('T')[0]}.csv`;
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csvData);
   }
 
   @Get(':id')
@@ -86,7 +93,7 @@ export class BookAuthorsController {
     return this.crudService.findById(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @Auth(UserRole.ADMIN)
   @ApiUpdateAuthor()
   update(

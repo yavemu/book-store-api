@@ -172,7 +172,9 @@ describe('BookCatalogSearchService', () => {
       const result = await service.exportToCsv();
 
       expect(searchRepository.getBooksForCsvExport).toHaveBeenCalledWith(undefined);
-      expect(result).toContain('ID,Título,ISBN,Precio,Disponible,Stock,Género,Editorial,Fecha Publicación,Páginas,Fecha Creación,Resumen');
+      expect(result).toContain(
+        'ID,Título,ISBN,Precio,Disponible,Stock,Género,Editorial,Fecha Publicación,Páginas,Fecha Creación,Resumen',
+      );
       expect(result).toContain('book-1');
       expect(result).toContain('El Quijote');
       expect(result).toContain('978-3-16-148410-0');
@@ -194,7 +196,7 @@ describe('BookCatalogSearchService', () => {
         minPrice: 20,
         maxPrice: 40,
         publicationDateFrom: '1600-01-01',
-        publicationDateTo: '1700-01-01'
+        publicationDateTo: '1700-01-01',
       };
       const expectedBooks = [mockBookForCsv];
       mockSearchRepository.getBooksForCsvExport.mockResolvedValue(expectedBooks);
@@ -202,7 +204,9 @@ describe('BookCatalogSearchService', () => {
       const result = await service.exportToCsv(filters);
 
       expect(searchRepository.getBooksForCsvExport).toHaveBeenCalledWith(filters);
-      expect(result).toContain('ID,Título,ISBN,Precio,Disponible,Stock,Género,Editorial,Fecha Publicación,Páginas,Fecha Creación,Resumen');
+      expect(result).toContain(
+        'ID,Título,ISBN,Precio,Disponible,Stock,Género,Editorial,Fecha Publicación,Páginas,Fecha Creación,Resumen',
+      );
     });
 
     it('should handle empty book list for CSV export', async () => {
@@ -211,7 +215,9 @@ describe('BookCatalogSearchService', () => {
       const result = await service.exportToCsv();
 
       expect(searchRepository.getBooksForCsvExport).toHaveBeenCalledWith(undefined);
-      expect(result).toBe('ID,Título,ISBN,Precio,Disponible,Stock,Género,Editorial,Fecha Publicación,Páginas,Fecha Creación,Resumen');
+      expect(result).toBe(
+        'ID,Título,ISBN,Precio,Disponible,Stock,Género,Editorial,Fecha Publicación,Páginas,Fecha Creación,Resumen',
+      );
     });
 
     it('should handle books with missing optional fields', async () => {
@@ -251,7 +257,7 @@ describe('BookCatalogSearchService', () => {
         id: 'book-3',
         title: 'El "Clásico" Libro',
         isbnCode: '978-3-16-148410-2',
-        price: 25.50,
+        price: 25.5,
         isAvailable: true,
         stockQuantity: 10,
         genre: { id: 'genre-1', name: 'Ficción "Moderna"' } as any,

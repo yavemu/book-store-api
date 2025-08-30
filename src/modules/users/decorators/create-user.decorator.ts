@@ -9,7 +9,12 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { UserResponseDto } from '../dto/user-response.dto';
-import { ApiResponseDto, BadRequestResponseDto, ConflictResponseDto, ForbiddenResponseDto } from '../../../common/dto';
+import {
+  ApiResponseDto,
+  BadRequestResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+} from '../../../common/dto';
 
 export function ApiCreateUser() {
   return applyDecorators(
@@ -17,7 +22,7 @@ export function ApiCreateUser() {
     ApiOperation({
       summary: 'Crear nuevo usuario - Acceso: ADMIN',
       description:
-        'Crea un nuevo usuario en el sistema. Solo accesible para administradores.',
+        'Crea un nuevo usuario en el sistema con roles y permisos específicos. - Acceso: Solo administradores.',
     }),
     ApiResponse({
       status: 201,

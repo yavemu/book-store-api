@@ -40,7 +40,7 @@ describe('BookGenreSearchRepository', () => {
           useValue: {
             log: jest.fn(),
           },
-        }
+        },
       ],
     }).compile();
 
@@ -57,7 +57,7 @@ describe('BookGenreSearchRepository', () => {
     it('should search genres by term', async () => {
       const pagination = new PaginationDto();
       const paginatedResult = { data: [mockBookGenre], meta: { total: 1, page: 1, limit: 10 } };
-      
+
       (repository as any)._findManyWithPagination = jest.fn().mockResolvedValue(paginatedResult);
 
       const result = await repository.searchGenres('fantasy', pagination);
@@ -75,7 +75,7 @@ describe('BookGenreSearchRepository', () => {
       const result = await repository.checkNameExists('Fantasy');
 
       expect(typeormRepo.count).toHaveBeenCalledWith({
-        where: { name: 'Fantasy' }
+        where: { name: 'Fantasy' },
       });
       expect(result).toBe(true);
     });
@@ -86,7 +86,7 @@ describe('BookGenreSearchRepository', () => {
       const result = await repository.checkNameExists('NonExistent');
 
       expect(typeormRepo.count).toHaveBeenCalledWith({
-        where: { name: 'NonExistent' }
+        where: { name: 'NonExistent' },
       });
       expect(result).toBe(false);
     });

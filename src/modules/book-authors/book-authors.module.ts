@@ -11,20 +11,17 @@ import { BookAuthorRepository } from './repositories/book-author.repository';
 import { AuditModule } from '../audit/audit.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([BookAuthor]),
-    AuditModule,
-  ],
+  imports: [TypeOrmModule.forFeature([BookAuthor]), AuditModule],
   controllers: [BookAuthorsController],
   providers: [
     // Core Services
     BookAuthorCrudService,
     BookAuthorSearchService,
     ValidationService,
-    ErrorHandlerService, 
+    ErrorHandlerService,
     UserContextService,
     BookAuthorRepository,
-    
+
     // Interface Providers
     {
       provide: 'IBookAuthorCrudService',
@@ -59,11 +56,6 @@ import { AuditModule } from '../audit/audit.module';
       useClass: BookAuthorRepository,
     },
   ],
-  exports: [
-    TypeOrmModule,
-    BookAuthorCrudService,
-    BookAuthorSearchService,
-    BookAuthorRepository,
-  ],
+  exports: [TypeOrmModule, BookAuthorCrudService, BookAuthorSearchService, BookAuthorRepository],
 })
 export class BookAuthorsModule {}

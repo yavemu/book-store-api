@@ -45,7 +45,7 @@ describe('AuthController', () => {
       const loginDto = new LoginDto();
       loginDto.email = 'test@example.com';
       loginDto.password = 'password123';
-      
+
       const mockUser = { id: 'user-1', email: 'test@example.com' };
       const mockLoginResponse = {
         access_token: 'jwt-token',
@@ -55,9 +55,14 @@ describe('AuthController', () => {
       mockAuthService.validateUser.mockResolvedValue(mockUser);
       mockAuthService.login.mockResolvedValue(mockLoginResponse);
 
-      const result = await controller.login(loginDto);
+      const mockReq = { ip: '127.0.0.1' };
+      const result = await controller.login(loginDto, mockReq);
 
-      expect(authService.validateUser).toHaveBeenCalledWith(loginDto.email, loginDto.password);
+      expect(authService.validateUser).toHaveBeenCalledWith(
+        loginDto.email,
+        loginDto.password,
+        '127.0.0.1',
+      );
       expect(authService.login).toHaveBeenCalledWith(mockUser);
       expect(result).toEqual(mockLoginResponse);
     });
@@ -69,11 +74,16 @@ describe('AuthController', () => {
 
       mockAuthService.validateUser.mockResolvedValue(null);
 
-      await expect(controller.login(loginDto)).rejects.toThrow(
-        new UnauthorizedException(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS)
+      const mockReq = { ip: '127.0.0.1' };
+      await expect(controller.login(loginDto, mockReq)).rejects.toThrow(
+        new UnauthorizedException(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS),
       );
 
-      expect(authService.validateUser).toHaveBeenCalledWith(loginDto.email, loginDto.password);
+      expect(authService.validateUser).toHaveBeenCalledWith(
+        loginDto.email,
+        loginDto.password,
+        '127.0.0.1',
+      );
       expect(authService.login).not.toHaveBeenCalled();
     });
   });
@@ -93,9 +103,10 @@ describe('AuthController', () => {
 
       mockAuthService.register.mockResolvedValue(mockRegisteredUser);
 
-      const result = await controller.register(registerDto);
+      const mockReq = { ip: '127.0.0.1' };
+      const result = await controller.register(registerDto, mockReq);
 
-      expect(authService.register).toHaveBeenCalledWith(registerDto);
+      expect(authService.register).toHaveBeenCalledWith(registerDto, '127.0.0.1');
       expect(result).toEqual(mockRegisteredUser);
     });
   });

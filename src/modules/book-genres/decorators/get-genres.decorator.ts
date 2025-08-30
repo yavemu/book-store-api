@@ -1,12 +1,19 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiUnauthorizedResponse, ApiExtraModels } from "@nestjs/swagger";
-import { PaginationDto } from "../../../common/dto";
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiUnauthorizedResponse,
+  ApiExtraModels,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import { PaginationDto } from '../../../common/dto';
 
 export function ApiGetGenres() {
   return applyDecorators(
     ApiOperation({
-      summary: "Obtener géneros de libros - Acceso: ADMIN, USER",
-      description: "Obtiene una lista paginada de todos los géneros de libros disponibles en el sistema.",
+      summary: 'Obtener géneros de libros - Acceso: ADMIN, USER',
+      description:
+        'Obtiene una lista paginada de todos los géneros de libros disponibles en el sistema.',
     }),
     ApiExtraModels(PaginationDto),
     ApiResponse({
@@ -15,7 +22,7 @@ export function ApiGetGenres() {
       schema: {
         type: 'object',
         properties: {
-          success: { type: 'boolean'},
+          success: { type: 'boolean' },
           message: {
             type: 'string',
           },
@@ -30,7 +37,7 @@ export function ApiGetGenres() {
                     id: {
                       type: 'string',
                     },
-                    name: { type: 'string'},
+                    name: { type: 'string' },
                     description: {
                       type: 'string',
                     },
@@ -48,12 +55,12 @@ export function ApiGetGenres() {
               meta: {
                 type: 'object',
                 properties: {
-                  total: { type: 'number'},
-                  page: { type: 'number'},
-                  limit: { type: 'number'},
-                  totalPages: { type: 'number'},
-                  hasNext: { type: 'boolean'},
-                  hasPrev: { type: 'boolean'},
+                  total: { type: 'number' },
+                  page: { type: 'number' },
+                  limit: { type: 'number' },
+                  totalPages: { type: 'number' },
+                  hasNext: { type: 'boolean' },
+                  hasPrev: { type: 'boolean' },
                 },
               },
             },
@@ -62,12 +69,12 @@ export function ApiGetGenres() {
       },
     }),
     ApiUnauthorizedResponse({
-      description: "No autorizado - Token JWT inválido o faltante",
+      description: 'No autorizado - Token JWT inválido o faltante',
       schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          statusCode: { type: "number"},
-          message: { type: "string"},
+          statusCode: { type: 'number' },
+          message: { type: 'string' },
         },
       },
     }),

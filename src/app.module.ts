@@ -13,6 +13,7 @@ import { PublishingHousesModule } from './modules/publishing-houses/publishing-h
 import { BookAuthorsModule } from './modules/book-authors/book-authors.module';
 import { BookCatalogModule } from './modules/book-catalog/book-catalog.module';
 import { BookAuthorAssignmentsModule } from './modules/book-author-assignments/book-author-assignments.module';
+import { InventoryMovementsModule } from './modules/inventory-movements/inventory-movements.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -32,6 +33,7 @@ import { AuditInterceptor } from './common/interceptors/audit.interceptor';
     BookAuthorsModule,
     BookCatalogModule,
     BookAuthorAssignmentsModule,
+    InventoryMovementsModule,
   ],
   controllers: [AppController],
   providers: [

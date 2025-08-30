@@ -5,5 +5,9 @@ export interface IUserValidationRepository {
   findByEmailExcludingId(email: string, excludeId: string): Promise<User>;
   findByUsername(username: string): Promise<User>;
   findByUsernameExcludingId(username: string, excludeId: string): Promise<User>;
-  _validateUniqueConstraints(dto: Partial<User>, entityId?: string, constraints?: any[]): Promise<void>;
+  _validateUniqueConstraints(
+    dto: Partial<User>,
+    entityId?: string,
+    constraints?: any[],
+  ): Promise<void>;
 }

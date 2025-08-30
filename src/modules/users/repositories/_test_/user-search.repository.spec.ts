@@ -50,7 +50,7 @@ describe('UserSearchRepository', () => {
           useValue: {
             log: jest.fn(),
           },
-        }
+        },
       ],
     }).compile();
 
@@ -94,7 +94,7 @@ describe('UserSearchRepository', () => {
       (repository as any)._findOne = jest.fn().mockRejectedValue(new Error('Database error'));
 
       await expect(repository.authenticateUser('test@example.com')).rejects.toThrow(
-        new HttpException('Authentication failed', HttpStatus.INTERNAL_SERVER_ERROR)
+        new HttpException('Authentication failed', HttpStatus.INTERNAL_SERVER_ERROR),
       );
     });
 
@@ -114,22 +114,19 @@ describe('UserSearchRepository', () => {
       const searchTerm = 'test';
       const pagination = new PaginationDto();
       const paginatedResult = { data: [mockUser], meta: { total: 1, page: 1, limit: 10 } };
-      
+
       (repository as any)._findManyWithPagination = jest.fn().mockResolvedValue(paginatedResult);
 
       const result = await repository.searchUsers(searchTerm, pagination);
 
       expect((repository as any)._findManyWithPagination).toHaveBeenCalledWith(
         {
-          where: [
-            { username: ILike(`%${searchTerm}%`) },
-            { email: ILike(`%${searchTerm}%`) },
-          ],
+          where: [{ username: ILike(`%${searchTerm}%`) }, { email: ILike(`%${searchTerm}%`) }],
           order: { [pagination.sortBy]: pagination.sortOrder },
           skip: pagination.offset,
           take: pagination.limit,
         },
-        pagination
+        pagination,
       );
       expect(result).toEqual(paginatedResult);
     });
@@ -137,11 +134,13 @@ describe('UserSearchRepository', () => {
     it('should throw HttpException when search fails', async () => {
       const searchTerm = 'test';
       const pagination = new PaginationDto();
-      
-      (repository as any)._findManyWithPagination = jest.fn().mockRejectedValue(new Error('Database error'));
+
+      (repository as any)._findManyWithPagination = jest
+        .fn()
+        .mockRejectedValue(new Error('Database error'));
 
       await expect(repository.searchUsers(searchTerm, pagination)).rejects.toThrow(
-        new HttpException('Failed to search users', HttpStatus.INTERNAL_SERVER_ERROR)
+        new HttpException('Failed to search users', HttpStatus.INTERNAL_SERVER_ERROR),
       );
     });
   });
@@ -183,7 +182,7 @@ describe('UserSearchRepository', () => {
       (repository as any)._exists = jest.fn().mockRejectedValue(new Error('Database error'));
 
       await expect(repository.checkUsernameExists('testuser')).rejects.toThrow(
-        new HttpException('Failed to check username existence', HttpStatus.INTERNAL_SERVER_ERROR)
+        new HttpException('Failed to check username existence', HttpStatus.INTERNAL_SERVER_ERROR),
       );
     });
   });
@@ -225,7 +224,7 @@ describe('UserSearchRepository', () => {
       (repository as any)._exists = jest.fn().mockRejectedValue(new Error('Database error'));
 
       await expect(repository.checkEmailExists('test@example.com')).rejects.toThrow(
-        new HttpException('Failed to check email existence', HttpStatus.INTERNAL_SERVER_ERROR)
+        new HttpException('Failed to check email existence', HttpStatus.INTERNAL_SERVER_ERROR),
       );
     });
   });

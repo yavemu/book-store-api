@@ -5,3 +5,5 @@ export * from './update-author.decorator';
 export * from './delete-author.decorator';
 export * from './get-author-by-name.decorator';
 export * from './search-authors.decorator';
+export * from './filter-authors.decorator';
+export * from './export-authors-csv.decorator';

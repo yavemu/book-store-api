@@ -3,17 +3,20 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
   Inject,
   Request,
+  Res,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 import { IPublishingHouseService } from '../interfaces/publishing-house.service.interface';
 import { CreatePublishingHouseDto } from '../dto/create-publishing-house.dto';
 import { UpdatePublishingHouseDto } from '../dto/update-publishing-house.dto';
+import { PublishingHouseFiltersDto, PublishingHouseCsvExportFiltersDto } from '../dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import { PublishingHouse } from '../entities/publishing-house.entity';
 import { Auth } from '../../../common/decorators/auth.decorator';
@@ -25,7 +28,8 @@ import {
   ApiUpdatePublishingHouse,
   ApiDeletePublishingHouse,
   ApiSearchPublishingHouses,
-  ApiGetPublishingHousesByCountry
+  ApiFilterPublishingHouses,
+  ApiExportPublishingHousesCsv,
 } from '../decorators';
 
 @ApiTags('Publishing Houses')
@@ -39,10 +43,7 @@ export class PublishingHousesController {
   @Post()
   @Auth(UserRole.ADMIN)
   @ApiCreatePublishingHouse()
-  create(
-    @Body() createPublishingHouseDto: CreatePublishingHouseDto,
-    @Request() req: any,
-  ) {
+  create(@Body() createPublishingHouseDto: CreatePublishingHouseDto, @Request() req: any) {
     return this.publishingHouseService.create(createPublishingHouseDto, req.user.id);
   }
 
@@ -56,21 +57,27 @@ export class PublishingHousesController {
   @Get('search')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchPublishingHouses()
-  search(
-    @Query('term') searchTerm: string,
-    @Query() pagination: PaginationDto,
-  ) {
+  search(@Query('term') searchTerm: string, @Query() pagination: PaginationDto) {
     return this.publishingHouseService.search(searchTerm, pagination);
   }
 
-  @Get('by-country/:country')
+  @Post('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
-  @ApiGetPublishingHousesByCountry()
-  findByCountry(
-    @Param('country') country: string,
-    @Query() pagination: PaginationDto,
-  ) {
-    return this.publishingHouseService.findByCountry(country, pagination);
+  @ApiFilterPublishingHouses()
+  async filter(@Body() filters: PublishingHouseFiltersDto, @Query() pagination: PaginationDto) {
+    return this.publishingHouseService.findWithFilters(filters, pagination);
+  }
+
+  @Get('export/csv')
+  @Auth(UserRole.ADMIN)
+  @ApiExportPublishingHousesCsv()
+  async exportToCsv(@Query() filters: PublishingHouseCsvExportFiltersDto, @Res() res: Response) {
+    const csvData = await this.publishingHouseService.exportToCsv(filters);
+    const filename = `publishing_houses_${new Date().toISOString().split('T')[0]}.csv`;
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csvData);
   }
 
   @Get(':id')
@@ -80,7 +87,7 @@ export class PublishingHousesController {
     return this.publishingHouseService.findById(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @Auth(UserRole.ADMIN)
   @ApiUpdatePublishingHouse()
   update(

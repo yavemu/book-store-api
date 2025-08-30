@@ -7,6 +7,10 @@ export interface IBookGenreCrudService {
   create(createBookGenreDto: CreateBookGenreDto, performedBy: string): Promise<BookGenre>;
   findAll(pagination: PaginationDto): Promise<PaginatedResult<BookGenre>>;
   findById(id: string): Promise<BookGenre>;
-  update(id: string, updateBookGenreDto: UpdateBookGenreDto, performedBy: string): Promise<BookGenre>;
+  update(
+    id: string,
+    updateBookGenreDto: UpdateBookGenreDto,
+    performedBy: string,
+  ): Promise<BookGenre>;
   softDelete(id: string, performedBy: string): Promise<{ id: string }>;
 }

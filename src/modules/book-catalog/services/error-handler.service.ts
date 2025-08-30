@@ -1,9 +1,19 @@
-import { Injectable, HttpException, HttpStatus, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { IErrorHandlerService } from '../interfaces/error-handler.service.interface';
 
 @Injectable()
 export class ErrorHandlerService implements IErrorHandlerService {
-  handleError(error: any, fallbackMessage: string, fallbackStatus: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR): never {
+  handleError(
+    error: any,
+    fallbackMessage: string,
+    fallbackStatus: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR,
+  ): never {
     if (error instanceof HttpException) {
       throw error;
     }

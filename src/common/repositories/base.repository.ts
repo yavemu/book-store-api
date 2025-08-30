@@ -1,13 +1,16 @@
 import { Repository, FindManyOptions } from 'typeorm';
 import { HttpException, HttpStatus, ConflictException, Inject, Injectable } from '@nestjs/common';
 import { PaginationDto, PaginatedResult } from '../dto/pagination.dto';
-import { IAuditLoggerService } from '../../modules/audit/interfaces/audit-logger.service.interface';
-import { AuditAction } from "../../modules/audit/enums/audit-action.enum";
+import {
+  IAuditLoggerService,
+  EnhancedAuditData,
+} from '../../modules/audit/interfaces/audit-logger.service.interface';
+import { AuditAction } from '../../modules/audit/enums/audit-action.enum';
 
 export abstract class BaseRepository<T> {
   constructor(
     protected readonly repository: Repository<T>,
-    @Inject("IAuditLoggerService")
+    @Inject('IAuditLoggerService')
     protected readonly auditLogService?: IAuditLoggerService,
   ) {}
 
@@ -25,12 +28,18 @@ export abstract class BaseRepository<T> {
       const savedEntity = await this.repository.save(entity as T);
 
       if (performedBy && entityName) {
-        await this._logAudit(action, (savedEntity as any).id, performedBy, entityName, getDescription);
+        await this._logAudit(
+          action,
+          (savedEntity as any).id,
+          performedBy,
+          entityName,
+          getDescription,
+        );
       }
 
       return savedEntity;
     } catch (error) {
-      throw new HttpException("Failed to create entity", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Failed to create entity', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -38,7 +47,7 @@ export abstract class BaseRepository<T> {
     try {
       return await this.repository.findOne({ where: { id } as any });
     } catch (error) {
-      throw new HttpException("Failed to find entity", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Failed to find entity', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -46,7 +55,7 @@ export abstract class BaseRepository<T> {
     try {
       return await this.repository.findOne(options);
     } catch (error) {
-      throw new HttpException("Failed to find entity", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Failed to find entity', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -54,11 +63,14 @@ export abstract class BaseRepository<T> {
     try {
       return await this.repository.find(options);
     } catch (error) {
-      throw new HttpException("Failed to find entities", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Failed to find entities', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  protected async _findManyWithPagination(options: FindManyOptions<T>, pagination: PaginationDto): Promise<PaginatedResult<T>> {
+  protected async _findManyWithPagination(
+    options: FindManyOptions<T>,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<T>> {
     try {
       const [data, total] = await this.repository.findAndCount(options);
 
@@ -76,7 +88,10 @@ export abstract class BaseRepository<T> {
         },
       };
     } catch (error) {
-      throw new HttpException("Failed to find entities with pagination", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to find entities with pagination',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -96,7 +111,7 @@ export abstract class BaseRepository<T> {
       const updatedEntity = await this._findById(id);
       return updatedEntity;
     } catch (error) {
-      throw new HttpException("Failed to update entity", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Failed to update entity', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -112,12 +127,18 @@ export abstract class BaseRepository<T> {
 
       if (performedBy && entityName) {
         const description = entity && getDescription ? getDescription(entity) : undefined;
-        await this._logAudit(AuditAction.DELETE, id, performedBy, entityName, description ? () => description : undefined);
+        await this._logAudit(
+          AuditAction.DELETE,
+          id,
+          performedBy,
+          entityName,
+          description ? () => description : undefined,
+        );
       }
 
       return { id };
     } catch (error) {
-      throw new HttpException("Failed to delete entity", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Failed to delete entity', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -125,7 +146,7 @@ export abstract class BaseRepository<T> {
     try {
       return await this.repository.count(options);
     } catch (error) {
-      throw new HttpException("Failed to count entities", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Failed to count entities', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -134,7 +155,7 @@ export abstract class BaseRepository<T> {
       const count = await this.repository.count(options);
       return count > 0;
     } catch (error) {
-      throw new HttpException("Failed to check entity existence", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Failed to check entity existence', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -168,7 +189,9 @@ export abstract class BaseRepository<T> {
         } else {
           // Single field unique constraint
           if (dto[config.field] !== undefined && dto[config.field] !== null) {
-            const value = config.transform ? config.transform(dto[config.field]) : dto[config.field];
+            const value = config.transform
+              ? config.transform(dto[config.field])
+              : dto[config.field];
             whereCondition = { [config.field]: value };
           } else {
             continue; // Skip validation if field is not provided
@@ -185,12 +208,15 @@ export abstract class BaseRepository<T> {
         if (error instanceof ConflictException) {
           throw error;
         }
-        throw new HttpException(`Failed to validate unique constraints: ${error.message}`, HttpStatus.INTERNAL_SERVER_ERROR);
+        throw new HttpException(
+          `Failed to validate unique constraints: ${error.message}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
     }
   }
 
-  // ========== MÉTODO CENTRALIZADO DE AUDITORÍA ==========
+  // ========== MÉTODO CENTRALIZADO DE AUDITORÍA MEJORADO ==========
 
   protected async _logAudit(
     action: AuditAction,
@@ -198,18 +224,87 @@ export abstract class BaseRepository<T> {
     performedBy: string,
     entityName: string,
     getDescription?: (entity: T) => string,
+    result: string = 'SUCCESS',
+    ipAddress?: string,
+    errorDetails?: string,
   ): Promise<void> {
     if (this.auditLogService) {
-      let description: string;
+      const startTime = Date.now();
 
-      if (getDescription && action !== AuditAction.DELETE && action !== AuditAction.LOGIN && action !== AuditAction.REGISTER) {
-        const entity = await this._findById(entityId);
-        description = entity ? getDescription(entity) : `${action.toLowerCase()} ${entityName}`;
-      } else {
-        description = getDescription ? getDescription({} as T) : `${action.toLowerCase()} ${entityName}`;
+      try {
+        let description: string;
+        let entitySnapshot: Record<string, any> | undefined;
+
+        // Construir descripción y snapshot de entidad
+        if (
+          getDescription &&
+          entityId &&
+          action !== AuditAction.DELETE &&
+          action !== AuditAction.LOGIN &&
+          action !== AuditAction.REGISTER &&
+          result === 'SUCCESS'
+        ) {
+          const entity = await this._findById(entityId);
+          if (entity) {
+            description = getDescription(entity);
+            entitySnapshot = JSON.parse(JSON.stringify(entity));
+          } else {
+            description = `${action.toLowerCase()} ${entityName}`;
+          }
+        } else {
+          description = getDescription
+            ? getDescription({} as T)
+            : `${action.toLowerCase()} ${entityName}`;
+        }
+
+        const executionTime = Date.now() - startTime;
+
+        // Usar el nuevo método mejorado
+        const auditData: EnhancedAuditData = {
+          performedBy,
+          entityId,
+          action,
+          details: description,
+          entityType: entityName,
+          result,
+          ipAddress,
+          environment: process.env.NODE_ENV || 'development',
+          processId: process.pid,
+          executionContext: `${entityName}Repository`,
+          entitySnapshot,
+          executionTimeMs: executionTime,
+          errorDetails: result !== 'SUCCESS' ? errorDetails : undefined,
+        };
+
+        await this.auditLogService.logEnhanced(auditData);
+      } catch (auditError) {
+        // Si falla el logging de auditoría, no debe afectar la operación principal
+        console.error('Failed to log audit:', auditError);
       }
+    }
+  }
 
-      await this.auditLogService.log(performedBy, entityId, action, description, entityName);
+  // Método auxiliar para logging de errores
+  protected async _logError(
+    action: AuditAction,
+    performedBy: string,
+    entityName: string,
+    errorMessage: string,
+    ipAddress?: string,
+  ): Promise<void> {
+    if (this.auditLogService) {
+      try {
+        await this.auditLogService.logError(
+          performedBy,
+          action,
+          entityName,
+          errorMessage,
+          ipAddress,
+          `${entityName}Repository`,
+        );
+      } catch (auditError) {
+        console.error('Failed to log error audit:', auditError);
+      }
     }
   }
 }

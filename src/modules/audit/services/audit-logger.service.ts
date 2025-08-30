@@ -1,6 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { IAuditLoggerRepository } from '../interfaces/audit-logger.repository.interface';
-import { IAuditLoggerService } from '../interfaces/audit-logger.service.interface';
+import {
+  IAuditLoggerService,
+  EnhancedAuditData,
+} from '../interfaces/audit-logger.service.interface';
 import { AuditLog } from '../entities/audit-log.entity';
 import { AuditAction } from '../enums/audit-action.enum';
 
@@ -34,12 +37,44 @@ export class AuditLoggerService implements IAuditLoggerService {
     details: string,
     entityType: string,
   ): Promise<AuditLog> {
-    return await this.logOperation(
+    return await this.logOperation(performedBy, entityId, action, details, entityType);
+  }
+
+  async logEnhanced(auditData: EnhancedAuditData): Promise<AuditLog> {
+    // Agregar metadatos automáticamente si no están presentes
+    const enhancedData = {
+      ...auditData,
+      result: auditData.result || 'SUCCESS',
+      environment: auditData.environment || process.env.NODE_ENV || 'development',
+      processId: auditData.processId || process.pid,
+      executionContext: auditData.executionContext || 'Unknown',
+    };
+
+    return await this.auditLoggerRepository.logEnhancedAction(enhancedData);
+  }
+
+  async logError(
+    performedBy: string,
+    action: AuditAction,
+    entityType: string,
+    errorDetails: string,
+    ipAddress?: string,
+    executionContext?: string,
+  ): Promise<AuditLog> {
+    const auditData: EnhancedAuditData = {
       performedBy,
-      entityId,
+      entityId: null, // No hay entidad en caso de error
       action,
-      details,
+      details: `Error during ${action.toLowerCase()}: ${errorDetails}`,
       entityType,
-    );
+      result: 'ERROR',
+      ipAddress,
+      executionContext,
+      errorDetails,
+      environment: process.env.NODE_ENV || 'development',
+      processId: process.pid,
+    };
+
+    return await this.logEnhanced(auditData);
   }
 }

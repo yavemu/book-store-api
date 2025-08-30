@@ -11,8 +11,5 @@ export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 export const Roles = (...roles: UserRole[]) => SetMetadata(ROLES_KEY, roles);
 
 export function Auth(...roles: UserRole[]) {
-  return applyDecorators(
-    UseGuards(JwtAuthGuard, RolesGuard),
-    Roles(...roles)
-  );
+  return applyDecorators(UseGuards(JwtAuthGuard, RolesGuard), Roles(...roles));
 }

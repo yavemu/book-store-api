@@ -16,6 +16,14 @@ describe('AuditSearchService', () => {
     action: AuditAction.CREATE,
     details: 'User created a new book',
     entityType: 'Book',
+    result: 'SUCCESS',
+    ipAddress: '127.0.0.1',
+    environment: 'test',
+    processId: 1234,
+    executionContext: 'TestService',
+    entitySnapshot: null,
+    executionTimeMs: 10,
+    errorDetails: null,
     createdAt: new Date(),
   };
 
@@ -26,6 +34,14 @@ describe('AuditSearchService', () => {
     action: AuditAction.UPDATE,
     details: 'User updated book information',
     entityType: 'Book',
+    result: 'SUCCESS',
+    ipAddress: '127.0.0.1',
+    environment: 'test',
+    processId: 1234,
+    executionContext: 'TestService',
+    entitySnapshot: null,
+    executionTimeMs: 10,
+    errorDetails: null,
     createdAt: new Date(),
   };
 
@@ -75,7 +91,7 @@ describe('AuditSearchService', () => {
       const pagination = new PaginationDto();
       pagination.page = 1;
       pagination.limit = 10;
-      
+
       mockAuditSearchRepository.getAuditTrail.mockResolvedValue(mockPaginatedResult);
 
       const result = await service.getAuditTrail(pagination);
@@ -92,7 +108,7 @@ describe('AuditSearchService', () => {
         data: [],
         meta: { total: 0, page: 1, limit: 10, totalPages: 0, hasNext: false, hasPrev: false },
       };
-      
+
       mockAuditSearchRepository.getAuditTrail.mockResolvedValue(emptyResult);
 
       const result = await service.getAuditTrail(pagination);
@@ -106,7 +122,7 @@ describe('AuditSearchService', () => {
       pagination.page = 1;
       pagination.limit = 10;
       const error = new Error('Database connection failed');
-      
+
       mockAuditSearchRepository.getAuditTrail.mockRejectedValue(error);
 
       await expect(service.getAuditTrail(pagination)).rejects.toThrow(error);
@@ -119,7 +135,7 @@ describe('AuditSearchService', () => {
       const pagination = new PaginationDto();
       pagination.page = 1;
       pagination.limit = 10;
-      
+
       mockAuditSearchRepository.getUserAuditHistory.mockResolvedValue(mockPaginatedResult);
 
       const result = await service.getUserAuditHistory(userId, pagination);
@@ -137,7 +153,7 @@ describe('AuditSearchService', () => {
         data: [],
         meta: { total: 0, page: 1, limit: 10, totalPages: 0, hasNext: false, hasPrev: false },
       };
-      
+
       mockAuditSearchRepository.getUserAuditHistory.mockResolvedValue(emptyResult);
 
       const result = await service.getUserAuditHistory(userId, pagination);
@@ -152,7 +168,7 @@ describe('AuditSearchService', () => {
       pagination.page = 1;
       pagination.limit = 10;
       const error = new Error('Failed to retrieve user audit history');
-      
+
       mockAuditSearchRepository.getUserAuditHistory.mockRejectedValue(error);
 
       await expect(service.getUserAuditHistory(userId, pagination)).rejects.toThrow(error);
@@ -165,12 +181,15 @@ describe('AuditSearchService', () => {
       const pagination = new PaginationDto();
       pagination.page = 1;
       pagination.limit = 10;
-      
+
       mockAuditSearchRepository.getEntityAuditHistory.mockResolvedValue(mockPaginatedResult);
 
       const result = await service.getEntityAuditHistory(entityId, pagination);
 
-      expect(auditSearchRepository.getEntityAuditHistory).toHaveBeenCalledWith(entityId, pagination);
+      expect(auditSearchRepository.getEntityAuditHistory).toHaveBeenCalledWith(
+        entityId,
+        pagination,
+      );
       expect(result).toEqual(mockPaginatedResult);
     });
 
@@ -183,12 +202,15 @@ describe('AuditSearchService', () => {
         data: [],
         meta: { total: 0, page: 1, limit: 10, totalPages: 0, hasNext: false, hasPrev: false },
       };
-      
+
       mockAuditSearchRepository.getEntityAuditHistory.mockResolvedValue(emptyResult);
 
       const result = await service.getEntityAuditHistory(entityId, pagination);
 
-      expect(auditSearchRepository.getEntityAuditHistory).toHaveBeenCalledWith(entityId, pagination);
+      expect(auditSearchRepository.getEntityAuditHistory).toHaveBeenCalledWith(
+        entityId,
+        pagination,
+      );
       expect(result).toEqual(emptyResult);
     });
   });
@@ -203,7 +225,7 @@ describe('AuditSearchService', () => {
         data: [mockAuditLog],
         meta: { total: 1, page: 1, limit: 10, totalPages: 1, hasNext: false, hasPrev: false },
       };
-      
+
       mockAuditSearchRepository.getAuditsByAction.mockResolvedValue(createAudits);
 
       const result = await service.getAuditsByAction(action, pagination);
@@ -221,7 +243,7 @@ describe('AuditSearchService', () => {
         data: [mockAuditLog2],
         meta: { total: 1, page: 1, limit: 10, totalPages: 1, hasNext: false, hasPrev: false },
       };
-      
+
       mockAuditSearchRepository.getAuditsByAction.mockResolvedValue(updateAudits);
 
       const result = await service.getAuditsByAction(action, pagination);
@@ -245,7 +267,7 @@ describe('AuditSearchService', () => {
         data: [deleteAudit],
         meta: { total: 1, page: 1, limit: 10, totalPages: 1, hasNext: false, hasPrev: false },
       };
-      
+
       mockAuditSearchRepository.getAuditsByAction.mockResolvedValue(deleteAudits);
 
       const result = await service.getAuditsByAction(action, pagination);
@@ -270,7 +292,7 @@ describe('AuditSearchService', () => {
         data: [loginAudit],
         meta: { total: 1, page: 1, limit: 10, totalPages: 1, hasNext: false, hasPrev: false },
       };
-      
+
       mockAuditSearchRepository.getAuditsByAction.mockResolvedValue(loginAudits);
 
       const result = await service.getAuditsByAction(action, pagination);
@@ -286,12 +308,15 @@ describe('AuditSearchService', () => {
       const pagination = new PaginationDto();
       pagination.page = 1;
       pagination.limit = 10;
-      
+
       mockAuditSearchRepository.getAuditsByEntityType.mockResolvedValue(mockPaginatedResult);
 
       const result = await service.getAuditsByEntityType(entityType, pagination);
 
-      expect(auditSearchRepository.getAuditsByEntityType).toHaveBeenCalledWith(entityType, pagination);
+      expect(auditSearchRepository.getAuditsByEntityType).toHaveBeenCalledWith(
+        entityType,
+        pagination,
+      );
       expect(result).toEqual(mockPaginatedResult);
     });
 
@@ -310,12 +335,15 @@ describe('AuditSearchService', () => {
         data: [userAudit],
         meta: { total: 1, page: 1, limit: 10, totalPages: 1, hasNext: false, hasPrev: false },
       };
-      
+
       mockAuditSearchRepository.getAuditsByEntityType.mockResolvedValue(userAudits);
 
       const result = await service.getAuditsByEntityType(entityType, pagination);
 
-      expect(auditSearchRepository.getAuditsByEntityType).toHaveBeenCalledWith(entityType, pagination);
+      expect(auditSearchRepository.getAuditsByEntityType).toHaveBeenCalledWith(
+        entityType,
+        pagination,
+      );
       expect(result).toEqual(userAudits);
     });
 
@@ -328,12 +356,15 @@ describe('AuditSearchService', () => {
         data: [],
         meta: { total: 0, page: 1, limit: 10, totalPages: 0, hasNext: false, hasPrev: false },
       };
-      
+
       mockAuditSearchRepository.getAuditsByEntityType.mockResolvedValue(emptyResult);
 
       const result = await service.getAuditsByEntityType(entityType, pagination);
 
-      expect(auditSearchRepository.getAuditsByEntityType).toHaveBeenCalledWith(entityType, pagination);
+      expect(auditSearchRepository.getAuditsByEntityType).toHaveBeenCalledWith(
+        entityType,
+        pagination,
+      );
       expect(result).toEqual(emptyResult);
     });
   });
@@ -344,7 +375,7 @@ describe('AuditSearchService', () => {
       const pagination = new PaginationDto();
       pagination.page = 1;
       pagination.limit = 10;
-      
+
       mockAuditSearchRepository.searchAuditLogs.mockResolvedValue(mockPaginatedResult);
 
       const result = await service.searchAuditLogs(searchTerm, pagination);
@@ -358,7 +389,7 @@ describe('AuditSearchService', () => {
       const pagination = new PaginationDto();
       pagination.page = 1;
       pagination.limit = 10;
-      
+
       mockAuditSearchRepository.searchAuditLogs.mockResolvedValue(mockPaginatedResult);
 
       const result = await service.searchAuditLogs(searchTerm, pagination);
@@ -376,7 +407,7 @@ describe('AuditSearchService', () => {
         data: [],
         meta: { total: 0, page: 1, limit: 10, totalPages: 0, hasNext: false, hasPrev: false },
       };
-      
+
       mockAuditSearchRepository.searchAuditLogs.mockResolvedValue(emptyResult);
 
       const result = await service.searchAuditLogs(searchTerm, pagination);
@@ -391,7 +422,7 @@ describe('AuditSearchService', () => {
       pagination.page = 1;
       pagination.limit = 10;
       const error = new Error('Search service unavailable');
-      
+
       mockAuditSearchRepository.searchAuditLogs.mockRejectedValue(error);
 
       await expect(service.searchAuditLogs(searchTerm, pagination)).rejects.toThrow(error);
@@ -407,7 +438,7 @@ describe('AuditSearchService', () => {
         data: [],
         meta: { total: 50, page: 999, limit: 10, totalPages: 5, hasNext: false, hasPrev: true },
       };
-      
+
       mockAuditSearchRepository.getAuditTrail.mockResolvedValue(emptyResult);
 
       const result = await service.getAuditTrail(pagination);
@@ -419,7 +450,7 @@ describe('AuditSearchService', () => {
       const pagination = new PaginationDto();
       pagination.page = 1;
       pagination.limit = 1000;
-      
+
       mockAuditSearchRepository.getAuditTrail.mockResolvedValue(mockPaginatedResult);
 
       const result = await service.getAuditTrail(pagination);
@@ -432,7 +463,7 @@ describe('AuditSearchService', () => {
       const pagination = new PaginationDto();
       pagination.page = 0;
       pagination.limit = 10;
-      
+
       mockAuditSearchRepository.getAuditTrail.mockResolvedValue(mockPaginatedResult);
 
       const result = await service.getAuditTrail(pagination);

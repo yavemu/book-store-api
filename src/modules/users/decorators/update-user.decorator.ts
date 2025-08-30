@@ -12,7 +12,14 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { UserResponseDto } from '../dto/user-response.dto';
-import { ApiResponseDto, BadRequestResponseDto, UnauthorizedResponseDto, ForbiddenResponseDto, NotFoundResponseDto, ConflictResponseDto } from '../../../common/dto';
+import {
+  ApiResponseDto,
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+  ConflictResponseDto,
+} from '../../../common/dto';
 
 export function ApiUpdateUser() {
   return applyDecorators(
@@ -52,8 +59,7 @@ export function ApiUpdateUser() {
       type: UnauthorizedResponseDto,
     }),
     ApiForbiddenResponse({
-      description:
-        'Acceso denegado - No tiene permisos para actualizar este usuario',
+      description: 'Acceso denegado - No tiene permisos para actualizar este usuario',
       type: ForbiddenResponseDto,
     }),
     ApiNotFoundResponse({

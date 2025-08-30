@@ -13,10 +13,7 @@ import { PublishingHousesController } from './controllers/publishing-houses.cont
 import { AuditModule } from '../audit/audit.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([PublishingHouse]),
-    AuditModule,
-  ],
+  imports: [TypeOrmModule.forFeature([PublishingHouse]), AuditModule],
   controllers: [PublishingHousesController],
   providers: [
     // Core Services
@@ -28,7 +25,7 @@ import { AuditModule } from '../audit/audit.module';
     UserContextService,
     PublishingHouseCrudRepository,
     PublishingHouseSearchRepository,
-    
+
     // Interface Providers
     {
       provide: 'IPublishingHouseService',
@@ -63,10 +60,6 @@ import { AuditModule } from '../audit/audit.module';
       useClass: PublishingHouseSearchRepository,
     },
   ],
-  exports: [
-    TypeOrmModule,
-    'IPublishingHouseCrudService',
-    'IPublishingHouseSearchService',
-  ],
+  exports: [TypeOrmModule, 'IPublishingHouseCrudService', 'IPublishingHouseSearchService'],
 })
 export class PublishingHousesModule {}

@@ -7,6 +7,10 @@ export interface IBookGenreCrudRepository {
   registerGenre(createBookGenreDto: CreateBookGenreDto, performedBy: string): Promise<BookGenre>;
   getAllGenres(pagination: PaginationDto): Promise<PaginatedResult<BookGenre>>;
   getGenreProfile(genreId: string): Promise<BookGenre>;
-  updateGenreProfile(genreId: string, updateBookGenreDto: UpdateBookGenreDto, performedBy: string): Promise<BookGenre>;
+  updateGenreProfile(
+    genreId: string,
+    updateBookGenreDto: UpdateBookGenreDto,
+    performedBy: string,
+  ): Promise<BookGenre>;
   deactivateGenre(genreId: string, performedBy: string): Promise<{ id: string }>;
 }

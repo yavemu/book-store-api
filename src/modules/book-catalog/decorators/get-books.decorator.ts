@@ -1,55 +1,70 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiQuery, ApiExtraModels, getSchemaPath } from "@nestjs/swagger";
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiExtraModels,
+  getSchemaPath,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { BookCatalogResponseDto } from '../dto';
-import { PaginationDto , BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto} from '../../../common/dto';
+import {
+  PaginationDto,
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 import { ApiResponseDto } from '../../../common/dto';
 
 export function ApiGetBooks() {
   return applyDecorators(
     ApiOperation({
-      summary: "Obtener catálogo de libros - Acceso: ADMIN, USER",
-      description: "Obtiene una lista paginada de todos los libros en el catálogo con filtros opcionales. Endpoint público.",
+      summary: 'Obtener catálogo de libros - Acceso: ADMIN, USER',
+      description:
+        'Obtiene una lista paginada de todos los libros en el catálogo con filtros opcionales. Endpoint público.',
     }),
     ApiQuery({
-      name: "search",
+      name: 'search',
       required: false,
       type: String,
-      description: "Término de búsqueda para filtrar por título del libro",
+      description: 'Término de búsqueda para filtrar por título del libro',
     }),
     ApiQuery({
-      name: "genreId",
+      name: 'genreId',
       required: false,
       type: String,
-      description: "ID del género para filtrar libros por categoría",
+      description: 'ID del género para filtrar libros por categoría',
     }),
     ApiQuery({
-      name: "publisherId",
+      name: 'publisherId',
       required: false,
       type: String,
-      description: "ID de la editorial para filtrar libros por publicador",
+      description: 'ID de la editorial para filtrar libros por publicador',
     }),
     ApiQuery({
-      name: "isAvailable",
+      name: 'isAvailable',
       required: false,
       type: Boolean,
-      description: "Filtrar por disponibilidad del libro",
+      description: 'Filtrar por disponibilidad del libro',
     }),
     ApiQuery({
-      name: "minPrice",
+      name: 'minPrice',
       required: false,
       type: Number,
-      description: "Precio mínimo para filtrar libros",
+      description: 'Precio mínimo para filtrar libros',
     }),
     ApiQuery({
-      name: "maxPrice",
+      name: 'maxPrice',
       required: false,
       type: Number,
-      description: "Precio máximo para filtrar libros",
+      description: 'Precio máximo para filtrar libros',
     }),
     ApiExtraModels(PaginationDto, ApiResponseDto, BookCatalogResponseDto),
     ApiResponse({
       status: 200,
-      description: "Catálogo de libros obtenido exitosamente",
+      description: 'Catálogo de libros obtenido exitosamente',
       schema: {
         allOf: [
           { $ref: getSchemaPath(ApiResponseDto) },
@@ -70,9 +85,9 @@ export function ApiGetBooks() {
                       totalPages: { type: 'number' },
                       hasNext: { type: 'boolean' },
                       hasPrev: { type: 'boolean' },
-                    }
-                  }
-                }
+                    },
+                  },
+                },
               },
             },
           },

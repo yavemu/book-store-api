@@ -1,35 +1,43 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
+import {
+  ApiOperation,
+  ApiResponse,
   ApiParam,
   ApiUnauthorizedResponse,
-  ApiNotFoundResponse
+  ApiNotFoundResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
-import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
+import {
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 
 export function ApiGetAssignmentById() {
   return applyDecorators(
-    ApiOperation({ 
+    ApiOperation({
       summary: 'Obtener asignación por ID - Acceso: ADMIN, USER',
-      description: 'Obtiene una asignación específica entre libro y autor por su ID.' 
+      description: 'Obtiene una asignación específica entre libro y autor por su ID.',
     }),
     ApiParam({
       name: 'id',
-      description: 'ID de la asignación libro-autor'}),
-    ApiResponse({ 
-      status: 200, 
+      description: 'ID de la asignación libro-autor',
+    }),
+    ApiResponse({
+      status: 200,
       description: 'Asignación libro-autor obtenida exitosamente',
       schema: {
         type: 'object',
         properties: {
-          id: { type: 'string'},
-          bookId: { type: 'string'},
-          authorId: { type: 'string'},
-          assignmentOrder: { type: 'number'},
-          createdAt: { type: 'string'}
-        }
-      }
+          id: { type: 'string' },
+          bookId: { type: 'string' },
+          authorId: { type: 'string' },
+          assignmentOrder: { type: 'number' },
+          createdAt: { type: 'string' },
+        },
+      },
     }),
     ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',

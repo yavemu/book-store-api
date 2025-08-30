@@ -4,3 +4,6 @@ export * from './get-genre-by-id.decorator';
 export * from './update-genre.decorator';
 export * from './delete-genre.decorator';
 export * from './search-genres.decorator';
+export * from './export-genres-csv.decorator';
+export * from './api-filter-genres.decorator';
+export * from './api-advanced-filter-genres.decorator';

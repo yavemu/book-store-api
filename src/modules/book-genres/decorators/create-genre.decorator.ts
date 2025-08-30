@@ -1,20 +1,27 @@
 import { applyDecorators } from '@nestjs/common';
-import { 
-  ApiOperation, 
-  ApiResponse, 
-  ApiBadRequestResponse, 
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiBadRequestResponse,
   ApiConflictResponse,
   ApiForbiddenResponse,
-  ApiBearerAuth
+  ApiBearerAuth,
 } from '@nestjs/swagger';
-import { BadRequestResponseDto, UnauthorizedResponseDto, ConflictResponseDto, ForbiddenResponseDto, NotFoundResponseDto } from '../../../common/dto';
+import {
+  BadRequestResponseDto,
+  UnauthorizedResponseDto,
+  ConflictResponseDto,
+  ForbiddenResponseDto,
+  NotFoundResponseDto,
+} from '../../../common/dto';
 
 export function ApiCreateBookGenre() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
-    ApiOperation({ 
+    ApiOperation({
       summary: 'Crear nuevo género de libro - Acceso: ADMIN',
-      description: 'Crea un nuevo género de libro en el catálogo. Solo accesible para administradores.' 
+      description:
+        'Crea un nuevo género de libro en el catálogo. Solo accesible para administradores.',
     }),
     ApiResponse({
       status: 201,
@@ -22,15 +29,15 @@ export function ApiCreateBookGenre() {
       schema: {
         type: 'object',
         properties: {
-          success: { type: 'boolean'},
+          success: { type: 'boolean' },
           message: {
             type: 'string',
           },
           data: {
             type: 'object',
             properties: {
-              id: { type: 'string'},
-              name: { type: 'string'},
+              id: { type: 'string' },
+              name: { type: 'string' },
               description: {
                 type: 'string',
               },

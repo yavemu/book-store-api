@@ -100,7 +100,7 @@ describe('AuthService', () => {
     it('should validate user with correct credentials', async () => {
       const email = 'test@example.com';
       const password = 'password123';
-      
+
       mockUserSearchService.findToLoginByEmail.mockResolvedValue(mockUser as User);
       mockBcrypt.compare.mockResolvedValue(true as never);
 
@@ -114,7 +114,7 @@ describe('AuthService', () => {
     it('should return null for invalid credentials', async () => {
       const email = 'test@example.com';
       const password = 'wrongpassword';
-      
+
       mockUserSearchService.findToLoginByEmail.mockResolvedValue(mockUser as User);
       mockBcrypt.compare.mockResolvedValue(false as never);
 
@@ -128,7 +128,7 @@ describe('AuthService', () => {
     it('should return null when user not found', async () => {
       const email = 'nonexistent@example.com';
       const password = 'password123';
-      
+
       mockUserSearchService.findToLoginByEmail.mockResolvedValue(null);
 
       const result = await service.validateUser(email, password);
@@ -142,7 +142,7 @@ describe('AuthService', () => {
       const email = 'test@example.com';
       const password = 'password123';
       const error = new Error('Database connection failed');
-      
+
       mockUserSearchService.findToLoginByEmail.mockRejectedValue(error);
 
       await expect(service.validateUser(email, password)).rejects.toThrow(error);
@@ -190,7 +190,7 @@ describe('AuthService', () => {
         password: 'password123',
         roleId: 'role-1',
       };
-      
+
       mockUserCrudService.register.mockResolvedValue(mockUser as User);
 
       const result = await service.register(registerUserDto);
@@ -214,7 +214,7 @@ describe('AuthService', () => {
         password: 'password123',
       };
       const error = new Error('Email already exists');
-      
+
       mockUserCrudService.register.mockRejectedValue(error);
 
       await expect(service.register(registerUserDto)).rejects.toThrow(error);
@@ -224,7 +224,7 @@ describe('AuthService', () => {
   describe('getProfile', () => {
     it('should get user profile by id', async () => {
       const userId = '1';
-      
+
       mockUserCrudService.findById.mockResolvedValue(mockUser as User);
 
       const result = await service.getProfile(userId);
@@ -243,7 +243,7 @@ describe('AuthService', () => {
     it('should handle errors when getting profile', async () => {
       const userId = '1';
       const error = new Error('User not found');
-      
+
       mockUserCrudService.findById.mockRejectedValue(error);
 
       await expect(service.getProfile(userId)).rejects.toThrow(error);
@@ -265,7 +265,7 @@ describe('AuthService', () => {
       const email = 'test@example.com';
       const password = 'password123';
       const error = new Error('Bcrypt comparison failed');
-      
+
       mockUserSearchService.findToLoginByEmail.mockResolvedValue(mockUser as User);
       mockBcrypt.compare.mockRejectedValue(error as never);
 
