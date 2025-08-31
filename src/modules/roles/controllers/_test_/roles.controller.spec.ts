@@ -6,6 +6,7 @@ import { IUserContextService } from '../../interfaces/user-context.service.inter
 import { CreateRoleDto } from '../../dto/create-role.dto';
 import { UpdateRoleDto } from '../../dto/update-role.dto';
 import { PaginationDto } from '../../../../common/dto/pagination.dto';
+import { UserRole } from '../../../../common/enums/user-role.enum';
 
 describe('RolesController', () => {
   let controller: RolesController;
@@ -87,7 +88,7 @@ describe('RolesController', () => {
       pagination.limit = 10;
 
       const mockRoles = {
-        data: [{ id: 'role-1', name: 'ADMIN' }],
+        data: [{ id: 'role-1', name: UserRole.ADMIN }],
         total: 1,
         page: 1,
         limit: 10,
@@ -106,7 +107,7 @@ describe('RolesController', () => {
     it('should find active roles', async () => {
       const pagination = new PaginationDto();
       const mockActiveRoles = {
-        data: [{ id: 'role-1', name: 'ADMIN', isActive: true }],
+        data: [{ id: 'role-1', name: UserRole.ADMIN, isActive: true }],
         total: 1,
         page: 1,
         limit: 10,
@@ -126,7 +127,7 @@ describe('RolesController', () => {
       const term = 'admin';
       const pagination = new PaginationDto();
       const mockSearchResults = {
-        data: [{ id: 'role-1', name: 'ADMIN' }],
+        data: [{ id: 'role-1', name: UserRole.ADMIN }],
         total: 1,
         page: 1,
         limit: 10,
@@ -146,7 +147,7 @@ describe('RolesController', () => {
       const permission = 'READ_BOOKS';
       const pagination = new PaginationDto();
       const mockRoles = {
-        data: [{ id: 'role-1', name: 'USER', permissions: ['READ_BOOKS'] }],
+        data: [{ id: 'role-1', name: UserRole.USER, permissions: ['READ_BOOKS'] }],
         total: 1,
         page: 1,
         limit: 10,
@@ -163,8 +164,8 @@ describe('RolesController', () => {
 
   describe('findByName', () => {
     it('should find role by name', async () => {
-      const name = 'ADMIN';
-      const mockRole = { id: 'role-1', name: 'ADMIN' };
+      const name = UserRole.ADMIN;
+      const mockRole = { id: 'role-1', name: UserRole.ADMIN };
 
       mockSearchService.findByName.mockResolvedValue(mockRole);
 
@@ -178,7 +179,7 @@ describe('RolesController', () => {
   describe('findOne', () => {
     it('should find role by id', async () => {
       const id = 'role-1';
-      const mockRole = { id: 'role-1', name: 'ADMIN' };
+      const mockRole = { id: 'role-1', name: UserRole.ADMIN };
 
       mockCrudService.findOne.mockResolvedValue(mockRole);
 
@@ -198,7 +199,7 @@ describe('RolesController', () => {
       const req = { user: { id: 'user-1' } };
       const mockUpdatedRole = {
         id: 'role-1',
-        name: 'ADMIN',
+        name: UserRole.ADMIN,
         description: 'Updated description',
       };
 

@@ -13,8 +13,16 @@ import {
 import { User } from '../../users/entities/user.entity';
 
 @Entity('roles')
+// Basic Performance Indexes
 @Index(['name'], { unique: true, where: 'deleted_at IS NULL' })
 @Index(['createdAt'])
+@Index(['isActive'])
+// Soft Delete Performance Index
+@Index(['deletedAt'])
+// Composite indexes for search and export operations
+@Index(['name', 'isActive', 'deletedAt'])
+@Index(['createdAt', 'deletedAt'])
+@Index(['isActive', 'createdAt'])
 export class Role {
   @PrimaryGeneratedColumn('uuid', {
     comment: 'Primary key identifier for role',

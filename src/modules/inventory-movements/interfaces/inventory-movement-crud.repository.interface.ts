@@ -3,8 +3,16 @@ import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.d
 import { MovementFiltersDto, MovementSearchDto, MovementAdvancedFiltersDto } from '../dto';
 
 export interface IInventoryMovementCrudRepository {
-  getAllMovements(pagination: PaginationDto): Promise<PaginatedResult<InventoryMovement>>;
-  getMovementById(id: string): Promise<InventoryMovement>;
+  getAllMovements(
+    pagination: PaginationDto,
+    requestingUserId?: string,
+    requestingUserRole?: string,
+  ): Promise<PaginatedResult<InventoryMovement>>;
+  getMovementById(
+    id: string,
+    requestingUserId?: string,
+    requestingUserRole?: string,
+  ): Promise<InventoryMovement>;
   deactivateMovement(id: string, deletedBy?: string): Promise<{ id: string }>;
   searchMovements(
     pagination: PaginationDto,

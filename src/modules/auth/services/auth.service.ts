@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { IUserCrudService } from '../../users/interfaces/user-crud.service.interface';
@@ -8,6 +8,7 @@ import { IAuditLoggerService } from '../../../modules/audit/interfaces/audit-log
 import { AuditAction } from '../../../modules/audit/enums/audit-action.enum';
 import { User } from '../../users/entities/user.entity';
 import { RegisterUserDto } from '../../users/dto/register-user.dto';
+import { SUCCESS_MESSAGES, ERROR_MESSAGES } from '../../../common/constants';
 
 @Injectable()
 export class AuthService {
@@ -70,7 +71,13 @@ export class AuthService {
     }
   }
 
-  async login(user: User) {
+  async login(email: string, password: string, ipAddress?: string) {
+    const user = await this.validateUser(email, password, ipAddress);
+
+    if (!user) {
+      throw new UnauthorizedException(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS);
+    }
+
     // Log the login event for auditing
     await this.userAuthService.logLogin(user.id);
 
@@ -88,6 +95,7 @@ export class AuthService {
         email: user.email,
         role: user.role,
       },
+      message: SUCCESS_MESSAGES.AUTH.LOGIN_SUCCESS,
     };
   }
 
@@ -95,7 +103,7 @@ export class AuthService {
     try {
       const user = await this.userCrudService.register(registerUserDto);
       return {
-        message: 'Usuario creado exitosamente',
+        message: SUCCESS_MESSAGES.AUTH.REGISTER_SUCCESS,
         user: {
           id: user.id,
           username: user.username,
@@ -120,12 +128,15 @@ export class AuthService {
   async getProfile(userId: string) {
     const user = await this.userCrudService.findById(userId);
     return {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      role: user.role,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      data: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+      message: SUCCESS_MESSAGES.AUTH.PROFILE_FETCHED,
     };
   }
 }

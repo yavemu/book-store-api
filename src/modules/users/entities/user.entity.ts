@@ -12,14 +12,23 @@ import {
   JoinColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { UserRole } from '../enums/user-role.enum';
+import { UserRole } from '../../../common/enums/user-role.enum';
 import { Role } from '../../roles/entities/role.entity';
 
 @Entity('users')
+// Basic Unique and Performance Indexes
 @Index(['username'], { unique: true, where: 'deleted_at IS NULL' })
 @Index(['email'], { unique: true, where: 'deleted_at IS NULL' })
 @Index(['role'])
 @Index(['createdAt'])
+// Soft Delete Performance Index
+@Index(['deletedAt'])
+// Composite indexes for search and export operations
+@Index(['username', 'email', 'deletedAt'])
+@Index(['role', 'createdAt'])
+@Index(['createdAt', 'deletedAt'])
+// Export optimization indexes
+@Index(['createdAt', 'role', 'deletedAt'])
 export class User {
   @PrimaryGeneratedColumn('uuid', {
     comment: 'Primary key identifier for user',

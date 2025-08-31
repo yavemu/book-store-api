@@ -1,6 +1,6 @@
 import { Role } from '../../modules/roles/entities/role.entity';
 import { DataSource, Repository } from 'typeorm';
-import { UserRole } from '../../modules/users/enums';
+import { UserRole } from '../../common/enums/user-role.enum';
 
 export class RoleSeed {
   private roleRepository: Repository<Role>;
@@ -17,7 +17,7 @@ export class RoleSeed {
         isActive: true,
       },
       {
-        name: 'USER',
+        name: UserRole.USER,
         description: 'Standard user role with basic access',
         isActive: true,
       },

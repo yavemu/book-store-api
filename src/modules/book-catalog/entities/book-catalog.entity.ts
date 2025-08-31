@@ -13,6 +13,7 @@ import { BookGenre } from '../../book-genres/entities/book-genre.entity';
 import { PublishingHouse } from '../../publishing-houses/entities/publishing-house.entity';
 
 @Entity('book_catalog')
+// Basic Performance Indexes
 @Index(['title'])
 @Index(['isbnCode'], { unique: true, where: 'deleted_at IS NULL' })
 @Index(['price'])
@@ -21,6 +22,21 @@ import { PublishingHouse } from '../../publishing-houses/entities/publishing-hou
 @Index(['publisherId'])
 @Index(['publicationDate'])
 @Index(['createdAt'])
+@Index(['stockQuantity'])
+// Soft Delete Performance Index
+@Index(['deletedAt'])
+// Composite indexes for complex search and export operations
+@Index(['isAvailable', 'stockQuantity'])
+@Index(['genreId', 'isAvailable'])
+@Index(['publisherId', 'isAvailable'])
+@Index(['price', 'isAvailable'])
+@Index(['publicationDate', 'isAvailable'])
+@Index(['title', 'isAvailable', 'deletedAt'])
+@Index(['genreId', 'publisherId', 'isAvailable'])
+@Index(['createdAt', 'isAvailable', 'deletedAt'])
+// Export optimization indexes
+@Index(['createdAt', 'genreId', 'publisherId', 'isAvailable'])
+@Index(['title', 'price', 'stockQuantity', 'deletedAt'])
 export class BookCatalog {
   @PrimaryGeneratedColumn('uuid', {
     comment: 'Primary key identifier for book catalog entry',

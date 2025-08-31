@@ -3,8 +3,7 @@ import { AuditController } from '../audit.controller';
 import { IAuditSearchService } from '../../interfaces/audit-search.service.interface';
 import { PaginationDto } from '../../../../common/dto/pagination.dto';
 import { AuditAction } from '../../enums/audit-action.enum';
-import { AuditFiltersDto } from '../../dto/audit-filters.dto';
-import { AuditCsvExportFiltersDto } from '../../dto/audit-csv-export-filters.dto';
+import { FileExportService } from '../../../../common/services/file-export.service';
 
 describe('AuditController', () => {
   let controller: AuditController;
@@ -19,10 +18,18 @@ describe('AuditController', () => {
     exportToCsv: jest.fn(),
   };
 
+  const mockFileExportService = {
+    generateDateBasedFilename: jest.fn(),
+    exportToCsv: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuditController],
-      providers: [{ provide: 'IAuditSearchService', useValue: mockAuditSearchService }],
+      providers: [
+        { provide: 'IAuditSearchService', useValue: mockAuditSearchService },
+        { provide: FileExportService, useValue: mockFileExportService },
+      ],
     }).compile();
 
     controller = module.get<AuditController>(AuditController);
@@ -155,16 +162,20 @@ describe('AuditController', () => {
       };
 
       mockAuditSearchService.exportToCsv.mockResolvedValue(mockCsvData);
+      mockFileExportService.generateDateBasedFilename.mockReturnValue('audit_logs_2023-01-01.csv');
 
       await controller.exportToCsv(filters, mockRes as any);
 
       expect(auditSearchService.exportToCsv).toHaveBeenCalledWith(filters);
-      expect(mockRes.setHeader).toHaveBeenCalledWith('Content-Type', 'text/csv');
-      expect(mockRes.setHeader).toHaveBeenCalledWith(
-        'Content-Disposition',
-        expect.stringContaining('attachment; filename='),
+      expect(mockFileExportService.generateDateBasedFilename).toHaveBeenCalledWith(
+        'audit_logs',
+        'csv',
       );
-      expect(mockRes.send).toHaveBeenCalledWith(mockCsvData);
+      expect(mockFileExportService.exportToCsv).toHaveBeenCalledWith(mockRes, {
+        content: mockCsvData,
+        filename: 'audit_logs_2023-01-01.csv',
+        type: 'csv',
+      });
     });
   });
 });

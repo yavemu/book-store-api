@@ -22,7 +22,7 @@ import {
   BookGenreCsvExportFiltersDto,
 } from '../dto';
 import { Auth } from '../../../common/decorators/auth.decorator';
-import { UserRole } from '../../users/enums/user-role.enum';
+import { UserRole } from '../../../common/enums/user-role.enum';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import {
   ApiCreateBookGenre,

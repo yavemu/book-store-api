@@ -6,12 +6,36 @@ import {
   UpdateDateColumn,
   BeforeInsert,
   BeforeUpdate,
+  Index,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { MovementType } from '../enums/movement-type.enum';
 import { MovementStatus } from '../enums/movement-status.enum';
+import { UserRole } from '../../../common/enums/user-role.enum';
 
 @Entity('inventory_movements')
+// Performance Critical Indexes for inventory operations
+@Index(['entityId'])
+@Index(['entityType'])
+@Index(['userId'])
+@Index(['movementType'])
+@Index(['status'])
+@Index(['isActive'])
+@Index(['createdAt'])
+@Index(['updatedAt'])
+// Composite indexes for complex queries and ACID operations
+@Index(['entityId', 'entityType'])
+@Index(['entityId', 'movementType'])
+@Index(['entityId', 'status'])
+@Index(['entityType', 'movementType'])
+@Index(['userId', 'createdAt'])
+@Index(['status', 'isActive'])
+@Index(['createdAt', 'isActive'])
+@Index(['movementType', 'status', 'isActive'])
+// Critical for transaction consistency and exports
+@Index(['entityId', 'entityType', 'status', 'isActive'])
+@Index(['createdAt', 'movementType', 'status'])
+@Index(['userId', 'entityType', 'createdAt'])
 export class InventoryMovement {
   @ApiProperty({
     description: 'ID único del movimiento de inventario',
@@ -68,7 +92,7 @@ export class InventoryMovement {
 
   @ApiProperty({
     description: 'Rol del usuario',
-    example: 'ADMIN',
+    example: UserRole.ADMIN,
   })
   @Column({
     type: 'varchar',

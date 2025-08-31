@@ -12,10 +12,16 @@ import { BookCatalog } from '../../book-catalog/entities/book-catalog.entity';
 import { BookAuthor } from '../../book-authors/entities/book-author.entity';
 
 @Entity('book_author_assignments')
+// Basic Performance Indexes
 @Index(['bookId'])
 @Index(['authorId'])
 @Unique(['bookId', 'authorId'])
 @Index(['createdAt'])
+// Composite indexes for complex queries and exports
+@Index(['bookId', 'createdAt'])
+@Index(['authorId', 'createdAt'])
+// Export optimization indexes
+@Index(['createdAt', 'bookId', 'authorId'])
 export class BookAuthorAssignment {
   @PrimaryGeneratedColumn('uuid', {
     comment: 'Primary key identifier for book-author assignment',

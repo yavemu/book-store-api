@@ -5,6 +5,7 @@ import { UserSearchRepository } from '../user-search.repository';
 import { User } from '../../entities/user.entity';
 import { PaginationDto } from '../../../../common/dto/pagination.dto';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { UserRole } from '../../../../common/enums/user-role.enum';
 
 const mockUser: Partial<User> = {
   id: '1',
@@ -14,7 +15,7 @@ const mockUser: Partial<User> = {
   roleId: 'role-1',
   role: {
     id: 'role-1',
-    name: 'USER',
+    name: UserRole.USER,
     description: 'Regular user role',
     permissions: [],
     users: [],

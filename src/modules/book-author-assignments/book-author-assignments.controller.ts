@@ -21,7 +21,7 @@ import { AssignmentFiltersDto, AssignmentCsvExportFiltersDto } from './dto';
 import { PaginationDto, PaginatedResult } from '../../common/dto/pagination.dto';
 import { BookAuthorAssignment } from './entities/book-author-assignment.entity';
 import { Auth } from '../../common/decorators/auth.decorator';
-import { UserRole } from '../users/enums/user-role.enum';
+import { UserRole } from '../../common/enums/user-role.enum';
 import {
   ApiCreateAssignment,
   ApiGetAssignments,

@@ -69,9 +69,29 @@ export const SUCCESS_MESSAGES = {
     FOUND_ONE: 'Asignación autor-libro obtenida exitosamente',
   },
 
+  // Movimientos de inventario
+  INVENTORY_MOVEMENTS: {
+    CREATED: 'Movimiento de inventario creado exitosamente',
+    UPDATED: 'Movimiento de inventario actualizado exitosamente',
+    DELETED: 'Movimiento de inventario eliminado exitosamente',
+    FOUND_ALL: 'Movimientos de inventario obtenidos exitosamente',
+    FOUND_ONE: 'Movimiento de inventario obtenido exitosamente',
+    EXPORTED: 'Movimientos de inventario exportados exitosamente',
+  },
+
+  // Auditoría
+  AUDIT: {
+    FOUND_ALL: 'Registros de auditoría obtenidos exitosamente',
+    FOUND_ONE: 'Registro de auditoría obtenido exitosamente',
+    EXPORTED: 'Registros de auditoría exportados exitosamente',
+  },
+
   // General
   GENERAL: {
     OPERATION_SUCCESS: 'Operación realizada exitosamente',
     DATA_FETCHED: 'Datos obtenidos exitosamente',
+    EXPORT_SUCCESS: 'Datos exportados exitosamente',
+    SEARCH_SUCCESS: 'Búsqueda realizada exitosamente',
+    FILTER_SUCCESS: 'Filtrado realizado exitosamente',
   },
 };

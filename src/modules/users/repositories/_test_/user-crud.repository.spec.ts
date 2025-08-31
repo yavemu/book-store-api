@@ -8,7 +8,7 @@ import { CreateUserDto, UpdateUserDto } from '../../dto';
 import { PaginationDto } from '../../../../common/dto/pagination.dto';
 import { HttpException, HttpStatus, NotFoundException, ConflictException } from '@nestjs/common';
 import { IAuditLoggerService } from '../../../audit/interfaces/audit-logger.service.interface';
-import { UserRole } from '../../enums/user-role.enum';
+import { UserRole } from '../../../../common/enums/user-role.enum';
 
 const mockUser: Partial<User> = {
   id: '1',
@@ -18,7 +18,7 @@ const mockUser: Partial<User> = {
   roleId: 'role-1',
   role: {
     id: 'role-1',
-    name: 'USER',
+    name: UserRole.USER,
     description: 'Regular user role',
     permissions: [],
     users: [],
@@ -33,7 +33,7 @@ const mockUser: Partial<User> = {
 
 const mockRole = {
   id: 'role-1',
-  name: 'user',
+  name: UserRole.USER,
   description: 'Regular user role',
   isActive: true,
   createdAt: new Date(),

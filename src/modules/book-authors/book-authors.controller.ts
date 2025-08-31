@@ -21,7 +21,7 @@ import { UpdateBookAuthorDto } from './dto/update-book-author.dto';
 import { BookAuthorFiltersDto, BookAuthorCsvExportFiltersDto } from './dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { Auth } from '../../common/decorators/auth.decorator';
-import { UserRole } from '../users/enums/user-role.enum';
+import { UserRole } from '../../common/enums/user-role.enum';
 import {
   ApiCreateAuthor,
   ApiGetAuthors,

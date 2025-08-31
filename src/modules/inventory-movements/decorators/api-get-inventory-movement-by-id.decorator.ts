@@ -7,8 +7,7 @@ export function ApiGetInventoryMovementById() {
     ApiBearerAuth(),
     ApiOperation({
       summary: 'Obtener una movimiento por ID - Acceso: ADMIN, USER',
-      description:
-        'Recupera los detalles de una movimiento específica mediante su ID único.',
+      description: 'Recupera los detalles de una movimiento específica mediante su ID único.',
     }),
     ApiParam({
       name: 'id',

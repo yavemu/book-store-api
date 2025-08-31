@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { MovementType } from '../enums/movement-type.enum';
 import { MovementStatus } from '../enums/movement-status.enum';
+import { UserRole } from '../../../common/enums/user-role.enum';
 
 export class InventoryMovementResponseDto {
   @ApiProperty({
@@ -35,7 +36,7 @@ export class InventoryMovementResponseDto {
 
   @ApiProperty({
     description: 'Rol del usuario',
-    example: 'ADMIN',
+    example: UserRole.ADMIN,
   })
   userRole: string;
 

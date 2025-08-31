@@ -20,7 +20,7 @@ import { PublishingHouseFiltersDto, PublishingHouseCsvExportFiltersDto } from '.
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import { PublishingHouse } from '../entities/publishing-house.entity';
 import { Auth } from '../../../common/decorators/auth.decorator';
-import { UserRole } from '../../users/enums/user-role.enum';
+import { UserRole } from '../../../common/enums/user-role.enum';
 import {
   ApiCreatePublishingHouse,
   ApiGetPublishingHouses,

@@ -11,6 +11,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { MovementType } from '../enums/movement-type.enum';
 import { MovementStatus } from '../enums/movement-status.enum';
+import { UserRole } from '../../../common/enums/user-role.enum';
 
 export class MovementFiltersDto {
   @IsOptional()
@@ -64,7 +65,7 @@ export class MovementFiltersDto {
   @Length(1, 50)
   @ApiPropertyOptional({
     description: 'Filtrar por rol de usuario',
-    example: 'ADMIN',
+    example: UserRole.ADMIN,
     maxLength: 50,
   })
   userRole?: string;

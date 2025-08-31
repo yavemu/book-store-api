@@ -39,7 +39,7 @@ import {
   ApiRemoveBookCover,
   ApiAdvancedFilterBooks,
 } from '../decorators';
-import { UserRole } from '../../../modules/users/enums';
+import { UserRole } from '../../../common/enums/user-role.enum';
 import { Auth } from '../../../common/decorators/auth.decorator';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 

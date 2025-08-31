@@ -5,7 +5,8 @@ import { IUserCrudService } from '../../interfaces/user-crud.service.interface';
 import { IUserSearchService } from '../../interfaces/user-search.service.interface';
 import { CreateUserDto, UpdateUserDto } from '../../dto';
 import { PaginationDto } from '../../../../common/dto/pagination.dto';
-import { UserRole } from '../../enums/user-role.enum';
+import { UserRole } from '../../../../common/enums/user-role.enum';
+import { FileExportService } from '../../../../common/services/file-export.service';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -27,6 +28,13 @@ describe('UsersController', () => {
     exportToCsv: jest.fn(),
     findByEmail: jest.fn(),
     findToLoginByEmail: jest.fn(),
+    filterSearch: jest.fn(),
+  };
+
+  const mockFileExportService = {
+    generateDateBasedFilename: jest.fn(),
+    exportToCsv: jest.fn(),
+    exportToExcel: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -35,6 +43,7 @@ describe('UsersController', () => {
       providers: [
         { provide: 'IUserCrudService', useValue: mockCrudService },
         { provide: 'IUserSearchService', useValue: mockSearchService },
+        { provide: FileExportService, useValue: mockFileExportService },
       ],
     }).compile();
 
@@ -75,28 +84,30 @@ describe('UsersController', () => {
   describe('findOne', () => {
     it('should find a user by id when user is admin', async () => {
       const id = '1';
-      const req = { user: { userId: 'admin-user-1', role: UserRole.ADMIN } };
+      const req = { user: { userId: 'admin-user-1', role: { name: UserRole.ADMIN } } };
 
       await controller.findOne(id, req);
 
-      expect(crudService.findById).toHaveBeenCalledWith(id);
+      expect(crudService.findById).toHaveBeenCalledWith(id, 'admin-user-1', UserRole.ADMIN);
     });
 
     it('should find a user by id when user views own profile', async () => {
       const id = 'user-1';
-      const req = { user: { userId: 'user-1', role: UserRole.USER } };
+      const req = { user: { userId: 'user-1', role: { name: UserRole.USER } } };
 
       await controller.findOne(id, req);
 
-      expect(crudService.findById).toHaveBeenCalledWith(id);
+      expect(crudService.findById).toHaveBeenCalledWith(id, 'user-1', UserRole.USER);
     });
 
     it('should throw ForbiddenException when non-admin user tries to view other profile', async () => {
       const id = 'user-2';
-      const req = { user: { userId: 'user-1', role: UserRole.USER } };
+      const req = { user: { userId: 'user-1', role: { name: UserRole.USER } } };
+
+      mockCrudService.findById.mockRejectedValue(new ForbiddenException('Solo puedes acceder a tu propio perfil'));
 
       await expect(controller.findOne(id, req)).rejects.toThrow(ForbiddenException);
-      expect(crudService.findById).not.toHaveBeenCalled();
+      expect(crudService.findById).toHaveBeenCalledWith(id, 'user-1', UserRole.USER);
     });
   });
 
@@ -104,30 +115,32 @@ describe('UsersController', () => {
     it('should update a user when user is admin', async () => {
       const id = '1';
       const updateDto = new UpdateUserDto();
-      const req = { user: { userId: 'admin-user-1', role: UserRole.ADMIN } };
+      const req = { user: { userId: 'admin-user-1', role: { name: UserRole.ADMIN } } };
 
       await controller.update(id, updateDto, req);
 
-      expect(crudService.update).toHaveBeenCalledWith(id, updateDto, 'admin-user-1');
+      expect(crudService.update).toHaveBeenCalledWith(id, updateDto, 'admin-user-1', 'admin-user-1', UserRole.ADMIN);
     });
 
     it('should update a user when user updates own profile', async () => {
       const id = 'user-1';
       const updateDto = new UpdateUserDto();
-      const req = { user: { userId: 'user-1', role: UserRole.USER } };
+      const req = { user: { userId: 'user-1', role: { name: UserRole.USER } } };
 
       await controller.update(id, updateDto, req);
 
-      expect(crudService.update).toHaveBeenCalledWith(id, updateDto, 'user-1');
+      expect(crudService.update).toHaveBeenCalledWith(id, updateDto, 'user-1', 'user-1', UserRole.USER);
     });
 
     it('should throw ForbiddenException when non-admin user tries to update other profile', async () => {
       const id = 'user-2';
       const updateDto = new UpdateUserDto();
-      const req = { user: { userId: 'user-1', role: UserRole.USER } };
+      const req = { user: { userId: 'user-1', role: { name: UserRole.USER } } };
+
+      mockCrudService.update.mockRejectedValue(new ForbiddenException('Solo puedes actualizar tu propio perfil'));
 
       await expect(controller.update(id, updateDto, req)).rejects.toThrow(ForbiddenException);
-      expect(crudService.update).not.toHaveBeenCalled();
+      expect(crudService.update).toHaveBeenCalledWith(id, updateDto, 'user-1', 'user-1', UserRole.USER);
     });
   });
 

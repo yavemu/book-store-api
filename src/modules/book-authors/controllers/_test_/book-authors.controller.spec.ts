@@ -122,7 +122,10 @@ describe('BookAuthorsController', () => {
 
       expect(searchService.exportToCsv).toHaveBeenCalledWith(filters);
       expect(mockResponse.setHeader).toHaveBeenCalledWith('Content-Type', 'text/csv');
-      expect(mockResponse.setHeader).toHaveBeenCalledWith('Content-Disposition', expect.stringContaining('attachment; filename='));
+      expect(mockResponse.setHeader).toHaveBeenCalledWith(
+        'Content-Disposition',
+        expect.stringContaining('attachment; filename='),
+      );
       expect(mockResponse.send).toHaveBeenCalledWith(csvData);
     });
   });

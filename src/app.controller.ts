@@ -9,9 +9,9 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
   @Get('health')
   @Public()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Health check endpoint - Acceso: Público',
-    description: 'Verifica el estado de salud de la API y devuelve información del sistema.'
+    description: 'Verifica el estado de salud de la API y devuelve información del sistema.',
   })
   @ApiResponse({
     status: 200,

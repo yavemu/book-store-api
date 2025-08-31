@@ -11,6 +11,7 @@ import { PaginatedResult } from '../../../common/interfaces/paginated-result.int
 import { BaseRepository } from '../../../common/repositories/base.repository';
 import { IAuditLoggerService } from '../../../modules/audit/interfaces/audit-logger.service.interface';
 import { IInventoryMovementTrackerService } from '../../inventory-movements/interfaces/inventory-movement-tracker.service.interface';
+import { UserRole } from '../../../common/enums/user-role.enum';
 
 @Injectable()
 export class BookCatalogCrudRepository
@@ -33,7 +34,7 @@ export class BookCatalogCrudRepository
     createBookCatalogDto: CreateBookCatalogDto,
     performedBy: string,
     userFullName: string = 'Unknown User',
-    userRole: string = 'USER',
+    userRole: string = UserRole.USER,
   ): Promise<BookCatalog> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -152,7 +153,7 @@ export class BookCatalogCrudRepository
     updateBookCatalogDto: UpdateBookCatalogDto,
     performedBy: string,
     userFullName: string = 'Unknown User',
-    userRole: string = 'USER',
+    userRole: string = UserRole.USER,
   ): Promise<BookCatalog> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -315,7 +316,7 @@ export class BookCatalogCrudRepository
     bookId: string,
     performedBy: string,
     userFullName: string = 'Unknown User',
-    userRole: string = 'USER',
+    userRole: string = UserRole.USER,
   ): Promise<{ id: string }> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();

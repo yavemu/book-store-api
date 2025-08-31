@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './services/auth.service';
 import { LoginDto } from './dto';
 import { Public, Auth } from '../../common/decorators/auth.decorator';
-import { UserRole } from '../users/enums/user-role.enum';
+import { UserRole } from '../../common/enums/user-role.enum';
 import { ERROR_MESSAGES } from '../../common/constants';
 import { ApiLogin, ApiRegister, ApiGetProfile } from './decorators';
 import { RegisterUserDto } from '../users/dto/register-user.dto';
@@ -17,22 +17,21 @@ export class AuthController {
   @Public()
   @ApiLogin()
   async login(@Body() loginDto: LoginDto, @Request() req) {
-    const ipAddress = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'];
-    const user = await this.authService.validateUser(loginDto.email, loginDto.password, ipAddress);
-
-    if (!user) {
-      throw new UnauthorizedException(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS);
-    }
-
-    return this.authService.login(user);
+    return this.authService.login(
+      loginDto.email,
+      loginDto.password,
+      req.ip || req.connection?.remoteAddress || req.headers['x-forwarded-for'],
+    );
   }
 
   @Post('register')
   @Public()
   @ApiRegister()
   async register(@Body() registerUserDto: RegisterUserDto, @Request() req) {
-    const ipAddress = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'];
-    return this.authService.register(registerUserDto, ipAddress);
+    return this.authService.register(
+      registerUserDto,
+      req.ip || req.connection?.remoteAddress || req.headers['x-forwarded-for'],
+    );
   }
 
   @Get('me')

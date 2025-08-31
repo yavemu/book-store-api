@@ -9,11 +9,13 @@ import { UserSearchService } from './services/user-search.service';
 import { UserAuthService } from './services/user-auth.service';
 import { UsersController } from './controllers/users.controller';
 import { AuditModule } from '../audit/audit.module';
+import { FileExportService } from '../../common/services/file-export.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, Role]), AuditModule],
   controllers: [UsersController],
   providers: [
+    FileExportService,
     {
       provide: 'IUserCrudService',
       useClass: UserCrudService,

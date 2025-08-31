@@ -6,11 +6,13 @@ import { InventoryMovementCrudService } from './services/inventory-movement-crud
 import { InventoryMovementCrudRepository } from './repositories/inventory-movement-crud.repository';
 import { InventoryMovementTrackerService } from './services/inventory-movement-tracker.service';
 import { AuditModule } from '../audit/audit.module';
+import { FileExportService } from '../../common/services/file-export.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([InventoryMovement]), AuditModule],
   controllers: [InventoryMovementsController],
   providers: [
+    FileExportService,
     InventoryMovementCrudService,
     {
       provide: 'IInventoryMovementCrudService',

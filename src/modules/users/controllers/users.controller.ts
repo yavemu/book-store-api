@@ -7,7 +7,6 @@ import {
   Param,
   Body,
   Request,
-  ForbiddenException,
   Query,
   Inject,
   Res,
@@ -18,7 +17,8 @@ import { IUserCrudService } from '../interfaces/user-crud.service.interface';
 import { IUserSearchService } from '../interfaces/user-search.service.interface';
 import { CreateUserDto, UpdateUserDto, UserFiltersDto, UserCsvExportFiltersDto } from '../dto';
 import { Auth } from '../../../common/decorators/auth.decorator';
-import { UserRole } from '../enums/user-role.enum';
+import { UserRole } from '../../../common/enums/user-role.enum';
+import { FileExportService } from '../../../common/services/file-export.service';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import {
   ApiCreateUser,
@@ -40,6 +40,7 @@ export class UsersController {
     private readonly userCrudService: IUserCrudService,
     @Inject('IUserSearchService')
     private readonly userSearchService: IUserSearchService,
+    private readonly fileExportService: FileExportService,
   ) {}
 
   @Post()
@@ -82,48 +83,33 @@ export class UsersController {
   @ApiExportUsersCsv()
   async exportToCsv(@Query() filters: UserCsvExportFiltersDto, @Res() res: Response) {
     const csvData = await this.userSearchService.exportToCsv(filters);
+    const filename = this.fileExportService.generateDateBasedFilename('usuarios', 'csv');
 
-    // Generate filename with current date
-    const currentDate = new Date().toISOString().split('T')[0];
-    const filename = `usuarios-${currentDate}.csv`;
-
-    // Set response headers for CSV download
-    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-
-    // Add BOM for UTF-8 to ensure proper encoding in Excel
-    const csvWithBom = '\uFEFF' + csvData;
-
-    return res.send(csvWithBom);
+    this.fileExportService.exportToCsv(res, {
+      content: csvData,
+      filename,
+      type: 'csv',
+    });
   }
 
   @Get(':id')
-  @Auth(UserRole.ADMIN)
+  @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetUserById()
   async findOne(@Param('id') id: string, @Request() req) {
-    const currentUser = req.user;
-
-    if (currentUser.role !== UserRole.ADMIN && currentUser.userId !== id) {
-      throw new ForbiddenException('You can only view your own profile');
-    }
-
-    return this.userCrudService.findById(id);
+    return this.userCrudService.findById(id, req.user?.userId, req.user?.role?.name);
   }
 
   @Put(':id')
-  @Auth(UserRole.ADMIN)
+  @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiUpdateUser()
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @Request() req) {
-    const currentUser = req.user;
-
-    if (currentUser.role !== UserRole.ADMIN && currentUser.userId !== id) {
-      throw new ForbiddenException('You can only update your own profile');
-    }
-
-    return this.userCrudService.update(id, updateUserDto, req.user.userId);
+    return this.userCrudService.update(
+      id,
+      updateUserDto,
+      req.user?.userId,
+      req.user?.userId,
+      req.user?.role?.name,
+    );
   }
 
   @Delete(':id')

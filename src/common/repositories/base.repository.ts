@@ -1,5 +1,5 @@
 import { Repository, FindManyOptions } from 'typeorm';
-import { HttpException, HttpStatus, ConflictException, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, ConflictException, Inject } from '@nestjs/common';
 import { PaginationDto, PaginatedResult } from '../dto/pagination.dto';
 import {
   IAuditLoggerService,
@@ -38,7 +38,7 @@ export abstract class BaseRepository<T> {
       }
 
       return savedEntity;
-    } catch (error) {
+    } catch (_error) {
       throw new HttpException('Failed to create entity', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -46,7 +46,7 @@ export abstract class BaseRepository<T> {
   protected async _findById(id: string): Promise<T | null> {
     try {
       return await this.repository.findOne({ where: { id } as any });
-    } catch (error) {
+    } catch (_error) {
       throw new HttpException('Failed to find entity', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -54,7 +54,7 @@ export abstract class BaseRepository<T> {
   protected async _findOne(options: any): Promise<T | null> {
     try {
       return await this.repository.findOne(options);
-    } catch (error) {
+    } catch (_error) {
       throw new HttpException('Failed to find entity', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -62,7 +62,7 @@ export abstract class BaseRepository<T> {
   protected async _findMany(options: FindManyOptions<T>): Promise<T[]> {
     try {
       return await this.repository.find(options);
-    } catch (error) {
+    } catch (_error) {
       throw new HttpException('Failed to find entities', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -87,7 +87,7 @@ export abstract class BaseRepository<T> {
           hasPrev: pagination.page > 1,
         },
       };
-    } catch (error) {
+    } catch (_error) {
       throw new HttpException(
         'Failed to find entities with pagination',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -110,7 +110,7 @@ export abstract class BaseRepository<T> {
       }
       const updatedEntity = await this._findById(id);
       return updatedEntity;
-    } catch (error) {
+    } catch (_error) {
       throw new HttpException('Failed to update entity', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -137,7 +137,7 @@ export abstract class BaseRepository<T> {
       }
 
       return { id };
-    } catch (error) {
+    } catch (_error) {
       throw new HttpException('Failed to delete entity', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -145,7 +145,7 @@ export abstract class BaseRepository<T> {
   protected async _count(options?: FindManyOptions<T>): Promise<number> {
     try {
       return await this.repository.count(options);
-    } catch (error) {
+    } catch (_error) {
       throw new HttpException('Failed to count entities', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -154,7 +154,7 @@ export abstract class BaseRepository<T> {
     try {
       const count = await this.repository.count(options);
       return count > 0;
-    } catch (error) {
+    } catch (_error) {
       throw new HttpException('Failed to check entity existence', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

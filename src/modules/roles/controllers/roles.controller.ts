@@ -19,7 +19,7 @@ import { UpdateRoleDto } from '../dto/update-role.dto';
 import { RoleResponseDto } from '../dto/role-response.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { Auth } from '../../../common/decorators/auth.decorator';
-import { UserRole } from '../../users/enums/user-role.enum';
+import { UserRole } from '../../../common/enums/user-role.enum';
 
 @ApiTags('Roles')
 @Controller('roles')

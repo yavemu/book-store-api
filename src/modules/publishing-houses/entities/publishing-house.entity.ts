@@ -9,9 +9,18 @@ import {
 } from 'typeorm';
 
 @Entity('publishing_houses')
+// Basic Performance Indexes
 @Index(['name'], { unique: true, where: 'deleted_at IS NULL' })
 @Index(['country'])
 @Index(['createdAt'])
+// Soft Delete Performance Index
+@Index(['deletedAt'])
+// Composite indexes for search and export operations
+@Index(['name', 'deletedAt'])
+@Index(['country', 'deletedAt'])
+@Index(['createdAt', 'deletedAt'])
+// Export optimization indexes
+@Index(['createdAt', 'country', 'deletedAt'])
 export class PublishingHouse {
   @PrimaryGeneratedColumn('uuid', {
     comment: 'Primary key identifier for publishing house',

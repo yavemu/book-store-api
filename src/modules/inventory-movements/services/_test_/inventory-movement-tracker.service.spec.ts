@@ -5,6 +5,7 @@ import { InventoryMovement } from '../../entities/inventory-movement.entity';
 import { MovementType } from '../../enums/movement-type.enum';
 import { MovementStatus } from '../../enums/movement-status.enum';
 import { MovementTrackingData } from '../../interfaces/inventory-movement-tracker.service.interface';
+import { UserRole } from '../../../../common/enums/user-role.enum';
 
 describe('InventoryMovementTrackerService', () => {
   let service: InventoryMovementTrackerService;
@@ -15,7 +16,7 @@ describe('InventoryMovementTrackerService', () => {
     entityId: '456e7890-e89b-12d3-a456-426614174001',
     userId: '789e1234-e89b-12d3-a456-426614174002',
     userFullName: 'Juan Pérez García',
-    userRole: 'ADMIN',
+    userRole: UserRole.ADMIN,
     priceBefore: 25000,
     priceAfter: 27000,
     quantityBefore: 50,
@@ -73,7 +74,7 @@ describe('InventoryMovementTrackerService', () => {
         entityId: '456e7890-e89b-12d3-a456-426614174001',
         userId: '789e1234-e89b-12d3-a456-426614174002',
         userFullName: 'Juan Pérez García',
-        userRole: 'ADMIN',
+        userRole: UserRole.ADMIN,
         movementType: MovementType.PURCHASE,
       };
 

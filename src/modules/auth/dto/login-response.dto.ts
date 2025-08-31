@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { UserRole } from '../../../common/enums/user-role.enum';
 
 export class UserProfileDto {
   @ApiProperty({
@@ -21,8 +22,8 @@ export class UserProfileDto {
 
   @ApiProperty({
     description: 'Rol del usuario en el sistema',
-    example: 'USER',
-    enum: ['ADMIN', 'USER'],
+    example: UserRole.USER,
+    enum: Object.values(UserRole),
   })
   role: string;
 }
@@ -76,8 +77,8 @@ export class UserProfileResponseDto {
 
   @ApiProperty({
     description: 'Rol del usuario en el sistema',
-    example: 'USER',
-    enum: ['ADMIN', 'USER'],
+    example: UserRole.USER,
+    enum: Object.values(UserRole),
   })
   role: string;
 

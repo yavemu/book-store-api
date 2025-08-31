@@ -3,8 +3,10 @@ import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { InventoryMovementCrudService } from './services/inventory-movement-crud.service';
 import { Auth } from '../../common/decorators/auth.decorator';
-import { UserRole } from '../users/enums/user-role.enum';
+import { UserRole } from '../../common/enums/user-role.enum';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { SUCCESS_MESSAGES } from '../../common/constants/success-messages';
+import { FileExportService } from '../../common/services/file-export.service';
 import {
   ApiGetInventoryMovements,
   ApiGetInventoryMovementById,
@@ -21,25 +23,28 @@ import {
 @ApiTags('InventoryMovements')
 @Controller('inventory_movements')
 export class InventoryMovementsController {
-  constructor(private readonly inventoryMovementCrudService: InventoryMovementCrudService) {}
+  constructor(
+    private readonly inventoryMovementCrudService: InventoryMovementCrudService,
+    private readonly fileExportService: FileExportService,
+  ) {}
 
   @Get()
-  @Auth(UserRole.ADMIN, UserRole.USER) // Gestores de inventario también tienen UserRole.USER con permisos específicos
+  @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetInventoryMovements()
-  async getAllInventoryMovements(@Query() pagination: PaginationDto) {
+  async getAllInventoryMovements(@Query() pagination: PaginationDto, @Request() req) {
     return {
-      data: await this.inventoryMovementCrudService.findAll(pagination),
-      message: 'Movimientos de inventario obtenidos exitosamente',
+      data: await this.inventoryMovementCrudService.findAll(pagination, req.user?.userId, req.user?.role?.name),
+      message: SUCCESS_MESSAGES.INVENTORY_MOVEMENTS.FOUND_ALL,
     };
   }
 
   @Get(':id')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetInventoryMovementById()
-  async getInventoryMovementById(@Param('id') id: string) {
+  async getInventoryMovementById(@Param('id') id: string, @Request() req) {
     return {
-      data: await this.inventoryMovementCrudService.findById(id),
-      message: 'Movimiento de inventario obtenido exitosamente',
+      data: await this.inventoryMovementCrudService.findById(id, req.user?.userId, req.user?.role?.name),
+      message: SUCCESS_MESSAGES.INVENTORY_MOVEMENTS.FOUND_ONE,
     };
   }
 
@@ -56,19 +61,16 @@ export class InventoryMovementsController {
     },
     @Request() req,
   ) {
-    const userId = req.user?.userId;
-    const userRole = req.user?.role;
-
     return {
       data: await this.inventoryMovementCrudService.searchMovements(
         searchBody.pagination,
         searchBody.filters,
         searchBody.search,
         searchBody.advancedFilters,
-        userId,
-        userRole,
+        req.user?.userId,
+        req.user?.role?.name,
       ),
-      message: 'Búsqueda de movimientos de inventario completada exitosamente',
+      message: SUCCESS_MESSAGES.GENERAL.SEARCH_SUCCESS,
     };
   }
 
@@ -80,19 +82,20 @@ export class InventoryMovementsController {
     @Request() req,
     @Res() res: Response,
   ) {
-    const userId = req.user?.userId;
-    const userRole = req.user?.role;
-
-    const csvContent = await this.inventoryMovementCrudService.exportMovementsCsv(
+    const csvData = await this.inventoryMovementCrudService.exportMovementsCsv(
       exportBody.filters,
       exportBody.search,
       exportBody.advancedFilters,
-      userId,
-      userRole,
+      req.user?.userId,
+      req.user?.role?.name,
     );
 
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename="movimientos-inventario.csv"');
-    res.send(csvContent);
+    const filename = this.fileExportService.generateDateBasedFilename('movimientos-inventario', 'csv');
+
+    this.fileExportService.exportToCsv(res, {
+      content: csvData,
+      filename,
+      type: 'csv',
+    });
   }
 }

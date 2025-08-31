@@ -2,7 +2,7 @@
 import { DataSource, Repository } from 'typeorm';
 import { User } from '../../modules/users/entities/user.entity';
 import { Role } from '../../modules/roles/entities/role.entity';
-import { UserRole } from '../../modules/users/enums/user-role.enum';
+import { UserRole } from '../../common/enums/user-role.enum';
 
 export class UserSeed {
   private userRepository: Repository<User>;

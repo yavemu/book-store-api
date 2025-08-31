@@ -1,7 +1,7 @@
 import { applyDecorators, UseGuards, SetMetadata } from '@nestjs/common';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
-import { UserRole } from '../../modules/users/enums/user-role.enum';
+import { UserRole } from '../enums/user-role.enum';
 
 export const IS_PUBLIC_KEY = 'isPublic';
 export const ROLES_KEY = 'roles';

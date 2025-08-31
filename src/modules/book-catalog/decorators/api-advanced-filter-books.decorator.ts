@@ -11,7 +11,8 @@ export function ApiAdvancedFilterBooks() {
   return applyDecorators(
     ApiOperation({
       summary: 'Filtro avanzado de libros del catálogo - Acceso: ADMIN, USER',
-      description: 'Aplica filtros avanzados sobre el catálogo de libros con múltiples criterios de búsqueda.',
+      description:
+        'Aplica filtros avanzados sobre el catálogo de libros con múltiples criterios de búsqueda.',
     }),
     ApiBody({
       description: 'Criterios de filtrado avanzado para libros',

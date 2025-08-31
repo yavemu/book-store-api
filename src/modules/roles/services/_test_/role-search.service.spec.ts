@@ -6,6 +6,7 @@ import { Role } from '../../entities/role.entity';
 import { PaginationDto } from '../../../../common/dto/pagination.dto';
 import { PaginatedResult } from '../../../../common/interfaces/paginated-result.interface';
 import { ERROR_MESSAGES } from '../../../../common/constants/error-messages';
+import { UserRole } from '../../../../common/enums/user-role.enum';
 
 describe('RoleSearchService', () => {
   let service: RoleSearchService;
@@ -128,7 +129,7 @@ describe('RoleSearchService', () => {
     });
 
     it('should handle case-sensitive role name search', async () => {
-      const name = 'ADMIN';
+      const name = UserRole.ADMIN;
 
       mockSearchRepository.findByName.mockResolvedValue(mockRole);
 

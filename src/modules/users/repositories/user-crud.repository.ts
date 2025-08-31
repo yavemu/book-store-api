@@ -10,7 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindManyOptions } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { Role } from '../../roles/entities/role.entity';
-import { UserRole } from '../enums/user-role.enum';
+import { UserRole } from '../../../common/enums/user-role.enum';
 import { IUserCrudRepository } from '../interfaces/user-crud.repository.interface';
 import { IUserValidationRepository } from '../interfaces/user-validation.repository.interface';
 import { CreateUserDto } from '../dto/create-user.dto';

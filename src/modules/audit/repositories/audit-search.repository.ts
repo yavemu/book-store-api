@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindManyOptions, ILike, Between } from 'typeorm';
+import { Repository, ILike, Between } from 'typeorm';
 import { AuditLog } from '../entities/audit-log.entity';
 import { AuditAction } from '../enums/audit-action.enum';
 import { IAuditSearchRepository } from '../interfaces/audit-search.repository.interface';

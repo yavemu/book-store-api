@@ -6,7 +6,7 @@ import { UserCrudRepository } from '../user-crud.repository';
 import { User } from '../../entities/user.entity';
 import { Role } from '../../../roles/entities/role.entity';
 import { CreateUserDto } from '../../dto/create-user.dto';
-import { UserRole } from '../../enums/user-role.enum';
+import { UserRole } from '../../../../common/enums/user-role.enum';
 
 describe('UserCrudRepository - Unique Constraints Validation', () => {
   let repository: UserCrudRepository;

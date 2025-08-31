@@ -8,6 +8,7 @@ import { MovementType } from '../../enums/movement-type.enum';
 import { MovementStatus } from '../../enums/movement-status.enum';
 import { IAuditLoggerService } from '../../../audit/interfaces/audit-logger.service.interface';
 import { PaginationDto } from '../../../../common/dto/pagination.dto';
+import { UserRole } from '../../../../common/enums/user-role.enum';
 
 describe('InventoryMovementCrudRepository', () => {
   let repository: InventoryMovementCrudRepository;
@@ -20,7 +21,7 @@ describe('InventoryMovementCrudRepository', () => {
     entityId: '456e7890-e89b-12d3-a456-426614174001',
     userId: '789e1234-e89b-12d3-a456-426614174002',
     userFullName: 'Juan Pérez',
-    userRole: 'ADMIN',
+    userRole: UserRole.ADMIN,
     priceBefore: 25000,
     priceAfter: 27000,
     quantityBefore: 50,

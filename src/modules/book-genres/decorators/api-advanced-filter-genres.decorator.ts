@@ -21,8 +21,16 @@ export function ApiAdvancedFilterGenres() {
           name: { type: 'string', description: 'Nombre del género' },
           description: { type: 'string', description: 'Descripción del género' },
           isActive: { type: 'boolean', description: 'Estado activo/inactivo' },
-          createdDateStart: { type: 'string', format: 'date', description: 'Fecha de creación desde' },
-          createdDateEnd: { type: 'string', format: 'date', description: 'Fecha de creación hasta' },
+          createdDateStart: {
+            type: 'string',
+            format: 'date',
+            description: 'Fecha de creación desde',
+          },
+          createdDateEnd: {
+            type: 'string',
+            format: 'date',
+            description: 'Fecha de creación hasta',
+          },
           pagination: {
             type: 'object',
             required: ['page', 'limit'],

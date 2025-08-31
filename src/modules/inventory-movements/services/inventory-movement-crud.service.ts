@@ -12,12 +12,24 @@ export class InventoryMovementCrudService implements IInventoryMovementCrudServi
     private readonly movementCrudRepository: IInventoryMovementCrudRepository,
   ) {}
 
-  async findAll(pagination: PaginationDto): Promise<PaginatedResult<InventoryMovement>> {
-    return this.movementCrudRepository.getAllMovements(pagination);
+  async findAll(
+    pagination: PaginationDto,
+    requestingUserId?: string,
+    requestingUserRole?: string,
+  ): Promise<PaginatedResult<InventoryMovement>> {
+    return this.movementCrudRepository.getAllMovements(
+      pagination,
+      requestingUserId,
+      requestingUserRole,
+    );
   }
 
-  async findById(id: string): Promise<InventoryMovement> {
-    return this.movementCrudRepository.getMovementById(id);
+  async findById(
+    id: string,
+    requestingUserId?: string,
+    requestingUserRole?: string,
+  ): Promise<InventoryMovement> {
+    return this.movementCrudRepository.getMovementById(id, requestingUserId, requestingUserRole);
   }
 
   async softDelete(id: string, deletedBy?: string): Promise<{ id: string }> {

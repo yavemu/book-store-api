@@ -9,10 +9,19 @@ import {
 } from 'typeorm';
 
 @Entity('book_authors')
+// Basic Performance Indexes
 @Index(['lastName'])
 @Index(['firstName', 'lastName'])
 @Index(['nationality'])
 @Index(['createdAt'])
+// Soft Delete Performance Index
+@Index(['deletedAt'])
+// Composite indexes for search and export operations
+@Index(['lastName', 'firstName', 'deletedAt'])
+@Index(['nationality', 'deletedAt'])
+@Index(['createdAt', 'deletedAt'])
+// Export optimization indexes
+@Index(['createdAt', 'nationality', 'deletedAt'])
 export class BookAuthor {
   @PrimaryGeneratedColumn('uuid', {
     comment: 'Primary key identifier for book author',

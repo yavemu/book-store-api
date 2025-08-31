@@ -9,8 +9,14 @@ import {
 } from 'typeorm';
 
 @Entity('book_genres')
+// Basic Performance Indexes
 @Index(['name'], { unique: true, where: 'deleted_at IS NULL' })
 @Index(['createdAt'])
+// Soft Delete Performance Index
+@Index(['deletedAt'])
+// Composite indexes for search and export operations
+@Index(['name', 'deletedAt'])
+@Index(['createdAt', 'deletedAt'])
 export class BookGenre {
   @PrimaryGeneratedColumn('uuid', {
     comment: 'Primary key identifier for book genre',

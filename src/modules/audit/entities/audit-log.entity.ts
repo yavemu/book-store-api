@@ -2,16 +2,27 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, Index } from 
 import { AuditAction } from '../enums/audit-action.enum';
 
 @Entity('audit_logs')
+// Performance Critical Indexes
 @Index(['performedBy'])
 @Index(['entityId'])
 @Index(['entityType'])
 @Index(['action'])
 @Index(['createdAt'])
-@Index(['performedBy', 'entityType'])
-@Index(['entityId', 'action'])
 @Index(['result'])
 @Index(['environment'])
 @Index(['executionContext'])
+// Composite indexes for complex queries and exports
+@Index(['performedBy', 'entityType'])
+@Index(['entityId', 'action'])
+@Index(['createdAt', 'performedBy'])
+@Index(['createdAt', 'entityType'])
+@Index(['createdAt', 'action'])
+@Index(['action', 'result'])
+@Index(['entityType', 'action', 'createdAt'])
+@Index(['performedBy', 'createdAt', 'result'])
+// Export optimization - covers most common export filters
+@Index(['createdAt', 'entityType', 'action', 'performedBy'])
+@Index(['createdAt', 'result', 'environment'])
 export class AuditLog {
   @PrimaryGeneratedColumn('uuid', {
     comment: 'Primary key identifier for audit log entry',

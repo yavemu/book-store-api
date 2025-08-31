@@ -8,7 +8,13 @@ export interface IUserCrudService {
   create(createUserDto: CreateUserDto, createdBy?: string): Promise<User>;
   register(registerUser: RegisterUserDto, createdBy?: string): Promise<User>;
   findAll(pagination: PaginationDto): Promise<PaginatedResult<User>>;
-  findById(id: string): Promise<User>;
-  update(id: string, updateUserDto: UpdateUserDto, updatedBy?: string): Promise<User>;
+  findById(id: string, requestingUserId?: string, requestingUserRole?: string): Promise<User>;
+  update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    updatedBy?: string,
+    requestingUserId?: string,
+    requestingUserRole?: string,
+  ): Promise<User>;
   softDelete(id: string, deletedBy?: string): Promise<{ id: string }>;
 }

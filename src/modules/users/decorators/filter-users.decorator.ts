@@ -9,6 +9,7 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { UnauthorizedResponseDto, ForbiddenResponseDto } from '../../../common/dto';
+import { UserRole } from '../../../common/enums/user-role.enum';
 
 export function ApiFilterUsers() {
   return applyDecorators(
@@ -25,7 +26,7 @@ export function ApiFilterUsers() {
         properties: {
           name: { type: 'string', example: 'Juan Pérez' },
           email: { type: 'string', example: 'juan.perez@example.com' },
-          role: { type: 'string', enum: ['ADMIN', 'USER'], example: 'USER' },
+          role: { type: 'string', enum: Object.values(UserRole), example: UserRole.USER },
           isActive: { type: 'boolean', example: true },
           createdAfter: { type: 'string', format: 'date-time', example: '2024-01-01T00:00:00Z' },
           createdBefore: { type: 'string', format: 'date-time', example: '2024-12-31T23:59:59Z' },

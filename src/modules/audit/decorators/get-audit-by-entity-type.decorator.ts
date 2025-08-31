@@ -10,14 +10,7 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { AuditLogListResponseDto } from '../dto/audit-response.dto';
-import {
-  PaginationDto,
-  BadRequestResponseDto,
-  UnauthorizedResponseDto,
-  ConflictResponseDto,
-  ForbiddenResponseDto,
-  NotFoundResponseDto,
-} from '../../../common/dto';
+import { PaginationDto } from '../../../common/dto';
 import { ApiResponseDto } from '../../../common/dto';
 
 export function ApiGetAuditByEntityType() {

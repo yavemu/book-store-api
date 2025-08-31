@@ -7,6 +7,7 @@ import { IUserAuthService } from '../../../users/interfaces/user-auth.service.in
 import { User } from '../../../users/entities/user.entity';
 import { RegisterUserDto } from '../../../users/dto/register-user.dto';
 import * as bcrypt from 'bcrypt';
+import { UserRole } from '../../../../common/enums/user-role.enum';
 
 // Mock bcrypt
 jest.mock('bcrypt');
@@ -27,7 +28,7 @@ describe('AuthService', () => {
     roleId: 'role-1',
     role: {
       id: 'role-1',
-      name: 'USER',
+      name: UserRole.USER,
       description: 'Regular user role',
       users: [],
       isActive: true,
@@ -77,6 +78,14 @@ describe('AuthService', () => {
         { provide: 'IUserCrudService', useValue: mockUserCrudService },
         { provide: 'IUserSearchService', useValue: mockUserSearchService },
         { provide: 'IUserAuthService', useValue: mockUserAuthService },
+        { 
+          provide: 'IAuditLoggerService', 
+          useValue: { 
+            logAction: jest.fn(), 
+            logError: jest.fn(),
+            logEnhanced: jest.fn()
+          } 
+        },
         { provide: JwtService, useValue: mockJwtService },
       ],
     }).compile();
@@ -151,12 +160,20 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should login user and return access token', async () => {
+      const email = 'test@example.com';
+      const password = 'password123';
+      const ipAddress = '127.0.0.1';
       const mockToken = 'mock-jwt-token';
+
+      mockUserSearchService.findToLoginByEmail.mockResolvedValue(mockUser as User);
+      mockBcrypt.compare.mockResolvedValue(true as never);
       mockUserAuthService.logLogin.mockResolvedValue(undefined);
       mockJwtService.sign.mockReturnValue(mockToken);
 
-      const result = await service.login(mockUser as User);
+      const result = await service.login(email, password, ipAddress);
 
+      expect(userSearchService.findToLoginByEmail).toHaveBeenCalledWith(email);
+      expect(bcrypt.compare).toHaveBeenCalledWith(password, mockUser.password);
       expect(userAuthService.logLogin).toHaveBeenCalledWith(mockUser.id);
       expect(jwtService.sign).toHaveBeenCalledWith({
         username: mockUser.username,
@@ -171,14 +188,27 @@ describe('AuthService', () => {
           email: mockUser.email,
           role: mockUser.role,
         },
+        message: expect.any(String),
       });
     });
 
-    it('should handle errors during login logging', async () => {
-      const error = new Error('Audit service failed');
-      mockUserAuthService.logLogin.mockRejectedValue(error);
+    it('should throw UnauthorizedException for invalid credentials', async () => {
+      const email = 'test@example.com';
+      const password = 'wrongpassword';
 
-      await expect(service.login(mockUser as User)).rejects.toThrow(error);
+      mockUserSearchService.findToLoginByEmail.mockResolvedValue(mockUser as User);
+      mockBcrypt.compare.mockResolvedValue(false as never);
+
+      await expect(service.login(email, password)).rejects.toThrow('Credenciales inválidas');
+    });
+
+    it('should throw UnauthorizedException when user not found', async () => {
+      const email = 'nonexistent@example.com';
+      const password = 'password123';
+
+      mockUserSearchService.findToLoginByEmail.mockResolvedValue(null);
+
+      await expect(service.login(email, password)).rejects.toThrow('Credenciales inválidas');
     });
   });
 
@@ -197,7 +227,7 @@ describe('AuthService', () => {
 
       expect(userCrudService.register).toHaveBeenCalledWith(registerUserDto);
       expect(result).toEqual({
-        message: 'Usuario creado exitosamente',
+        message: 'Usuario registrado exitosamente',
         user: {
           id: mockUser.id,
           username: mockUser.username,
@@ -231,12 +261,15 @@ describe('AuthService', () => {
 
       expect(userCrudService.findById).toHaveBeenCalledWith(userId);
       expect(result).toEqual({
-        id: mockUser.id,
-        username: mockUser.username,
-        email: mockUser.email,
-        role: mockUser.role,
-        createdAt: mockUser.createdAt,
-        updatedAt: mockUser.updatedAt,
+        data: {
+          id: mockUser.id,
+          username: mockUser.username,
+          email: mockUser.email,
+          role: mockUser.role,
+          createdAt: mockUser.createdAt,
+          updatedAt: mockUser.updatedAt,
+        },
+        message: 'Perfil de usuario obtenido exitosamente',
       });
     });
 
@@ -252,13 +285,18 @@ describe('AuthService', () => {
 
   describe('error scenarios', () => {
     it('should handle JWT service errors during login', async () => {
+      const email = 'test@example.com';
+      const password = 'password123';
       const error = new Error('JWT signing failed');
+
+      mockUserSearchService.findToLoginByEmail.mockResolvedValue(mockUser as User);
+      mockBcrypt.compare.mockResolvedValue(true as never);
       mockUserAuthService.logLogin.mockResolvedValue(undefined);
       mockJwtService.sign.mockImplementation(() => {
         throw error;
       });
 
-      await expect(service.login(mockUser as User)).rejects.toThrow(error);
+      await expect(service.login(email, password)).rejects.toThrow(error);
     });
 
     it('should handle bcrypt comparison errors', async () => {

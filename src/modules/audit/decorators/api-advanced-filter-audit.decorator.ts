@@ -11,7 +11,8 @@ export function ApiAdvancedFilterAudit() {
   return applyDecorators(
     ApiOperation({
       summary: 'Filtro avanzado de logs de auditoría - Acceso: ADMIN',
-      description: 'Aplica filtros avanzados sobre los logs de auditoría del sistema con múltiples criterios.',
+      description:
+        'Aplica filtros avanzados sobre los logs de auditoría del sistema con múltiples criterios.',
     }),
     ApiBody({
       description: 'Criterios de filtrado avanzado para logs de auditoría',

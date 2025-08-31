@@ -1,4 +1,5 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, ForbiddenException } from '@nestjs/common';
+import { UserRole } from '../../../common/enums/user-role.enum';
 import { IUserCrudService } from '../interfaces/user-crud.service.interface';
 import { IUserCrudRepository } from '../interfaces/user-crud.repository.interface';
 import { User } from '../entities/user.entity';
@@ -26,11 +27,33 @@ export class UserCrudService implements IUserCrudService {
     return this.userCrudRepository.getAllUsers(pagination);
   }
 
-  async findById(id: string): Promise<User> {
+  async findById(
+    id: string,
+    requestingUserId?: string,
+    requestingUserRole?: string,
+  ): Promise<User> {
+    // Solo aplicar restricciones para usuarios con rol USER
+    if (requestingUserRole === UserRole.USER && requestingUserId !== id) {
+      throw new ForbiddenException('Solo puedes acceder a tu propio perfil');
+    }
+
     return this.userCrudRepository.getUserProfile(id);
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto, updatedBy?: string): Promise<User> {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    updatedBy?: string,
+    requestingUserId?: string,
+    requestingUserRole?: string,
+  ): Promise<User> {
+    // Solo aplicar restricciones para usuarios con rol USER
+    if (requestingUserRole === UserRole.USER && requestingUserId !== id) {
+      throw new ForbiddenException('Solo puedes actualizar tu propio perfil');
+    }
+
+    // Nota: UpdateUserDto actualmente no incluye roleId, pero se mantiene la lógica por si se agrega en el futuro
+
     return this.userCrudRepository.updateUserProfile(id, updateUserDto, updatedBy);
   }
 

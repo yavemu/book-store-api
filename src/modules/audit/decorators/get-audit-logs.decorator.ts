@@ -40,7 +40,6 @@ export function ApiGetAuditLogs() {
     }),
     ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',
-      type: UnauthorizedResponseDto,
     }),
     ApiForbiddenResponse({
       description: 'Acceso denegado - Se requieren permisos de administrador',

@@ -4,6 +4,7 @@ import { IUserCrudRepository } from '../../interfaces/user-crud.repository.inter
 import { CreateUserDto, UpdateUserDto } from '../../dto';
 import { PaginationDto } from '../../../../common/dto/pagination.dto';
 import { User } from '../../entities/user.entity';
+import { UserRole } from '../../../../common/enums/user-role.enum';
 
 describe('UserCrudService', () => {
   let service: UserCrudService;
@@ -17,7 +18,7 @@ describe('UserCrudService', () => {
     roleId: 'role-1',
     role: {
       id: 'role-1',
-      name: 'USER',
+      name: UserRole.USER,
       description: 'Regular user role',
       permissions: [],
       users: [],

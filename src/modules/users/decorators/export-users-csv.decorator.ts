@@ -9,6 +9,7 @@ import {
   ApiProduces,
 } from '@nestjs/swagger';
 import { UnauthorizedResponseDto, ForbiddenResponseDto } from '../../../common/dto';
+import { UserRole } from '../../../common/enums/user-role.enum';
 
 export function ApiExportUsersCsv() {
   return applyDecorators(
@@ -37,8 +38,8 @@ export function ApiExportUsersCsv() {
       name: 'role',
       description: 'Filtrar por rol de usuario',
       required: false,
-      enum: ['ADMIN', 'USER'],
-      example: 'USER',
+      enum: Object.values(UserRole),
+      example: UserRole.USER,
     }),
     ApiQuery({
       name: 'isActive',

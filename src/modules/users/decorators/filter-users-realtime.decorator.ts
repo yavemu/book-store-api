@@ -8,6 +8,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { UnauthorizedResponseDto, ForbiddenResponseDto } from '../../../common/dto';
+import { UserRole } from '../../../common/enums/user-role.enum';
 
 export function ApiFilterUsersRealtime() {
   return applyDecorators(
@@ -52,7 +53,10 @@ export function ApiFilterUsersRealtime() {
                 id: { type: 'string', example: 'uuid-123' },
                 username: { type: 'string', example: 'juan_perez' },
                 email: { type: 'string', example: 'juan.perez@example.com' },
-                role: { type: 'object', properties: { name: { type: 'string', example: 'USER' } } },
+                role: {
+                  type: 'object',
+                  properties: { name: { type: 'string', example: UserRole.USER } },
+                },
                 createdAt: { type: 'string', format: 'date-time' },
               },
             },

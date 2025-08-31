@@ -1,1 +1,1 @@
-export * from './user-role.enum';
+export * from '../../../common/enums/user-role.enum';

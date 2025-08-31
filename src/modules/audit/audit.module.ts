@@ -9,6 +9,7 @@ import { ValidationService } from './services/validation.service';
 import { ErrorHandlerService } from './services/error-handler.service';
 import { UserContextService } from './services/user-context.service';
 import { AuditController } from './controllers/audit.controller';
+import { FileExportService } from '../../common/services/file-export.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([AuditLog])],
@@ -22,6 +23,7 @@ import { AuditController } from './controllers/audit.controller';
     UserContextService,
     AuditSearchRepository,
     AuditLoggerRepository,
+    FileExportService,
 
     // Interface Providers
     {

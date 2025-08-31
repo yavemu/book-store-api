@@ -8,7 +8,7 @@ import {
   ApiQuery,
   ApiProduces,
 } from '@nestjs/swagger';
-import { UnauthorizedResponseDto, ForbiddenResponseDto } from '../../../common/dto';
+import { ForbiddenResponseDto } from '../../../common/dto';
 
 export function ApiExportAuditCsv() {
   return applyDecorators(
@@ -76,11 +76,9 @@ export function ApiExportAuditCsv() {
     }),
     ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT requerido',
-      type: UnauthorizedResponseDto,
     }),
     ApiForbiddenResponse({
       description: 'Prohibido - Solo administradores pueden exportar auditorías',
-      type: ForbiddenResponseDto,
     }),
   );
 }

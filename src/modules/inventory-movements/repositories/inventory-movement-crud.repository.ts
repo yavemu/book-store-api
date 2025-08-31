@@ -1,4 +1,5 @@
 import { Injectable, Inject, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
+import { UserRole } from '../../../common/enums/user-role.enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindManyOptions, SelectQueryBuilder } from 'typeorm';
 import { InventoryMovement } from '../entities/inventory-movement.entity';
@@ -24,15 +25,41 @@ export class InventoryMovementCrudRepository
     super(movementRepository, auditLogService);
   }
 
-  async getAllMovements(pagination: PaginationDto): Promise<PaginatedResult<InventoryMovement>> {
+  async getAllMovements(
+    pagination: PaginationDto,
+    requestingUserId?: string,
+    requestingUserRole?: string,
+  ): Promise<PaginatedResult<InventoryMovement>> {
     try {
-      return await this._findManyWithPagination(
-        {
-          where: { isActive: true },
-          order: { createdAt: 'DESC' },
+      const queryBuilder = this.movementRepository.createQueryBuilder('movement');
+
+      // Solo aplicar restricciones para usuarios con rol USER
+      queryBuilder.where('movement.isActive = :isActive', { isActive: true });
+
+      if (requestingUserRole === UserRole.USER && requestingUserId) {
+        queryBuilder.andWhere('movement.userId = :requestingUserId', {
+          requestingUserId,
+        });
+      }
+
+      queryBuilder.orderBy('movement.createdAt', 'DESC');
+
+      const [items, totalItems] = await queryBuilder
+        .skip(pagination.offset)
+        .take(pagination.limit)
+        .getManyAndCount();
+
+      return {
+        data: items,
+        meta: {
+          total: totalItems,
+          page: pagination.page,
+          limit: pagination.limit,
+          totalPages: Math.ceil(totalItems / pagination.limit),
+          hasNext: pagination.page < Math.ceil(totalItems / pagination.limit),
+          hasPrev: pagination.page > 1,
         },
-        pagination,
-      );
+      };
     } catch (error) {
       throw new HttpException(
         'Error al obtener los movimientos de inventario',
@@ -41,13 +68,31 @@ export class InventoryMovementCrudRepository
     }
   }
 
-  async getMovementById(id: string): Promise<InventoryMovement> {
+  async getMovementById(
+    id: string,
+    requestingUserId?: string,
+    requestingUserRole?: string,
+  ): Promise<InventoryMovement> {
     try {
-      const order = await this._findById(id);
-      if (!order || !order.isActive) {
+      const queryBuilder = this.movementRepository.createQueryBuilder('movement');
+
+      queryBuilder.where('movement.id = :id AND movement.isActive = :isActive', {
+        id,
+        isActive: true,
+      });
+
+      // Solo aplicar restricciones para usuarios con rol USER
+      if (requestingUserRole === UserRole.USER && requestingUserId) {
+        queryBuilder.andWhere('movement.userId = :requestingUserId', { requestingUserId });
+      }
+
+      const movement = await queryBuilder.getOne();
+
+      if (!movement) {
         throw new NotFoundException('Movimiento de inventario no encontrado');
       }
-      return order;
+
+      return movement;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -167,12 +212,16 @@ export class InventoryMovementCrudRepository
     requestingUserId?: string,
     requestingUserRole?: string,
   ): void {
-    // Control de acceso por rol
-    if (requestingUserRole === 'USER') {
-      // Los usuarios USER solo pueden ver sus propios movimientos
+    // Base filter - todos los movimientos activos
+    queryBuilder.andWhere('movement.isActive = :isActive', { isActive: true });
+
+    // Control de acceso por rol - solo aplicar restricciones para USER
+    if (requestingUserRole === UserRole.USER && requestingUserId) {
       queryBuilder.andWhere('movement.userId = :requestingUserId', { requestingUserId });
-    } else if (requestingUserRole === 'ADMIN' && filters?.userId) {
-      // Los ADMIN pueden filtrar por userId específico o ver todo
+    }
+
+    // Los ADMIN tienen acceso completo y pueden usar cualquier filtro incluyendo userId
+    if (filters?.userId && requestingUserRole !== UserRole.USER) {
       queryBuilder.andWhere('movement.userId = :filterUserId', { filterUserId: filters.userId });
     }
 
