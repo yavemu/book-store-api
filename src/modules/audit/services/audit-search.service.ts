@@ -3,8 +3,12 @@ import { IAuditSearchRepository } from '../interfaces/audit-search.repository.in
 import { IAuditSearchService } from '../interfaces/audit-search.service.interface';
 import { AuditLog } from '../entities/audit-log.entity';
 import { AuditAction } from '../enums/audit-action.enum';
-import { AuditFiltersDto } from '../dto/audit-filters.dto';
-import { AuditCsvExportFiltersDto } from '../dto/audit-csv-export-filters.dto';
+import {
+  AuditFiltersDto,
+  AuditExactSearchDto,
+  AuditSimpleFilterDto,
+  AuditCsvExportFiltersDto,
+} from '../dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 @Injectable()
@@ -76,7 +80,26 @@ export class AuditSearchService implements IAuditSearchService {
     return await this.auditSearchRepository.findWithFilters(filters, pagination);
   }
 
-  async exportToCsv(filters: AuditCsvExportFiltersDto): Promise<string> {
+  async exportToCsv(filters?: AuditCsvExportFiltersDto): Promise<string> {
     return await this.auditSearchRepository.exportToCsv(filters);
+  }
+
+  // Standardized search methods (following book-catalog pattern)
+  async exactSearch(searchDto: AuditExactSearchDto): Promise<PaginatedResult<AuditLog>> {
+    // Implementation will delegate to existing repository methods
+    return await this.auditSearchRepository.exactSearchAuditLogs(searchDto);
+  }
+
+  async simpleFilter(filterDto: AuditSimpleFilterDto): Promise<PaginatedResult<AuditLog>> {
+    // Implementation will delegate to existing repository methods
+    return await this.auditSearchRepository.simpleFilterAuditLogs(filterDto);
+  }
+
+  async advancedFilter(
+    filters: AuditFiltersDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<AuditLog>> {
+    // Delegate to existing method
+    return await this.findWithFilters(filters, pagination);
   }
 }

@@ -125,13 +125,21 @@ export class BookAuthorRepository
     });
   }
 
-  async findByFullName(firstName: string, lastName: string): Promise<BookAuthor | null> {
-    return await this._findOne({
+  async findByFullName(
+    firstName: string,
+    lastName: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthor>> {
+    const options: FindManyOptions<BookAuthor> = {
       where: {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
       },
-    });
+      order: { [pagination.sortBy]: pagination.sortOrder },
+      skip: pagination.offset,
+      take: pagination.limit,
+    };
+    return await this._findManyWithPagination(options, pagination);
   }
 
   async findWithFilters(
@@ -207,7 +215,7 @@ export class BookAuthorRepository
         const firstName = author.firstName || 'N/A';
         const lastName = author.lastName || 'N/A';
         const nationality = author.nationality || 'N/A';
-        const birthDate = author.birthDate ? author.birthDate.toISOString().split('T')[0] : 'N/A';
+        const birthDate = author.birthDate ? this.formatDateForCsv(author.birthDate) : 'N/A';
         const biography = author.biography ? author.biography.replace(/"/g, '""') : 'N/A';
         const createdAt = author.createdAt ? author.createdAt.toISOString() : 'N/A';
 
@@ -216,5 +224,73 @@ export class BookAuthorRepository
       .join('\n');
 
     return csvHeaders + csvRows;
+  }
+
+  /**
+   * Helper method to format dates safely for CSV export
+   * @private
+   */
+  private formatDateForCsv(date: Date | string): string {
+    try {
+      if (!date) return '';
+
+      // If it's already a string in YYYY-MM-DD format, return it
+      if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}/.test(date)) {
+        return date.split('T')[0];
+      }
+
+      // If it's a string, try to parse it as a Date
+      if (typeof date === 'string') {
+        const parsedDate = new Date(date);
+        if (!isNaN(parsedDate.getTime())) {
+          return parsedDate.toISOString().split('T')[0];
+        }
+        return '';
+      }
+
+      // If it's a Date object, format it
+      if (date instanceof Date && !isNaN(date.getTime())) {
+        return date.toISOString().split('T')[0];
+      }
+
+      return '';
+    } catch (error) {
+      return '';
+    }
+  }
+
+  // Methods required by IBookAuthorSearchRepository interface
+  async exactSearchAuthors(searchDto: any): Promise<PaginatedResult<BookAuthor>> {
+    const options: FindManyOptions<BookAuthor> = {
+      where: { [searchDto.searchField]: searchDto.searchValue },
+      order: { [searchDto.sortBy]: searchDto.sortOrder },
+      skip: searchDto.offset,
+      take: searchDto.limit,
+    };
+    return await this._findManyWithPagination(options, searchDto);
+  }
+
+  async simpleFilterAuthors(filterDto: any): Promise<PaginatedResult<BookAuthor>> {
+    if (!filterDto.term || filterDto.term.trim() === '') {
+      const options: FindManyOptions<BookAuthor> = {
+        order: { [filterDto.sortBy]: filterDto.sortOrder },
+        skip: filterDto.offset,
+        take: filterDto.limit,
+      };
+      return await this._findManyWithPagination(options, filterDto);
+    }
+
+    const options: FindManyOptions<BookAuthor> = {
+      where: [
+        { firstName: ILike(`%${filterDto.term}%`) },
+        { lastName: ILike(`%${filterDto.term}%`) },
+        { nationality: ILike(`%${filterDto.term}%`) },
+      ],
+      order: { [filterDto.sortBy]: filterDto.sortOrder },
+      skip: filterDto.offset,
+      take: filterDto.limit,
+    };
+
+    return await this._findManyWithPagination(options, filterDto);
   }
 }

@@ -7,7 +7,11 @@ import { RegisterUserDto } from '../dto';
 export interface IUserCrudService {
   create(createUserDto: CreateUserDto, createdBy?: string): Promise<User>;
   register(registerUser: RegisterUserDto, createdBy?: string): Promise<User>;
-  findAll(pagination: PaginationDto): Promise<PaginatedResult<User>>;
+  findAll(
+    pagination: PaginationDto,
+    userId?: string,
+    userRole?: string,
+  ): Promise<PaginatedResult<User>>;
   findById(id: string, requestingUserId?: string, requestingUserRole?: string): Promise<User>;
   update(
     id: string,

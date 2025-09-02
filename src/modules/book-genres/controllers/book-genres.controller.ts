@@ -10,6 +10,7 @@ import {
   Query,
   Inject,
   Res,
+  HttpCode,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
@@ -18,6 +19,8 @@ import { IBookGenreSearchService } from '../interfaces/book-genre-search.service
 import {
   CreateBookGenreDto,
   UpdateBookGenreDto,
+  BookGenreExactSearchDto,
+  BookGenreSimpleFilterDto,
   BookGenreFiltersDto,
   BookGenreCsvExportFiltersDto,
 } from '../dto';
@@ -60,24 +63,27 @@ export class BookGenresController {
     return this.genreCrudService.findAll(pagination);
   }
 
-  @Get('search')
+  @Post('search')
+  @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchGenres()
-  async search(@Query('term') searchTerm: string, @Query() pagination: PaginationDto) {
-    return this.genreSearchService.search(searchTerm, pagination);
+  exactSearch(@Body() searchDto: BookGenreExactSearchDto) {
+    return this.genreSearchService.exactSearch(searchDto);
   }
 
-  @Get('filter')
+  @Post('filter')
+  @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterGenres()
-  async filter(@Query('filter') filterTerm: string, @Query() pagination: PaginationDto) {
-    return this.genreSearchService.filterSearch(filterTerm, pagination);
+  simpleFilter(@Body() filterDto: BookGenreSimpleFilterDto) {
+    return this.genreSearchService.simpleFilter(filterDto);
   }
 
   @Post('advanced-filter')
+  @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiAdvancedFilterGenres()
-  async advancedFilter(@Body() filters: BookGenreFiltersDto, @Query() pagination: PaginationDto) {
+  advancedFilter(@Body() filters: BookGenreFiltersDto, @Query() pagination: PaginationDto) {
     return this.genreSearchService.findWithFilters(filters, pagination);
   }
 

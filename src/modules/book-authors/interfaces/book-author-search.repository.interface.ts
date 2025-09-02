@@ -9,10 +9,18 @@ export interface IBookAuthorSearchRepository {
     nationality: string,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>>;
-  findByFullName(firstName: string, lastName: string): Promise<BookAuthor | null>;
+  findByFullName(
+    firstName: string,
+    lastName: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthor>>;
   findWithFilters(
     filters: BookAuthorFiltersDto,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>>;
   exportToCsv(filters: BookAuthorCsvExportFiltersDto): Promise<string>;
+
+  // Methods needed by services
+  exactSearchAuthors(searchDto: any): Promise<PaginatedResult<BookAuthor>>;
+  simpleFilterAuthors(filterDto: any): Promise<PaginatedResult<BookAuthor>>;
 }

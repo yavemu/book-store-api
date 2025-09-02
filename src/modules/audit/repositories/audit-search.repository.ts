@@ -4,8 +4,12 @@ import { Repository, ILike, Between } from 'typeorm';
 import { AuditLog } from '../entities/audit-log.entity';
 import { AuditAction } from '../enums/audit-action.enum';
 import { IAuditSearchRepository } from '../interfaces/audit-search.repository.interface';
-import { AuditFiltersDto } from '../dto/audit-filters.dto';
-import { AuditCsvExportFiltersDto } from '../dto/audit-csv-export-filters.dto';
+import {
+  AuditFiltersDto,
+  AuditExactSearchDto,
+  AuditSimpleFilterDto,
+  AuditCsvExportFiltersDto,
+} from '../dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 @Injectable()
@@ -248,7 +252,7 @@ export class AuditSearchRepository implements IAuditSearchRepository {
     };
   }
 
-  async exportToCsv(filters: AuditCsvExportFiltersDto): Promise<string> {
+  async exportToCsv(filters?: AuditCsvExportFiltersDto): Promise<string> {
     const whereConditions: any = {};
 
     if (filters.action) {
@@ -275,10 +279,97 @@ export class AuditSearchRepository implements IAuditSearchRepository {
     const csvHeaders = 'ID,Action,Entity Type,Entity ID,Performed By,Timestamp,Details\n';
     const csvRows = auditLogs
       .map((log) => {
-        return `${log.id},"${log.action}","${log.entityType}","${log.entityId}","${log.performedBy}","${log.createdAt?.toISOString()}","${log.details || ''}"`;
+        return `${log.id},"${log.action}","${log.entityType}","${log.entityId}","${log.performedBy}","${this.formatDateTimeForCsv(log.createdAt)}","${log.details || ''}"`;
       })
       .join('\n');
 
     return csvHeaders + csvRows;
+  }
+
+  // Standardized search methods (following book-catalog pattern)
+  async exactSearchAuditLogs(searchDto: AuditExactSearchDto): Promise<PaginatedResult<AuditLog>> {
+    const whereCondition: any = {};
+    whereCondition[searchDto.searchField] = searchDto.searchValue;
+
+    const [data, total] = await this.auditLogRepository.findAndCount({
+      where: whereCondition,
+      order: { [searchDto.sortBy]: searchDto.sortOrder },
+      skip: searchDto.offset,
+      take: searchDto.limit,
+    });
+
+    const totalPages = Math.ceil(total / searchDto.limit);
+    return {
+      data,
+      meta: {
+        total,
+        page: searchDto.page,
+        limit: searchDto.limit,
+        totalPages,
+        hasNext: searchDto.page < totalPages,
+        hasPrev: searchDto.page > 1,
+      },
+    };
+  }
+
+  async simpleFilterAuditLogs(filterDto: AuditSimpleFilterDto): Promise<PaginatedResult<AuditLog>> {
+    if (!filterDto.term || filterDto.term.trim().length === 0) {
+      // Return all logs if no search term
+      return await this.getAuditTrail(filterDto);
+    }
+
+    const trimmedTerm = filterDto.term.trim();
+    const [data, total] = await this.auditLogRepository.findAndCount({
+      where: [
+        { performedBy: ILike(`%${trimmedTerm}%`) },
+        { entityId: ILike(`%${trimmedTerm}%`) },
+        { details: ILike(`%${trimmedTerm}%`) },
+        { entityType: ILike(`%${trimmedTerm}%`) },
+      ],
+      order: { [filterDto.sortBy || 'createdAt']: filterDto.sortOrder || 'DESC' },
+      skip: filterDto.offset,
+      take: filterDto.limit,
+    });
+
+    const totalPages = Math.ceil(total / filterDto.limit);
+    return {
+      data,
+      meta: {
+        total,
+        page: filterDto.page,
+        limit: filterDto.limit,
+        totalPages,
+        hasNext: filterDto.page < totalPages,
+        hasPrev: filterDto.page > 1,
+      },
+    };
+  }
+
+  /**
+   * Helper method to format datetime safely for CSV export
+   * @private
+   */
+  private formatDateTimeForCsv(date: Date | string): string {
+    try {
+      if (!date) return '';
+
+      // If it's a string, try to parse it as a Date
+      if (typeof date === 'string') {
+        const parsedDate = new Date(date);
+        if (!isNaN(parsedDate.getTime())) {
+          return parsedDate.toISOString();
+        }
+        return '';
+      }
+
+      // If it's a Date object, format it
+      if (date instanceof Date && !isNaN(date.getTime())) {
+        return date.toISOString();
+      }
+
+      return '';
+    } catch (error) {
+      return '';
+    }
   }
 }

@@ -4,6 +4,8 @@ import { Repository, FindManyOptions, ILike, Between } from 'typeorm';
 import { PublishingHouse } from '../entities/publishing-house.entity';
 import { PublishingHouseFiltersDto } from '../dto/publishing-house-filters.dto';
 import { PublishingHouseCsvExportFiltersDto } from '../dto/publishing-house-csv-export-filters.dto';
+import { PublishingHouseExactSearchDto } from '../dto/publishing-house-exact-search.dto';
+import { PublishingHouseSimpleFilterDto } from '../dto/publishing-house-simple-filter.dto';
 import { IPublishingHouseSearchRepository } from '../interfaces/publishing-house-search.repository.interface';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import { BaseRepository } from '../../../common/repositories/base.repository';
@@ -20,40 +22,68 @@ export class PublishingHouseSearchRepository
     super(publisherRepository);
   }
 
-  async searchPublishers(
-    searchTerm: string,
-    pagination: PaginationDto,
+  async exactSearchPublishingHouses(
+    searchDto: PublishingHouseExactSearchDto,
   ): Promise<PaginatedResult<PublishingHouse>> {
     try {
+      const whereCondition: any = {};
+      whereCondition[searchDto.searchField] = searchDto.searchValue;
+
       const options: FindManyOptions<PublishingHouse> = {
-        where: [{ name: ILike(`%${searchTerm}%`) }, { country: ILike(`%${searchTerm}%`) }],
-        order: { [pagination.sortBy]: pagination.sortOrder },
-        skip: pagination.offset,
-        take: pagination.limit,
+        where: whereCondition,
+        order: { [searchDto.sortBy]: searchDto.sortOrder },
+        skip: searchDto.offset,
+        take: searchDto.limit,
       };
 
-      return await this._findManyWithPagination(options, pagination);
+      return await this._findManyWithPagination(options, searchDto);
     } catch (error) {
-      throw new HttpException('Failed to search publishers', HttpStatus.INTERNAL_SERVER_ERROR);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Failed to search publishing houses',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  async getPublishersByCountry(
-    country: string,
-    pagination: PaginationDto,
+  async simpleFilterPublishingHouses(
+    filterDto: PublishingHouseSimpleFilterDto,
   ): Promise<PaginatedResult<PublishingHouse>> {
     try {
-      const options: FindManyOptions<PublishingHouse> = {
-        where: { country },
-        order: { [pagination.sortBy]: pagination.sortOrder },
-        skip: pagination.offset,
-        take: pagination.limit,
+      if (!filterDto.term || filterDto.term.trim() === '') {
+        const options: FindManyOptions<PublishingHouse> = {
+          order: { [filterDto.sortBy]: filterDto.sortOrder },
+          skip: filterDto.offset,
+          take: filterDto.limit,
+        };
+        return await this._findManyWithPagination(options, filterDto);
+      }
+
+      const allPublishingHousesOptions: FindManyOptions<PublishingHouse> = {
+        order: { [filterDto.sortBy]: filterDto.sortOrder },
       };
 
-      return await this._findManyWithPagination(options, pagination);
+      const allPublishingHouses = await this._findMany(allPublishingHousesOptions);
+      const trimmedTerm = filterDto.term.trim().toLowerCase();
+
+      const filteredPublishingHouses = allPublishingHouses.filter(
+        (house) =>
+          (house.name && house.name.toLowerCase().includes(trimmedTerm)) ||
+          (house.country && house.country.toLowerCase().includes(trimmedTerm)) ||
+          (house.websiteUrl && house.websiteUrl.toLowerCase().includes(trimmedTerm)),
+      );
+
+      const total = filteredPublishingHouses.length;
+      const startIndex = filterDto.offset || 0;
+      const endIndex = startIndex + (filterDto.limit || 10);
+      const paginatedData = filteredPublishingHouses.slice(startIndex, endIndex);
+
+      return this._buildPaginatedResult(paginatedData, total, filterDto);
     } catch (error) {
       throw new HttpException(
-        'Failed to get publishers by country',
+        'Failed to filter publishing houses',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -128,7 +158,7 @@ export class PublishingHouseSearchRepository
         whereConditions.createdAt = Between(new Date(filters.startDate), new Date(filters.endDate));
       }
 
-      const publishingHouses = await this.publisherRepository.find({
+      const publishingHouses = await this._findMany({
         where: whereConditions,
         order: { createdAt: 'DESC' },
       });
@@ -147,5 +177,28 @@ export class PublishingHouseSearchRepository
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  // Legacy method names for backward compatibility with tests
+  async searchPublishers(
+    searchTerm: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<PublishingHouse>> {
+    const filterDto = {
+      term: searchTerm,
+      sortBy: pagination.sortBy,
+      sortOrder: pagination.sortOrder,
+      offset: pagination.offset,
+      limit: pagination.limit,
+      page: pagination.page,
+    };
+    return this.simpleFilterPublishingHouses(filterDto);
+  }
+
+  async getPublishersByCountry(
+    country: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<PublishingHouse>> {
+    return this.findWithFilters({ country }, pagination);
   }
 }

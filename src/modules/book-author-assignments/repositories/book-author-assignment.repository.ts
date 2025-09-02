@@ -357,7 +357,9 @@ export class BookAuthorAssignmentRepository
           const authorName = assignment.author
             ? `${assignment.author.firstName} ${assignment.author.lastName}`.trim()
             : 'N/A';
-          const createdAt = assignment.createdAt ? assignment.createdAt.toISOString() : 'N/A';
+          const createdAt = assignment.createdAt
+            ? this.formatDateTimeForCsv(assignment.createdAt)
+            : 'N/A';
 
           return `"${assignment.id}","${assignment.bookId}","${bookTitle}","${assignment.authorId}","${authorName}","${createdAt}"`;
         })
@@ -369,6 +371,54 @@ export class BookAuthorAssignmentRepository
         'Failed to export assignments to CSV',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    }
+  }
+
+  // Methods required by IBookAuthorAssignmentSearchRepository interface
+  async exactSearchAssignments(searchDto: any): Promise<PaginatedResult<BookAuthorAssignment>> {
+    return this.searchAssignments(searchDto.searchTerm || '', searchDto);
+  }
+
+  async simpleFilterAssignments(filterDto: any): Promise<PaginatedResult<BookAuthorAssignment>> {
+    return this.findAssignmentsWithFilters(filterDto, filterDto);
+  }
+
+  async findWithFilters(
+    filters: AssignmentFiltersDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthorAssignment>> {
+    return this.findAssignmentsWithFilters(filters, pagination);
+  }
+
+  async exportToCsv(filters: AssignmentCsvExportFiltersDto): Promise<string> {
+    return this.exportAssignmentsToCsv(filters);
+  }
+
+  /**
+   * Helper method to format datetime safely for CSV export
+   * @private
+   */
+  private formatDateTimeForCsv(date: Date | string): string {
+    try {
+      if (!date) return '';
+
+      // If it's a string, try to parse it as a Date
+      if (typeof date === 'string') {
+        const parsedDate = new Date(date);
+        if (!isNaN(parsedDate.getTime())) {
+          return parsedDate.toISOString();
+        }
+        return '';
+      }
+
+      // If it's a Date object, format it
+      if (date instanceof Date && !isNaN(date.getTime())) {
+        return date.toISOString();
+      }
+
+      return '';
+    } catch (error) {
+      return '';
     }
   }
 }

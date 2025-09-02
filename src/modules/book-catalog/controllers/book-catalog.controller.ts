@@ -12,6 +12,7 @@ import {
   Res,
   UseInterceptors,
   UploadedFile,
+  HttpCode,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiTags, ApiConsumes } from '@nestjs/swagger';
@@ -22,6 +23,8 @@ import { IFileUploadService } from '../interfaces/file-upload.service.interface'
 import { CreateBookCatalogDto } from '../dto/create-book-catalog.dto';
 import { UpdateBookCatalogDto } from '../dto/update-book-catalog.dto';
 import { BookFiltersDto } from '../dto/book-filters.dto';
+import { BookExactSearchDto } from '../dto/book-exact-search.dto';
+import { BookSimpleFilterDto } from '../dto/book-simple-filter.dto';
 import { CsvExportFiltersDto } from '../dto/csv-export-filters.dto';
 import { UploadBookCoverDto } from '../dto/upload-book-cover.dto';
 import {
@@ -32,12 +35,12 @@ import {
   ApiDeleteBook,
   ApiSearchBooks,
   ApiFilterBooks,
-  ApiGetAvailableBooks,
-  ApiCheckIsbn,
   ApiExportBooksCsv,
   ApiUploadBookCover,
   ApiRemoveBookCover,
   ApiAdvancedFilterBooks,
+  ApiExactSearchBooks,
+  ApiSimpleFilterBooks,
 } from '../decorators';
 import { UserRole } from '../../../common/enums/user-role.enum';
 import { Auth } from '../../../common/decorators/auth.decorator';
@@ -59,7 +62,7 @@ export class BookCatalogController {
   @Auth(UserRole.ADMIN)
   @ApiCreateBook()
   create(@Body() createBookCatalogDto: CreateBookCatalogDto, @Request() req: any) {
-    return this.bookCatalogCrudService.create(createBookCatalogDto, req.user.id);
+    return this.bookCatalogCrudService.create(createBookCatalogDto, req);
   }
 
   @Get()
@@ -69,39 +72,28 @@ export class BookCatalogController {
     return this.bookCatalogCrudService.findAll(pagination);
   }
 
-  @Get('search')
+  @Post('search')
+  @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
-  @ApiSearchBooks()
-  search(@Query('term') searchTerm: string, @Query() pagination: PaginationDto) {
-    return this.bookCatalogSearchService.search(searchTerm, pagination);
+  @ApiExactSearchBooks()
+  exactSearch(@Body() searchDto: BookExactSearchDto) {
+    return this.bookCatalogSearchService.exactSearch(searchDto);
   }
 
-  @Get('filter')
+  @Post('filter')
+  @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
-  @ApiFilterBooks()
-  filter(@Query('filter') filterTerm: string, @Query() pagination: PaginationDto) {
-    return this.bookCatalogSearchService.filterSearch(filterTerm, pagination);
+  @ApiSimpleFilterBooks()
+  filterPost(@Body() filterDto: BookSimpleFilterDto) {
+    return this.bookCatalogSearchService.simpleFilter(filterDto);
   }
 
   @Post('advanced-filter')
+  @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiAdvancedFilterBooks()
   advancedFilter(@Body() filters: BookFiltersDto, @Query() pagination: PaginationDto) {
-    return this.bookCatalogSearchService.findWithFilters(filters, pagination);
-  }
-
-  @Get('available')
-  @Auth(UserRole.ADMIN, UserRole.USER)
-  @ApiGetAvailableBooks()
-  findAvailable(@Query() pagination: PaginationDto) {
-    return this.bookCatalogSearchService.findAvailableBooks(pagination);
-  }
-
-  @Get('check-isbn/:isbn')
-  @Auth(UserRole.ADMIN)
-  @ApiCheckIsbn()
-  async checkIsbn(@Param('isbn') isbn: string) {
-    return this.bookCatalogSearchService.checkIsbnExists(isbn);
+    return this.bookCatalogSearchService.advancedFilter(filters, pagination);
   }
 
   @Get('export/csv')

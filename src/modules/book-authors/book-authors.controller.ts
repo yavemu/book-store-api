@@ -18,7 +18,12 @@ import { IBookAuthorSearchService } from './interfaces/book-author-search.servic
 import { IUserContextService } from './interfaces/user-context.service.interface';
 import { CreateBookAuthorDto } from './dto/create-book-author.dto';
 import { UpdateBookAuthorDto } from './dto/update-book-author.dto';
-import { BookAuthorFiltersDto, BookAuthorCsvExportFiltersDto } from './dto';
+import {
+  BookAuthorFiltersDto,
+  BookAuthorExactSearchDto,
+  BookAuthorSimpleFilterDto,
+  BookAuthorCsvExportFiltersDto,
+} from './dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { Auth } from '../../common/decorators/auth.decorator';
 import { UserRole } from '../../common/enums/user-role.enum';
@@ -60,18 +65,25 @@ export class BookAuthorsController {
     return this.crudService.findAll(pagination);
   }
 
-  @Get('search')
+  @Post('search')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchAuthors()
-  search(@Query('term') searchTerm: string, @Query() pagination: PaginationDto) {
-    return this.searchService.search(searchTerm, pagination);
+  exactSearch(@Body() searchDto: BookAuthorExactSearchDto) {
+    return this.searchService.exactSearch(searchDto);
   }
 
   @Post('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterAuthors()
-  async filter(@Body() filters: BookAuthorFiltersDto, @Query() pagination: PaginationDto) {
-    return this.searchService.findWithFilters(filters, pagination);
+  simpleFilter(@Body() filterDto: BookAuthorSimpleFilterDto) {
+    return this.searchService.simpleFilter(filterDto);
+  }
+
+  @Post('advanced-filter')
+  @Auth(UserRole.ADMIN, UserRole.USER)
+  @ApiFilterAuthors()
+  advancedFilter(@Body() filters: BookAuthorFiltersDto, @Query() pagination: PaginationDto) {
+    return this.searchService.advancedFilter(filters, pagination);
   }
 
   @Get('export/csv')
@@ -111,5 +123,14 @@ export class BookAuthorsController {
   remove(@Param('id') id: string, @Request() req: any) {
     const userId = this.userContextService.extractUserId(req);
     return this.crudService.softDelete(id, userId);
+  }
+
+  // Legacy method names for backward compatibility with tests
+  async search(searchTerm: any, pagination: PaginationDto) {
+    return this.exactSearch(searchTerm);
+  }
+
+  async filter(filters: any, pagination: PaginationDto) {
+    return this.simpleFilter(filters);
   }
 }

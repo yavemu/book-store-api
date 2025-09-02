@@ -321,4 +321,38 @@ export class InventoryMovementCrudRepository
       }
     }
   }
+
+  // Methods required by IInventoryMovementCrudRepository interface
+  async exactSearchMovements(searchDto: any): Promise<PaginatedResult<InventoryMovement>> {
+    return this.searchMovements(
+      searchDto,
+      searchDto,
+      searchDto,
+      searchDto,
+      searchDto.requestingUserId,
+      searchDto.requestingUserRole,
+    );
+  }
+
+  async simpleFilterMovements(filterDto: any): Promise<PaginatedResult<InventoryMovement>> {
+    return this.searchMovements(
+      filterDto,
+      filterDto,
+      filterDto,
+      filterDto,
+      filterDto.requestingUserId,
+      filterDto.requestingUserRole,
+    );
+  }
+
+  async advancedFilterMovements(filtersDto: any): Promise<PaginatedResult<InventoryMovement>> {
+    return this.searchMovements(
+      filtersDto,
+      filtersDto,
+      filtersDto,
+      filtersDto,
+      filtersDto.requestingUserId,
+      filtersDto.requestingUserRole,
+    );
+  }
 }

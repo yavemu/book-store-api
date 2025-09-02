@@ -3,6 +3,8 @@ import { IBookCatalogSearchService } from '../interfaces/book-catalog-search.ser
 import { IBookCatalogSearchRepository } from '../interfaces/book-catalog-search.repository.interface';
 import { BookCatalog } from '../entities/book-catalog.entity';
 import { BookFiltersDto } from '../dto/book-filters.dto';
+import { BookExactSearchDto } from '../dto/book-exact-search.dto';
+import { BookSimpleFilterDto } from '../dto/book-simple-filter.dto';
 import { CsvExportFiltersDto } from '../dto/csv-export-filters.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
@@ -13,30 +15,19 @@ export class BookCatalogSearchService implements IBookCatalogSearchService {
     private readonly bookCatalogSearchRepository: IBookCatalogSearchRepository,
   ) {}
 
-  async search(
-    searchTerm: string,
-    pagination: PaginationDto,
-  ): Promise<PaginatedResult<BookCatalog>> {
-    return await this.bookCatalogSearchRepository.searchBooks(searchTerm, pagination);
+  async exactSearch(searchDto: BookExactSearchDto): Promise<PaginatedResult<BookCatalog>> {
+    return await this.bookCatalogSearchRepository.exactSearchBooks(searchDto);
   }
 
-  async filterSearch(
-    filterTerm: string,
-    pagination: PaginationDto,
-  ): Promise<PaginatedResult<BookCatalog>> {
-    if (!filterTerm || filterTerm.trim().length < 3) {
-      throw new Error('Filter term must be at least 3 characters long');
-    }
-
-    const trimmedTerm = filterTerm.trim();
-    return await this.bookCatalogSearchRepository.filterBooks(trimmedTerm, pagination);
+  async simpleFilter(filterDto: BookSimpleFilterDto): Promise<PaginatedResult<BookCatalog>> {
+    return await this.bookCatalogSearchRepository.simpleFilterBooks(filterDto);
   }
 
-  async findWithFilters(
+  async advancedFilter(
     filters: BookFiltersDto,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookCatalog>> {
-    return await this.bookCatalogSearchRepository.findBooksWithFilters(filters, pagination);
+    return await this.bookCatalogSearchRepository.advancedFilterBooks(filters, pagination);
   }
 
   async findByGenre(
@@ -51,15 +42,6 @@ export class BookCatalogSearchService implements IBookCatalogSearchService {
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookCatalog>> {
     return await this.bookCatalogSearchRepository.getBooksByPublisher(publisherId, pagination);
-  }
-
-  async findAvailableBooks(pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>> {
-    return await this.bookCatalogSearchRepository.getAvailableBooks(pagination);
-  }
-
-  async checkIsbnExists(isbn: string): Promise<{ exists: boolean }> {
-    const exists = await this.bookCatalogSearchRepository.checkIsbnExists(isbn);
-    return { exists };
   }
 
   async exportToCsv(filters?: CsvExportFiltersDto): Promise<string> {
@@ -94,7 +76,7 @@ export class BookCatalogSearchService implements IBookCatalogSearchService {
           `"${book.stockQuantity || 0}"`,
           `"${book.genre?.name?.replace(/"/g, '""') || 'Sin género'}"`,
           `"${book.publisher?.name?.replace(/"/g, '""') || 'Sin editorial'}"`,
-          `"${book.publicationDate ? book.publicationDate.toISOString().split('T')[0] : ''}"`,
+          `"${book.publicationDate ? this.formatDateForCsv(book.publicationDate) : ''}"`,
           `"${book.pageCount || ''}"`,
           `"${book.createdAt ? book.createdAt.toISOString().split('T')[0] : ''}"`,
           `"${book.summary?.replace(/"/g, '""').replace(/\n/g, ' ') || ''}"`,
@@ -103,5 +85,38 @@ export class BookCatalogSearchService implements IBookCatalogSearchService {
     ];
 
     return csvRows.join('\n');
+  }
+
+  /**
+   * Helper method to format dates safely for CSV export
+   * @private
+   */
+  private formatDateForCsv(date: Date | string): string {
+    try {
+      if (!date) return '';
+
+      // If it's already a string in YYYY-MM-DD format, return it
+      if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}/.test(date)) {
+        return date.split('T')[0];
+      }
+
+      // If it's a string, try to parse it as a Date
+      if (typeof date === 'string') {
+        const parsedDate = new Date(date);
+        if (!isNaN(parsedDate.getTime())) {
+          return parsedDate.toISOString().split('T')[0];
+        }
+        return '';
+      }
+
+      // If it's a Date object, format it
+      if (date instanceof Date && !isNaN(date.getTime())) {
+        return date.toISOString().split('T')[0];
+      }
+
+      return '';
+    } catch (error) {
+      return '';
+    }
   }
 }

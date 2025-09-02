@@ -1,0 +1,266 @@
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import {
+  Repository,
+  FindManyOptions,
+  ILike,
+  Between,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+} from 'typeorm';
+import { BookAuthorAssignment } from '../entities/book-author-assignment.entity';
+import { IBookAuthorAssignmentSearchRepository } from '../interfaces/book-author-assignment-search.repository.interface';
+import { AssignmentFiltersDto } from '../dto/assignment-filters.dto';
+import { AssignmentCsvExportFiltersDto } from '../dto/assignment-csv-export-filters.dto';
+import { AssignmentExactSearchDto } from '../dto/assignment-exact-search.dto';
+import { AssignmentSimpleFilterDto } from '../dto/assignment-simple-filter.dto';
+import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { BaseRepository } from '../../../common/repositories/base.repository';
+
+@Injectable()
+export class BookAuthorAssignmentSearchRepository
+  extends BaseRepository<BookAuthorAssignment>
+  implements IBookAuthorAssignmentSearchRepository
+{
+  constructor(
+    @InjectRepository(BookAuthorAssignment)
+    private readonly assignmentRepository: Repository<BookAuthorAssignment>,
+  ) {
+    super(assignmentRepository);
+  }
+
+  async exactSearchAssignments(
+    searchDto: AssignmentExactSearchDto,
+  ): Promise<PaginatedResult<BookAuthorAssignment>> {
+    try {
+      const whereCondition: any = {};
+      whereCondition[searchDto.searchField] = searchDto.searchValue;
+
+      const options: FindManyOptions<BookAuthorAssignment> = {
+        where: whereCondition,
+        order: { [searchDto.sortBy]: searchDto.sortOrder },
+        skip: searchDto.offset,
+        take: searchDto.limit,
+        relations: ['book', 'author'],
+      };
+
+      return await this._findManyWithPagination(options, searchDto);
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Failed to search assignments', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async simpleFilterAssignments(
+    filterDto: AssignmentSimpleFilterDto,
+  ): Promise<PaginatedResult<BookAuthorAssignment>> {
+    try {
+      if (!filterDto.term || filterDto.term.trim() === '') {
+        const options: FindManyOptions<BookAuthorAssignment> = {
+          order: { [filterDto.sortBy]: filterDto.sortOrder },
+          skip: filterDto.offset,
+          take: filterDto.limit,
+          relations: ['book', 'author'],
+        };
+        return await this._findManyWithPagination(options, filterDto);
+      }
+
+      const allAssignmentsOptions: FindManyOptions<BookAuthorAssignment> = {
+        order: { [filterDto.sortBy]: filterDto.sortOrder },
+        relations: ['book', 'author'],
+      };
+
+      const allAssignments = await this._findMany(allAssignmentsOptions);
+      const trimmedTerm = filterDto.term.trim().toLowerCase();
+
+      const filteredAssignments = allAssignments.filter(
+        (assignment) =>
+          (assignment.book &&
+            assignment.book.title &&
+            assignment.book.title.toLowerCase().includes(trimmedTerm)) ||
+          (assignment.author &&
+            assignment.author.firstName &&
+            assignment.author.firstName.toLowerCase().includes(trimmedTerm)) ||
+          (assignment.author &&
+            assignment.author.lastName &&
+            assignment.author.lastName.toLowerCase().includes(trimmedTerm)),
+      );
+
+      const total = filteredAssignments.length;
+      const startIndex = filterDto.offset || 0;
+      const endIndex = startIndex + (filterDto.limit || 10);
+      const paginatedData = filteredAssignments.slice(startIndex, endIndex);
+
+      return this._buildPaginatedResult(paginatedData, total, filterDto);
+    } catch (error) {
+      throw new HttpException('Failed to filter assignments', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async findWithFilters(
+    filters: AssignmentFiltersDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthorAssignment>> {
+    try {
+      const whereConditions: any = {};
+
+      if (filters.bookId) {
+        whereConditions.bookId = filters.bookId;
+      }
+
+      if (filters.authorId) {
+        whereConditions.authorId = filters.authorId;
+      }
+
+      if (filters.createdAfter && filters.createdBefore) {
+        whereConditions.createdAt = Between(
+          new Date(filters.createdAfter),
+          new Date(filters.createdBefore),
+        );
+      } else if (filters.createdAfter) {
+        whereConditions.createdAt = MoreThanOrEqual(new Date(filters.createdAfter));
+      } else if (filters.createdBefore) {
+        whereConditions.createdAt = LessThanOrEqual(new Date(filters.createdBefore));
+      }
+
+      const options: FindManyOptions<BookAuthorAssignment> = {
+        where: whereConditions,
+        order: { [pagination.sortBy]: pagination.sortOrder },
+        skip: pagination.offset,
+        take: pagination.limit,
+        relations: ['book', 'author'],
+      };
+
+      return await this._findManyWithPagination(options, pagination);
+    } catch (error) {
+      throw new HttpException('Failed to filter assignments', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async getAssignmentsByBook(
+    bookId: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthorAssignment>> {
+    try {
+      const options: FindManyOptions<BookAuthorAssignment> = {
+        where: { bookId },
+        order: { [pagination.sortBy]: pagination.sortOrder },
+        skip: pagination.offset,
+        take: pagination.limit,
+        relations: ['book', 'author'],
+      };
+
+      return await this._findManyWithPagination(options, pagination);
+    } catch (error) {
+      throw new HttpException(
+        'Failed to get assignments by book',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getAssignmentsByAuthor(
+    authorId: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthorAssignment>> {
+    try {
+      const options: FindManyOptions<BookAuthorAssignment> = {
+        where: { authorId },
+        order: { [pagination.sortBy]: pagination.sortOrder },
+        skip: pagination.offset,
+        take: pagination.limit,
+        relations: ['book', 'author'],
+      };
+
+      return await this._findManyWithPagination(options, pagination);
+    } catch (error) {
+      throw new HttpException(
+        'Failed to get assignments by author',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async exportToCsv(filters: AssignmentCsvExportFiltersDto): Promise<string> {
+    try {
+      const whereConditions: any = {};
+
+      if (filters.bookId) {
+        whereConditions.bookId = filters.bookId;
+      }
+
+      if (filters.authorId) {
+        whereConditions.authorId = filters.authorId;
+      }
+
+      if (filters.startDate && filters.endDate) {
+        whereConditions.createdAt = Between(new Date(filters.startDate), new Date(filters.endDate));
+      } else if (filters.startDate) {
+        whereConditions.createdAt = MoreThanOrEqual(new Date(filters.startDate));
+      } else if (filters.endDate) {
+        whereConditions.createdAt = LessThanOrEqual(new Date(filters.endDate));
+      }
+
+      const assignments = await this._findMany({
+        where: whereConditions,
+        order: { createdAt: 'DESC' },
+        relations: ['book', 'author'],
+      });
+
+      const csvHeaders = 'ID,Book Title,Author Name,Created At,Updated At\n';
+      const csvRows = assignments
+        .map((assignment) => {
+          const bookTitle = assignment.book ? assignment.book.title : 'N/A';
+          const authorName = assignment.author
+            ? `${assignment.author.firstName} ${assignment.author.lastName}`
+            : 'N/A';
+          const createdAt = assignment.createdAt
+            ? this.formatDateTimeForCsv(assignment.createdAt)
+            : 'N/A';
+          const updatedAt = assignment.updatedAt
+            ? this.formatDateTimeForCsv(assignment.updatedAt)
+            : 'N/A';
+
+          return `"${assignment.id}","${bookTitle}","${authorName}","${createdAt}","${updatedAt}"`;
+        })
+        .join('\n');
+
+      return csvHeaders + csvRows;
+    } catch (error) {
+      throw new HttpException(
+        'Failed to export assignments to CSV',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /**
+   * Helper method to format datetime safely for CSV export
+   * @private
+   */
+  private formatDateTimeForCsv(date: Date | string): string {
+    try {
+      if (!date) return '';
+
+      // If it's a string, try to parse it as a Date
+      if (typeof date === 'string') {
+        const parsedDate = new Date(date);
+        if (!isNaN(parsedDate.getTime())) {
+          return parsedDate.toISOString();
+        }
+        return '';
+      }
+
+      // If it's a Date object, format it
+      if (date instanceof Date && !isNaN(date.getTime())) {
+        return date.toISOString();
+      }
+
+      return '';
+    } catch (error) {
+      return '';
+    }
+  }
+}

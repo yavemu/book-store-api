@@ -4,3 +4,5 @@ export * from './book-filters.dto';
 export * from './book-catalog-response.dto';
 export * from './csv-export-filters.dto';
 export * from './upload-book-cover.dto';
+export * from './book-exact-search.dto';
+export * from './book-simple-filter.dto';

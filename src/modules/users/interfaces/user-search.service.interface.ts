@@ -1,13 +1,28 @@
 import { User } from '../entities/user.entity';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
-import { UserFiltersDto, UserCsvExportFiltersDto } from '../dto';
+import {
+  UserFiltersDto,
+  UserCsvExportFiltersDto,
+  UserExactSearchDto,
+  UserSimpleFilterDto,
+} from '../dto';
 
 export interface IUserSearchService {
-  search(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<User>>;
-  filterSearch(filterTerm: string, pagination: PaginationDto): Promise<PaginatedResult<User>>;
+  exactSearch(
+    searchDto: UserExactSearchDto,
+    userId?: string,
+    userRole?: string,
+  ): Promise<PaginatedResult<User>>;
+  simpleFilter(
+    filterDto: UserSimpleFilterDto,
+    userId?: string,
+    userRole?: string,
+  ): Promise<PaginatedResult<User>>;
   findWithFilters(
     filters: UserFiltersDto,
     pagination: PaginationDto,
+    userId?: string,
+    userRole?: string,
   ): Promise<PaginatedResult<User>>;
   exportToCsv(filters: UserCsvExportFiltersDto): Promise<string>;
   findByEmail(email: string): Promise<boolean>;

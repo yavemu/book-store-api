@@ -7,11 +7,14 @@ import {
   BeforeInsert,
   BeforeUpdate,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { MovementType } from '../enums/movement-type.enum';
 import { MovementStatus } from '../enums/movement-status.enum';
 import { UserRole } from '../../../common/enums/user-role.enum';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('inventory_movements')
 // Performance Critical Indexes for inventory operations
@@ -187,6 +190,10 @@ export class InventoryMovement {
     comment: 'Notas adicionales o descripción del error',
   })
   notes: string;
+
+  @ManyToOne(() => User, { eager: false })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @ApiProperty({
     description: 'Indica si el registro está activo',

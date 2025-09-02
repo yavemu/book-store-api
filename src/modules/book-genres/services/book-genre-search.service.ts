@@ -5,6 +5,8 @@ import { BookGenre } from '../entities/book-genre.entity';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import { BookGenreFiltersDto } from '../dto/book-genre-filters.dto';
 import { BookGenreCsvExportFiltersDto } from '../dto/book-genre-csv-export-filters.dto';
+import { BookGenreExactSearchDto } from '../dto/book-genre-exact-search.dto';
+import { BookGenreSimpleFilterDto } from '../dto/book-genre-simple-filter.dto';
 
 @Injectable()
 export class BookGenreSearchService implements IBookGenreSearchService {
@@ -13,20 +15,12 @@ export class BookGenreSearchService implements IBookGenreSearchService {
     private readonly genreSearchRepository: IBookGenreSearchRepository,
   ) {}
 
-  async search(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookGenre>> {
-    return await this.genreSearchRepository.searchGenres(searchTerm, pagination);
+  async exactSearch(searchDto: BookGenreExactSearchDto): Promise<PaginatedResult<BookGenre>> {
+    return await this.genreSearchRepository.exactSearchGenres(searchDto);
   }
 
-  async filterSearch(
-    filterTerm: string,
-    pagination: PaginationDto,
-  ): Promise<PaginatedResult<BookGenre>> {
-    if (!filterTerm || filterTerm.trim().length < 3) {
-      throw new Error('Filter term must be at least 3 characters long');
-    }
-
-    const trimmedTerm = filterTerm.trim();
-    return await this.genreSearchRepository.filterGenres(trimmedTerm, pagination);
+  async simpleFilter(filterDto: BookGenreSimpleFilterDto): Promise<PaginatedResult<BookGenre>> {
+    return await this.genreSearchRepository.simpleFilterGenres(filterDto);
   }
 
   async findWithFilters(
@@ -38,5 +32,17 @@ export class BookGenreSearchService implements IBookGenreSearchService {
 
   async exportToCsv(filters: BookGenreCsvExportFiltersDto): Promise<string> {
     return await this.genreSearchRepository.exportToCsv(filters);
+  }
+
+  // Base methods needed by interface
+  async search(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookGenre>> {
+    return await this.genreSearchRepository.searchGenres(searchTerm, pagination);
+  }
+
+  async filterSearch(
+    filterTerm: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookGenre>> {
+    return await this.genreSearchRepository.filterGenres(filterTerm, pagination);
   }
 }

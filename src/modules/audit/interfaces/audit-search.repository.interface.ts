@@ -1,8 +1,12 @@
 import { AuditLog } from '../entities/audit-log.entity';
 import { AuditAction } from '../enums/audit-action.enum';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
-import { AuditFiltersDto } from '../dto/audit-filters.dto';
-import { AuditCsvExportFiltersDto } from '../dto/audit-csv-export-filters.dto';
+import {
+  AuditFiltersDto,
+  AuditExactSearchDto,
+  AuditSimpleFilterDto,
+  AuditCsvExportFiltersDto,
+} from '../dto';
 
 export interface IAuditSearchRepository {
   getAuditTrail(pagination: PaginationDto): Promise<PaginatedResult<AuditLog>>;
@@ -32,5 +36,9 @@ export interface IAuditSearchRepository {
     filters: AuditFiltersDto,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<AuditLog>>;
-  exportToCsv(filters: AuditCsvExportFiltersDto): Promise<string>;
+  exportToCsv(filters?: AuditCsvExportFiltersDto): Promise<string>;
+
+  // Standardized search methods (following book-catalog pattern)
+  exactSearchAuditLogs(searchDto: AuditExactSearchDto): Promise<PaginatedResult<AuditLog>>;
+  simpleFilterAuditLogs(filterDto: AuditSimpleFilterDto): Promise<PaginatedResult<AuditLog>>;
 }

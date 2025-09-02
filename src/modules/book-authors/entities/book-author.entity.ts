@@ -71,6 +71,15 @@ export class BookAuthor {
   })
   biography?: string;
 
+  @Column({
+    name: 'email',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+    comment: 'Email address of the author',
+  })
+  email?: string;
+
   @CreateDateColumn({
     name: 'created_at',
     type: 'timestamp',

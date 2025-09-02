@@ -24,6 +24,4 @@ export interface IBookCatalogService {
     publisherId: string,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookCatalog>>;
-  findAvailableBooks(pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
-  checkIsbnExists(isbn: string): Promise<{ exists: boolean }>;
 }

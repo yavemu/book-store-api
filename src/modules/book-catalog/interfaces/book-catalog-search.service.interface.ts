@@ -1,15 +1,14 @@
 import { BookCatalog } from '../entities/book-catalog.entity';
 import { BookFiltersDto } from '../dto/book-filters.dto';
+import { BookExactSearchDto } from '../dto/book-exact-search.dto';
+import { BookSimpleFilterDto } from '../dto/book-simple-filter.dto';
 import { CsvExportFiltersDto } from '../dto/csv-export-filters.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 export interface IBookCatalogSearchService {
-  search(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
-  filterSearch(
-    filterTerm: string,
-    pagination: PaginationDto,
-  ): Promise<PaginatedResult<BookCatalog>>;
-  findWithFilters(
+  exactSearch(searchDto: BookExactSearchDto): Promise<PaginatedResult<BookCatalog>>;
+  simpleFilter(filterDto: BookSimpleFilterDto): Promise<PaginatedResult<BookCatalog>>;
+  advancedFilter(
     filters: BookFiltersDto,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookCatalog>>;
@@ -18,7 +17,5 @@ export interface IBookCatalogSearchService {
     publisherId: string,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookCatalog>>;
-  findAvailableBooks(pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
-  checkIsbnExists(isbn: string): Promise<{ exists: boolean }>;
   exportToCsv(filters?: CsvExportFiltersDto): Promise<string>;
 }

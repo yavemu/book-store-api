@@ -13,11 +13,17 @@ export class BookCatalogCrudService implements IBookCatalogCrudService {
     private readonly bookCatalogCrudRepository: IBookCatalogCrudRepository,
   ) {}
 
-  async create(
-    createBookCatalogDto: CreateBookCatalogDto,
-    performedBy: string,
-  ): Promise<BookCatalog> {
-    return await this.bookCatalogCrudRepository.registerBook(createBookCatalogDto, performedBy);
+  async create(createBookCatalogDto: CreateBookCatalogDto, req: any): Promise<BookCatalog> {
+    const userId = req.user.userId; // From JWT strategy: userId: payload.sub
+    const userFullName = req.user.username || 'Unknown User';
+    const userRole = req.user.role?.name || 'user';
+
+    return await this.bookCatalogCrudRepository.registerBook(
+      createBookCatalogDto,
+      userId,
+      userFullName,
+      userRole,
+    );
   }
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>> {

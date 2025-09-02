@@ -4,3 +4,6 @@ export * from './user-response.dto';
 export * from './register-user.dto';
 export * from './user-filters.dto';
 export * from './user-csv-export-filters.dto';
+export * from './user-exact-search.dto';
+export * from './user-simple-filter.dto';
+export * from './user-search.dto';

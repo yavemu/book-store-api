@@ -51,4 +51,22 @@ export class BookAuthorFiltersDto {
   @IsDateString()
   @Transform(({ value }) => (value ? new Date(value).toISOString() : undefined))
   createdBefore?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter by email',
+    type: String,
+    example: 'author@example.com',
+  })
+  @IsOptional()
+  @IsString()
+  email?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter by biography',
+    type: String,
+    example: 'Famous writer',
+  })
+  @IsOptional()
+  @IsString()
+  biography?: string;
 }

@@ -4,8 +4,12 @@ import { IBookAuthorSearchService } from '../interfaces/book-author-search.servi
 import { IErrorHandlerService } from '../interfaces/error-handler.service.interface';
 import { BookAuthor } from '../entities/book-author.entity';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
-import { BookAuthorFiltersDto } from '../dto/book-author-filters.dto';
-import { BookAuthorCsvExportFiltersDto } from '../dto/book-author-csv-export-filters.dto';
+import {
+  BookAuthorFiltersDto,
+  BookAuthorExactSearchDto,
+  BookAuthorSimpleFilterDto,
+  BookAuthorCsvExportFiltersDto,
+} from '../dto';
 import { ERROR_MESSAGES } from '../../../common/constants/error-messages';
 
 @Injectable()
@@ -28,13 +32,13 @@ export class BookAuthorSearchService implements IBookAuthorSearchService {
     }
   }
 
-  async findByFullName(firstName: string, lastName: string): Promise<BookAuthor> {
+  async findByFullName(
+    firstName: string,
+    lastName: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthor>> {
     try {
-      const author = await this.searchRepository.findByFullName(firstName, lastName);
-      if (!author) {
-        this.errorHandler.createNotFoundException(ERROR_MESSAGES.BOOK_AUTHORS.NOT_FOUND);
-      }
-      return author;
+      return await this.searchRepository.findByFullName(firstName, lastName, pagination);
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.NOT_FOUND);
     }
@@ -51,11 +55,36 @@ export class BookAuthorSearchService implements IBookAuthorSearchService {
     }
   }
 
-  async exportToCsv(filters: BookAuthorCsvExportFiltersDto): Promise<string> {
+  async exportToCsv(filters?: BookAuthorCsvExportFiltersDto): Promise<string> {
     try {
       return await this.searchRepository.exportToCsv(filters);
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_GET_ALL);
     }
+  }
+
+  // Standardized search methods (following book-catalog pattern)
+  async exactSearch(searchDto: BookAuthorExactSearchDto): Promise<PaginatedResult<BookAuthor>> {
+    try {
+      return await this.searchRepository.exactSearchAuthors(searchDto);
+    } catch (error) {
+      this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_GET_ALL);
+    }
+  }
+
+  async simpleFilter(filterDto: BookAuthorSimpleFilterDto): Promise<PaginatedResult<BookAuthor>> {
+    try {
+      return await this.searchRepository.simpleFilterAuthors(filterDto);
+    } catch (error) {
+      this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_GET_ALL);
+    }
+  }
+
+  async advancedFilter(
+    filters: BookAuthorFiltersDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthor>> {
+    // Delegate to existing method
+    return await this.findWithFilters(filters, pagination);
   }
 }

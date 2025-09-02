@@ -1,12 +1,14 @@
 import { BookCatalog } from '../entities/book-catalog.entity';
 import { BookFiltersDto } from '../dto/book-filters.dto';
+import { BookExactSearchDto } from '../dto/book-exact-search.dto';
+import { BookSimpleFilterDto } from '../dto/book-simple-filter.dto';
 import { CsvExportFiltersDto } from '../dto/csv-export-filters.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 export interface IBookCatalogSearchRepository {
-  searchBooks(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
-  filterBooks(filterTerm: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
-  findBooksWithFilters(
+  exactSearchBooks(searchDto: BookExactSearchDto): Promise<PaginatedResult<BookCatalog>>;
+  simpleFilterBooks(filterDto: BookSimpleFilterDto): Promise<PaginatedResult<BookCatalog>>;
+  advancedFilterBooks(
     filters: BookFiltersDto,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookCatalog>>;
@@ -18,7 +20,5 @@ export interface IBookCatalogSearchRepository {
     publisherId: string,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookCatalog>>;
-  getAvailableBooks(pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
-  checkIsbnExists(isbn: string): Promise<boolean>;
   getBooksForCsvExport(filters?: CsvExportFiltersDto): Promise<BookCatalog[]>;
 }

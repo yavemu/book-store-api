@@ -7,6 +7,8 @@ export interface IBookCatalogCrudRepository {
   registerBook(
     createBookCatalogDto: CreateBookCatalogDto,
     performedBy: string,
+    userFullName?: string,
+    userRole?: string,
   ): Promise<BookCatalog>;
   getAllBooks(pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
   getBookProfile(bookId: string): Promise<BookCatalog>;

@@ -128,13 +128,13 @@ export class BookAuthorService implements IBookAuthorCrudService, IBookAuthorSea
     }
   }
 
-  async findByFullName(firstName: string, lastName: string): Promise<BookAuthor> {
+  async findByFullName(
+    firstName: string,
+    lastName: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthor>> {
     try {
-      const author = await this.searchRepository.findByFullName(firstName, lastName);
-      if (!author) {
-        this.errorHandler.createNotFoundException(ERROR_MESSAGES.BOOK_AUTHORS.NOT_FOUND);
-      }
-      return author;
+      return await this.searchRepository.findByFullName(firstName, lastName, pagination);
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.NOT_FOUND);
     }
@@ -157,5 +157,21 @@ export class BookAuthorService implements IBookAuthorCrudService, IBookAuthorSea
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_GET_ALL);
     }
+  }
+
+  // Methods required by IBookAuthorSearchService interface
+  async exactSearch(searchDto: any): Promise<PaginatedResult<BookAuthor>> {
+    return this.search(searchDto.searchTerm || '', searchDto);
+  }
+
+  async simpleFilter(filterDto: any): Promise<PaginatedResult<BookAuthor>> {
+    return this.search(filterDto.term || '', filterDto);
+  }
+
+  async advancedFilter(
+    filters: BookAuthorFiltersDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthor>> {
+    return this.findWithFilters(filters, pagination);
   }
 }

@@ -3,6 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  UpdateDateColumn,
   Index,
   ManyToOne,
   JoinColumn,
@@ -59,4 +60,13 @@ export class BookAuthorAssignment {
     comment: 'Timestamp when assignment was created',
   })
   createdAt: Date;
+
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+    comment: 'Timestamp when assignment was last updated',
+  })
+  updatedAt: Date;
 }

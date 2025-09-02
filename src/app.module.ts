@@ -18,6 +18,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
+import { PostStatusOverrideInterceptor } from './common/interceptors/post-status-override.interceptor';
 
 @Module({
   imports: [
@@ -45,6 +46,10 @@ import { AuditInterceptor } from './common/interceptors/audit.interceptor';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: PostStatusOverrideInterceptor,
     },
     {
       provide: APP_INTERCEPTOR,

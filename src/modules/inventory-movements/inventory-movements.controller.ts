@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Request, Post, Body, Res } from '@nestjs/common';
+import { Controller, Get, Param, Query, Request, Post, Body, Res, HttpCode } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { InventoryMovementCrudService } from './services/inventory-movement-crud.service';
@@ -18,6 +18,8 @@ import {
   MovementSearchDto,
   MovementAdvancedFiltersDto,
   MovementCsvExportDto,
+  InventoryMovementExactSearchDto,
+  InventoryMovementSimpleFilterDto,
 } from './dto';
 
 @ApiTags('InventoryMovements')
@@ -33,7 +35,11 @@ export class InventoryMovementsController {
   @ApiGetInventoryMovements()
   async getAllInventoryMovements(@Query() pagination: PaginationDto, @Request() req) {
     return {
-      data: await this.inventoryMovementCrudService.findAll(pagination, req.user?.userId, req.user?.role?.name),
+      data: await this.inventoryMovementCrudService.findAll(
+        pagination,
+        req.user?.userId,
+        req.user?.role?.name,
+      ),
       message: SUCCESS_MESSAGES.INVENTORY_MOVEMENTS.FOUND_ALL,
     };
   }
@@ -43,30 +49,23 @@ export class InventoryMovementsController {
   @ApiGetInventoryMovementById()
   async getInventoryMovementById(@Param('id') id: string, @Request() req) {
     return {
-      data: await this.inventoryMovementCrudService.findById(id, req.user?.userId, req.user?.role?.name),
+      data: await this.inventoryMovementCrudService.findById(
+        id,
+        req.user?.userId,
+        req.user?.role?.name,
+      ),
       message: SUCCESS_MESSAGES.INVENTORY_MOVEMENTS.FOUND_ONE,
     };
   }
 
   @Post('search')
+  @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchInventoryMovements()
-  async searchInventoryMovements(
-    @Body()
-    searchBody: {
-      pagination: PaginationDto;
-      filters?: MovementFiltersDto;
-      search?: MovementSearchDto;
-      advancedFilters?: MovementAdvancedFiltersDto;
-    },
-    @Request() req,
-  ) {
+  async exactSearch(@Body() searchDto: InventoryMovementExactSearchDto, @Request() req) {
     return {
-      data: await this.inventoryMovementCrudService.searchMovements(
-        searchBody.pagination,
-        searchBody.filters,
-        searchBody.search,
-        searchBody.advancedFilters,
+      data: await this.inventoryMovementCrudService.exactSearchMovements(
+        searchDto,
         req.user?.userId,
         req.user?.role?.name,
       ),
@@ -74,23 +73,61 @@ export class InventoryMovementsController {
     };
   }
 
-  @Post('export/csv')
+  @Post('filter')
+  @HttpCode(200)
+  @Auth(UserRole.ADMIN, UserRole.USER)
+  @ApiSearchInventoryMovements()
+  async simpleFilter(@Body() filterDto: InventoryMovementSimpleFilterDto, @Request() req) {
+    return {
+      data: await this.inventoryMovementCrudService.simpleFilterMovements(
+        filterDto,
+        req.user?.userId,
+        req.user?.role?.name,
+      ),
+      message: SUCCESS_MESSAGES.GENERAL.SEARCH_SUCCESS,
+    };
+  }
+
+  @Post('advanced-filter')
+  @HttpCode(200)
+  @Auth(UserRole.ADMIN, UserRole.USER)
+  @ApiSearchInventoryMovements()
+  async advancedFilter(
+    @Body() filters: MovementAdvancedFiltersDto,
+    @Query() pagination: PaginationDto,
+    @Request() req,
+  ) {
+    return {
+      data: await this.inventoryMovementCrudService.advancedFilterMovements(
+        filters,
+        pagination,
+        req.user?.userId,
+        req.user?.role?.name,
+      ),
+      message: SUCCESS_MESSAGES.GENERAL.SEARCH_SUCCESS,
+    };
+  }
+
+  @Get('export/csv')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiExportInventoryMovementsCsv()
   async exportMovementsCsv(
-    @Body() exportBody: MovementCsvExportDto,
+    @Query() exportFilters: MovementCsvExportDto,
     @Request() req,
     @Res() res: Response,
   ) {
     const csvData = await this.inventoryMovementCrudService.exportMovementsCsv(
-      exportBody.filters,
-      exportBody.search,
-      exportBody.advancedFilters,
+      exportFilters.filters,
+      exportFilters.search,
+      exportFilters.advancedFilters,
       req.user?.userId,
       req.user?.role?.name,
     );
 
-    const filename = this.fileExportService.generateDateBasedFilename('movimientos-inventario', 'csv');
+    const filename = this.fileExportService.generateDateBasedFilename(
+      'movimientos-inventario',
+      'csv',
+    );
 
     this.fileExportService.exportToCsv(res, {
       content: csvData,

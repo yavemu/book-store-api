@@ -10,12 +10,20 @@ import {
   Query,
   Inject,
   Res,
+  HttpCode,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { IUserCrudService } from '../interfaces/user-crud.service.interface';
 import { IUserSearchService } from '../interfaces/user-search.service.interface';
-import { CreateUserDto, UpdateUserDto, UserFiltersDto, UserCsvExportFiltersDto } from '../dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  UserFiltersDto,
+  UserCsvExportFiltersDto,
+  UserExactSearchDto,
+  UserSimpleFilterDto,
+} from '../dto';
 import { Auth } from '../../../common/decorators/auth.decorator';
 import { UserRole } from '../../../common/enums/user-role.enum';
 import { FileExportService } from '../../../common/services/file-export.service';
@@ -51,31 +59,42 @@ export class UsersController {
   }
 
   @Get()
-  @Auth(UserRole.ADMIN)
+  @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetUsers()
-  async findAll(@Query() pagination: PaginationDto) {
-    return this.userCrudService.findAll(pagination);
+  async findAll(@Query() pagination: PaginationDto, @Request() req) {
+    return this.userCrudService.findAll(pagination, req.user?.userId, req.user?.role?.name);
   }
 
-  @Get('search')
-  @Auth(UserRole.ADMIN)
+  @Post('search')
+  @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchUsers()
-  async search(@Query('term') searchTerm: string, @Query() pagination: PaginationDto) {
-    return this.userSearchService.search(searchTerm, pagination);
+  async exactSearch(@Body() searchDto: UserExactSearchDto, @Request() req) {
+    return this.userSearchService.exactSearch(searchDto, req.user?.userId, req.user?.role?.name);
   }
 
-  @Get('filter')
-  @Auth(UserRole.ADMIN)
+  @Post('filter')
+  @HttpCode(200)
+  @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterUsersRealtime()
-  async filter(@Query('filter') filterTerm: string, @Query() pagination: PaginationDto) {
-    return this.userSearchService.filterSearch(filterTerm, pagination);
+  async simpleFilter(@Body() filterDto: UserSimpleFilterDto, @Request() req) {
+    return this.userSearchService.simpleFilter(filterDto, req.user?.userId, req.user?.role?.name);
   }
 
   @Post('advanced-filter')
-  @Auth(UserRole.ADMIN)
+  @HttpCode(200)
+  @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterUsers()
-  async advancedFilter(@Body() filters: UserFiltersDto, @Query() pagination: PaginationDto) {
-    return this.userSearchService.findWithFilters(filters, pagination);
+  async advancedFilter(
+    @Body() filters: UserFiltersDto,
+    @Query() pagination: PaginationDto,
+    @Request() req,
+  ) {
+    return this.userSearchService.findWithFilters(
+      filters,
+      pagination,
+      req.user?.userId,
+      req.user?.role?.name,
+    );
   }
 
   @Get('export/csv')

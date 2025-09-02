@@ -12,6 +12,8 @@ import { BookGenre } from '../entities/book-genre.entity';
 import { IBookGenreSearchRepository } from '../interfaces/book-genre-search.repository.interface';
 import { BookGenreFiltersDto } from '../dto/book-genre-filters.dto';
 import { BookGenreCsvExportFiltersDto } from '../dto/book-genre-csv-export-filters.dto';
+import { BookGenreExactSearchDto } from '../dto/book-genre-exact-search.dto';
+import { BookGenreSimpleFilterDto } from '../dto/book-genre-simple-filter.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import { BaseRepository } from '../../../common/repositories/base.repository';
 
@@ -27,19 +29,19 @@ export class BookGenreSearchRepository
     super(genreRepository);
   }
 
-  async searchGenres(
-    searchTerm: string,
-    pagination: PaginationDto,
-  ): Promise<PaginatedResult<BookGenre>> {
+  async exactSearchGenres(searchDto: BookGenreExactSearchDto): Promise<PaginatedResult<BookGenre>> {
     try {
+      const whereCondition: any = {};
+      whereCondition[searchDto.searchField] = searchDto.searchValue;
+
       const options: FindManyOptions<BookGenre> = {
-        where: [{ name: ILike(`%${searchTerm}%`) }, { description: ILike(`%${searchTerm}%`) }],
-        order: { [pagination.sortBy]: pagination.sortOrder },
-        skip: pagination.offset,
-        take: pagination.limit,
+        where: whereCondition,
+        order: { [searchDto.sortBy]: searchDto.sortOrder },
+        skip: searchDto.offset,
+        take: searchDto.limit,
       };
 
-      return await this._findManyWithPagination(options, pagination);
+      return await this._findManyWithPagination(options, searchDto);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -48,23 +50,38 @@ export class BookGenreSearchRepository
     }
   }
 
-  async filterGenres(
-    filterTerm: string,
-    pagination: PaginationDto,
+  async simpleFilterGenres(
+    filterDto: BookGenreSimpleFilterDto,
   ): Promise<PaginatedResult<BookGenre>> {
     try {
-      const options: FindManyOptions<BookGenre> = {
-        where: [{ name: ILike(`%${filterTerm}%`) }, { description: ILike(`%${filterTerm}%`) }],
-        order: { name: 'ASC' },
-        skip: pagination.offset,
-        take: Math.min(pagination.limit, 50),
-        cache: {
-          id: `genre_filter_${filterTerm.toLowerCase()}_${pagination.page}_${pagination.limit}`,
-          milliseconds: 30000,
-        },
+      if (!filterDto.term || filterDto.term.trim() === '') {
+        const options: FindManyOptions<BookGenre> = {
+          order: { [filterDto.sortBy]: filterDto.sortOrder },
+          skip: filterDto.offset,
+          take: filterDto.limit,
+        };
+        return await this._findManyWithPagination(options, filterDto);
+      }
+
+      const allGenresOptions: FindManyOptions<BookGenre> = {
+        order: { [filterDto.sortBy]: filterDto.sortOrder },
       };
 
-      return await this._findManyWithPagination(options, pagination);
+      const allGenres = await this._findMany(allGenresOptions);
+      const trimmedTerm = filterDto.term.trim().toLowerCase();
+
+      const filteredGenres = allGenres.filter(
+        (genre) =>
+          (genre.name && genre.name.toLowerCase().includes(trimmedTerm)) ||
+          (genre.description && genre.description.toLowerCase().includes(trimmedTerm)),
+      );
+
+      const total = filteredGenres.length;
+      const startIndex = filterDto.offset || 0;
+      const endIndex = startIndex + (filterDto.limit || 10);
+      const paginatedData = filteredGenres.slice(startIndex, endIndex);
+
+      return this._buildPaginatedResult(paginatedData, total, filterDto);
     } catch (error) {
       throw new HttpException('Failed to filter genres', HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -152,8 +169,8 @@ export class BookGenreSearchRepository
         .map((genre) => {
           const name = genre.name || 'N/A';
           const description = genre.description ? genre.description.replace(/"/g, '""') : 'N/A';
-          const createdAt = genre.createdAt ? genre.createdAt.toISOString() : 'N/A';
-          const updatedAt = genre.updatedAt ? genre.updatedAt.toISOString() : 'N/A';
+          const createdAt = genre.createdAt ? this.formatDateTimeForCsv(genre.createdAt) : 'N/A';
+          const updatedAt = genre.updatedAt ? this.formatDateTimeForCsv(genre.updatedAt) : 'N/A';
 
           return `"${genre.id}","${name}","${description}","${createdAt}","${updatedAt}"`;
         })
@@ -163,5 +180,64 @@ export class BookGenreSearchRepository
     } catch (error) {
       throw new HttpException('Failed to export genres to CSV', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  /**
+   * Helper method to format datetime safely for CSV export
+   * @private
+   */
+  private formatDateTimeForCsv(date: Date | string): string {
+    try {
+      if (!date) return '';
+
+      // If it's a string, try to parse it as a Date
+      if (typeof date === 'string') {
+        const parsedDate = new Date(date);
+        if (!isNaN(parsedDate.getTime())) {
+          return parsedDate.toISOString();
+        }
+        return '';
+      }
+
+      // If it's a Date object, format it
+      if (date instanceof Date && !isNaN(date.getTime())) {
+        return date.toISOString();
+      }
+
+      return '';
+    } catch (error) {
+      return '';
+    }
+  }
+
+  // Methods required by interface
+  async searchGenres(
+    searchTerm: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookGenre>> {
+    const filterDto = {
+      term: searchTerm,
+      sortBy: pagination.sortBy,
+      sortOrder: pagination.sortOrder,
+      offset: pagination.offset,
+      limit: pagination.limit,
+      page: pagination.page,
+    };
+    return this.simpleFilterGenres(filterDto);
+  }
+
+  async filterGenres(
+    filterTerm: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookGenre>> {
+    const filterDto = {
+      term: filterTerm,
+      sortBy: pagination.sortBy,
+      sortOrder: pagination.sortOrder,
+      offset: pagination.offset,
+      limit: pagination.limit,
+      page: pagination.page,
+    };
+    return this.simpleFilterGenres(filterDto);
   }
 }

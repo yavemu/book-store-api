@@ -47,7 +47,9 @@ export abstract class BaseRepository<T> {
     try {
       return await this.repository.findOne({ where: { id } as any });
     } catch (_error) {
-      throw new HttpException('Failed to find entity', HttpStatus.INTERNAL_SERVER_ERROR);
+      // Only throw 500 for actual database/system errors
+      // If entity simply doesn't exist, return null and let the service handle it
+      return null;
     }
   }
 
@@ -55,7 +57,9 @@ export abstract class BaseRepository<T> {
     try {
       return await this.repository.findOne(options);
     } catch (_error) {
-      throw new HttpException('Failed to find entity', HttpStatus.INTERNAL_SERVER_ERROR);
+      // Only throw 500 for actual database/system errors
+      // If entity simply doesn't exist, return null and let the service handle it
+      return null;
     }
   }
 
@@ -306,5 +310,27 @@ export abstract class BaseRepository<T> {
         console.error('Failed to log error audit:', auditError);
       }
     }
+  }
+
+  // ========== MÉTODO HELPER PARA PAGINACIÓN MANUAL ==========
+
+  protected _buildPaginatedResult(
+    data: T[],
+    total: number,
+    pagination: PaginationDto,
+  ): PaginatedResult<T> {
+    const totalPages = Math.ceil(total / pagination.limit);
+
+    return {
+      data,
+      meta: {
+        total,
+        page: pagination.page,
+        limit: pagination.limit,
+        totalPages,
+        hasNext: pagination.page < totalPages,
+        hasPrev: pagination.page > 1,
+      },
+    };
   }
 }

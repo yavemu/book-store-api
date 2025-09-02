@@ -3,7 +3,13 @@ import { IInventoryMovementCrudService } from '../interfaces/inventory-movement-
 import { IInventoryMovementCrudRepository } from '../interfaces/inventory-movement-crud.repository.interface';
 import { InventoryMovement } from '../entities/inventory-movement.entity';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
-import { MovementFiltersDto, MovementSearchDto, MovementAdvancedFiltersDto } from '../dto';
+import {
+  MovementFiltersDto,
+  MovementSearchDto,
+  MovementAdvancedFiltersDto,
+  InventoryMovementExactSearchDto,
+  InventoryMovementSimpleFilterDto,
+} from '../dto';
 
 @Injectable()
 export class InventoryMovementCrudService implements IInventoryMovementCrudService {
@@ -34,6 +40,44 @@ export class InventoryMovementCrudService implements IInventoryMovementCrudServi
 
   async softDelete(id: string, deletedBy?: string): Promise<{ id: string }> {
     return this.movementCrudRepository.deactivateMovement(id, deletedBy);
+  }
+
+  async exactSearchMovements(
+    searchDto: InventoryMovementExactSearchDto,
+    requestingUserId?: string,
+    requestingUserRole?: string,
+  ): Promise<PaginatedResult<InventoryMovement>> {
+    return this.movementCrudRepository.exactSearchMovements(
+      searchDto,
+      requestingUserId,
+      requestingUserRole,
+    );
+  }
+
+  async simpleFilterMovements(
+    filterDto: InventoryMovementSimpleFilterDto,
+    requestingUserId?: string,
+    requestingUserRole?: string,
+  ): Promise<PaginatedResult<InventoryMovement>> {
+    return this.movementCrudRepository.simpleFilterMovements(
+      filterDto,
+      requestingUserId,
+      requestingUserRole,
+    );
+  }
+
+  async advancedFilterMovements(
+    filters: MovementAdvancedFiltersDto,
+    pagination: PaginationDto,
+    requestingUserId?: string,
+    requestingUserRole?: string,
+  ): Promise<PaginatedResult<InventoryMovement>> {
+    return this.movementCrudRepository.advancedFilterMovements(
+      filters,
+      pagination,
+      requestingUserId,
+      requestingUserRole,
+    );
   }
 
   async searchMovements(

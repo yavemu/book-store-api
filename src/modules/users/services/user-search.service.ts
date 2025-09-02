@@ -47,4 +47,13 @@ export class UserSearchService implements IUserSearchService {
   async findToLoginByEmail(email: string): Promise<User | null> {
     return this.userSearchRepository.authenticateUser(email);
   }
+
+  // Methods required by IUserSearchService interface
+  async exactSearch(searchDto: any): Promise<PaginatedResult<User>> {
+    return this.search(searchDto.searchTerm || '', searchDto);
+  }
+
+  async simpleFilter(filterDto: any): Promise<PaginatedResult<User>> {
+    return this.filterSearch(filterDto.term || '', filterDto);
+  }
 }

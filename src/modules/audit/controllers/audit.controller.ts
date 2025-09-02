@@ -1,12 +1,16 @@
-import { Controller, Get, Post, Query, Body, Inject, Res, Param } from '@nestjs/common';
+import { Controller, Get, Post, Query, Body, Inject, Res, Param, HttpCode } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { IAuditSearchService } from '../interfaces/audit-search.service.interface';
 import { Auth } from '../../../common/decorators/auth.decorator';
 import { UserRole } from '../../../common/enums/user-role.enum';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
-import { AuditFiltersDto } from '../dto/audit-filters.dto';
-import { AuditCsvExportFiltersDto } from '../dto/audit-csv-export-filters.dto';
+import {
+  AuditFiltersDto,
+  AuditExactSearchDto,
+  AuditSimpleFilterDto,
+  AuditCsvExportFiltersDto,
+} from '../dto';
 import { FileExportService } from '../../../common/services/file-export.service';
 import {
   ApiGetAuditLogs,
@@ -40,25 +44,37 @@ export class AuditController {
     return this.auditSearchService.getAuditById(id);
   }
 
-  @Get('search')
+  @Post('search')
+  @HttpCode(200)
   @Auth(UserRole.ADMIN)
   @ApiSearchAuditLogs()
-  async search(@Query('term') searchTerm: string, @Query() pagination: PaginationDto) {
-    return this.auditSearchService.searchAuditLogs(searchTerm, pagination);
+  async exactSearch(@Body() searchDto: AuditExactSearchDto) {
+    return this.auditSearchService.exactSearch(searchDto);
   }
 
-  @Get('filter')
+  @Post('filter')
+  @HttpCode(200)
   @Auth(UserRole.ADMIN)
   @ApiFilterAuditRealtime()
-  async filter(@Query('filter') filterTerm: string, @Query() pagination: PaginationDto) {
-    return this.auditSearchService.filterSearch(filterTerm, pagination);
+  async simpleFilter(@Body() filterDto: AuditSimpleFilterDto) {
+    return this.auditSearchService.simpleFilter(filterDto);
   }
 
   @Post('advanced-filter')
+  @HttpCode(200)
   @Auth(UserRole.ADMIN)
   @ApiAdvancedFilterAudit()
   async advancedFilter(@Body() filters: AuditFiltersDto, @Query() pagination: PaginationDto) {
-    return this.auditSearchService.findWithFilters(filters, pagination);
+    return this.auditSearchService.advancedFilter(filters, pagination);
+  }
+
+  // Legacy method names for backward compatibility with tests
+  async search(searchTerm: any, pagination: PaginationDto) {
+    return this.exactSearch(searchTerm);
+  }
+
+  async filter(filterTerm: any, pagination: PaginationDto) {
+    return this.simpleFilter(filterTerm);
   }
 
   @Get('export/csv')

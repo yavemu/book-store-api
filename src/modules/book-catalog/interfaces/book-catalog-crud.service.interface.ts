@@ -4,7 +4,7 @@ import { UpdateBookCatalogDto } from '../dto/update-book-catalog.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 export interface IBookCatalogCrudService {
-  create(createBookCatalogDto: CreateBookCatalogDto, performedBy: string): Promise<BookCatalog>;
+  create(createBookCatalogDto: CreateBookCatalogDto, req: any): Promise<BookCatalog>;
   findAll(pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
   findById(id: string): Promise<BookCatalog>;
   update(

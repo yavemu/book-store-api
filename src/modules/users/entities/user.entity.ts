@@ -65,6 +65,24 @@ export class User {
   email: string;
 
   @Column({
+    name: 'first_name',
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+    comment: 'First name of the user',
+  })
+  firstName?: string;
+
+  @Column({
+    name: 'last_name',
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+    comment: 'Last name of the user',
+  })
+  lastName?: string;
+
+  @Column({
     name: 'role_id',
     type: 'uuid',
     nullable: false,

@@ -97,4 +97,12 @@ export class MovementFiltersDto {
     default: true,
   })
   isActive?: boolean = true;
+
+  @IsOptional()
+  @IsString()
+  @ApiPropertyOptional({
+    description: 'Filtrar por notas o descripción',
+    example: 'Actualización completada exitosamente',
+  })
+  notes?: string;
 }

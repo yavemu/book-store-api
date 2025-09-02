@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, HttpException, HttpStatus, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindManyOptions, DataSource } from 'typeorm';
+import { Repository, FindManyOptions, DataSource, EntityManager, Not } from 'typeorm';
 import { BookCatalog } from '../entities/book-catalog.entity';
 import { IBookCatalogCrudRepository } from '../interfaces/book-catalog-crud.repository.interface';
 import { IBookCatalogValidationRepository } from '../interfaces/book-catalog-validation.repository.interface';
@@ -40,85 +40,83 @@ export class BookCatalogCrudRepository
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    let orderId: string;
+    let savedBook: BookCatalog;
+    let movementId: string;
 
     try {
-      // Validar restricciones únicas
-      await this._validateUniqueConstraints(createBookCatalogDto, undefined, [
+      console.log('🔹 [START] Registro de libro con transacción');
+
+      // 1. Validar restricciones únicas (usar manager de la transacción)
+      console.log('🔹 Validando restricciones únicas...');
+      await this._validateUniqueConstraints(createBookCatalogDto, queryRunner.manager, [
         {
           field: 'isbnCode',
           message: 'El código ISBN ya existe',
           transform: (value: string) => value.trim(),
         },
       ]);
+      console.log('✅ Restricciones validadas');
 
+      // 2. Preparar datos del libro
+      console.log('🔹 Preparando datos de libro...');
       const entityData = {
         ...createBookCatalogDto,
-        publicationDate: new Date(createBookCatalogDto.publicationDate),
+        ...(createBookCatalogDto.publicationDate && {
+          publicationDate: new Date(createBookCatalogDto.publicationDate),
+        }),
       };
 
-      // Crear orden PENDING antes de crear el libro
-      const movementType = this.inventoryMovementTrackerService.determineMovementType(true, false);
-      orderId = await this.inventoryMovementTrackerService.createPendingMovement(
+      // 3. Crear libro
+      console.log('🔹 Creando libro...');
+      const book = queryRunner.manager.create(BookCatalog, entityData);
+      savedBook = await queryRunner.manager.save(BookCatalog, book);
+      console.log('✅ Libro creado con ID:', savedBook.id);
+
+      // 4. Crear movimiento inventario PENDING (dentro de la transacción)
+      console.log('🔹 Creando movimiento de inventario PENDING...');
+      movementId = await this.inventoryMovementTrackerService.createPendingMovement(
         {
-          entityType: 'book',
-          entityId: 'pending', // Se actualizará después
+          entityType: 'BookCatalog',
+          entityId: savedBook.id,
           userId: performedBy,
           userFullName,
           userRole,
           quantityBefore: 0,
-          quantityAfter: createBookCatalogDto.stockQuantity,
+          quantityAfter: savedBook.stockQuantity,
           priceBefore: 0,
-          priceAfter: createBookCatalogDto.price,
-          movementType,
-          notes: `Nuevo libro creado: ${createBookCatalogDto.title}`,
+          priceAfter: savedBook.price,
+          movementType: this.inventoryMovementTrackerService.determineMovementType(
+            true, // isCreate
+            false, // isDelete
+            0, // priceBefore
+            savedBook.price, // priceAfter
+            0, // quantityBefore
+            savedBook.stockQuantity, // quantityAfter
+          ),
+          notes: `Book registered: ${savedBook.title} (ISBN: ${savedBook.isbnCode})`,
         },
-        queryRunner,
+        queryRunner, // 🔑 importante: usar mismo queryRunner
       );
+      console.log('✅ Movimiento PENDING creado con ID:', movementId);
 
-      // Crear el libro
-      const book = queryRunner.manager.create(BookCatalog, entityData);
-      const savedBook = await queryRunner.manager.save(BookCatalog, book);
+      // 5. Marcar movimiento como COMPLETED (aún dentro de la transacción)
+      console.log('🔹 Marcando movimiento como COMPLETED...');
+      await this.inventoryMovementTrackerService.markMovementCompleted(movementId, queryRunner);
+      console.log('✅ Movimiento COMPLETED con ID:', movementId);
 
-      // Actualizar la orden con el ID del libro creado
-      await queryRunner.manager.update(
-        'orders',
-        { id: orderId },
-        {
-          entityId: savedBook.id,
-          updatedAt: new Date(),
-        },
-      );
-
-      // Registrar auditoría
-      await this.auditLogService.log(
-        performedBy,
-        savedBook.id,
-        'CREATE' as any,
-        `Book registered: ${savedBook.title} (ISBN: ${savedBook.isbnCode})`,
-        'BookCatalog',
-      );
-
-      // Marcar orden como completada
-      await this.inventoryMovementTrackerService.markMovementCompleted(orderId, queryRunner);
-
+      // 6. Confirmar transacción
+      console.log('🔹 Confirmando transacción...');
       await queryRunner.commitTransaction();
-      return savedBook;
+      console.log('✅ Transacción confirmada con éxito');
     } catch (error) {
-      await queryRunner.rollbackTransaction();
+      console.error('❌ Error durante la transacción:', error);
 
-      // Marcar orden como error si existe
-      if (orderId) {
-        try {
-          await this.inventoryMovementTrackerService.markMovementError(
-            orderId,
-            queryRunner,
-            error.message,
-          );
-        } catch (orderError) {
-          // Log pero no fallar por error en orden
-          console.error('Error marking order as failed:', orderError);
-        }
+      try {
+        console.log('🔹 Revirtiendo transacción...');
+        await queryRunner.rollbackTransaction();
+        console.log('✅ Transacción revertida');
+      } catch (rollbackError) {
+        console.error('❌ Error al revertir transacción:', rollbackError);
       }
 
       if (error instanceof HttpException) {
@@ -126,8 +124,28 @@ export class BookCatalogCrudRepository
       }
       throw new HttpException('Error al registrar el libro', HttpStatus.INTERNAL_SERVER_ERROR);
     } finally {
+      console.log('🔹 Liberando queryRunner...');
       await queryRunner.release();
+      console.log('✅ queryRunner liberado');
     }
+
+    // 7. Auditoría (fuera de la transacción para no bloquear BD)
+    try {
+      console.log('🔹 Registrando auditoría...');
+      await this.auditLogService.log(
+        performedBy,
+        savedBook.id,
+        'CREATE' as any,
+        `Book registered: ${savedBook.title} (ISBN: ${savedBook.isbnCode})`,
+        'BookCatalog',
+      );
+      console.log('✅ Auditoría registrada');
+    } catch (auditError) {
+      console.error('❌ Error registrando auditoría (no crítico):', auditError);
+    }
+
+    console.log('🔹 [END] Registro de libro completado');
+    return savedBook;
   }
 
   async getBookProfile(bookId: string): Promise<BookCatalog> {
@@ -159,8 +177,6 @@ export class BookCatalogCrudRepository
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    let orderId: string;
-
     try {
       // Obtener el libro actual para comparar cambios
       const currentBook = await this.getBookProfile(bookId);
@@ -189,19 +205,26 @@ export class BookCatalogCrudRepository
           }),
         };
 
-        const result = await this._update(
-          bookId,
-          entityData,
+        await queryRunner.manager.update(BookCatalog, { id: bookId }, entityData);
+        const result = await queryRunner.manager.findOne(BookCatalog, {
+          where: { id: bookId },
+          relations: ['genre', 'publisher'],
+        });
+
+        // Registrar auditoría
+        await this.auditLogService.log(
           performedBy,
+          bookId,
+          'UPDATE' as any,
+          `Book ${bookId} updated.`,
           'BookCatalog',
-          (book) => `Book ${book.id} updated.`,
         );
 
         await queryRunner.commitTransaction();
         return result;
       }
 
-      // Hay cambios significativos, crear orden
+      // Hay cambios significativos, proceder con actualización
       await this._validateUniqueConstraints(updateBookCatalogDto, bookId, [
         {
           field: 'isbnCode',
@@ -209,42 +232,6 @@ export class BookCatalogCrudRepository
           transform: (value: string) => value.trim(),
         },
       ]);
-
-      // Determinar el tipo de orden basado en los cambios
-      const movementType = this.inventoryMovementTrackerService.determineMovementType(
-        false,
-        false,
-        currentBook.price,
-        updateBookCatalogDto.price !== undefined ? updateBookCatalogDto.price : currentBook.price,
-        currentBook.stockQuantity,
-        updateBookCatalogDto.stockQuantity !== undefined
-          ? updateBookCatalogDto.stockQuantity
-          : currentBook.stockQuantity,
-      );
-
-      // Crear orden PENDING antes de actualizar
-      orderId = await this.inventoryMovementTrackerService.createPendingMovement(
-        {
-          entityType: 'book',
-          entityId: bookId,
-          userId: performedBy,
-          userFullName,
-          userRole,
-          priceBefore: currentBook.price,
-          priceAfter:
-            updateBookCatalogDto.price !== undefined
-              ? updateBookCatalogDto.price
-              : currentBook.price,
-          quantityBefore: currentBook.stockQuantity,
-          quantityAfter:
-            updateBookCatalogDto.stockQuantity !== undefined
-              ? updateBookCatalogDto.stockQuantity
-              : currentBook.stockQuantity,
-          movementType,
-          notes: `Actualización de libro: ${currentBook.title}`,
-        },
-        queryRunner,
-      );
 
       // Actualizar el libro
       const entityData = {
@@ -260,6 +247,31 @@ export class BookCatalogCrudRepository
         relations: ['genre', 'publisher'],
       });
 
+      // Crear movimiento de inventario PENDING para cambios significativos
+      const movementId = await this.inventoryMovementTrackerService.createPendingMovement(
+        {
+          entityType: 'BookCatalog',
+          entityId: bookId,
+          userId: performedBy,
+          userFullName: userFullName,
+          userRole: userRole,
+          quantityBefore: currentBook.stockQuantity,
+          quantityAfter: updatedBook.stockQuantity,
+          priceBefore: currentBook.price,
+          priceAfter: updatedBook.price,
+          movementType: this.inventoryMovementTrackerService.determineMovementType(
+            false, // isCreate
+            false, // isDelete
+            currentBook.price, // priceBefore
+            updatedBook.price, // priceAfter
+            currentBook.stockQuantity, // quantityBefore
+            updatedBook.stockQuantity, // quantityAfter
+          ),
+          notes: `Book updated: ${currentBook.title} - Stock: ${currentBook.stockQuantity} -> ${updatedBook.stockQuantity}, Price: ${currentBook.price} -> ${updatedBook.price}`,
+        },
+        queryRunner,
+      );
+
       // Registrar auditoría
       await this.auditLogService.log(
         performedBy,
@@ -269,36 +281,13 @@ export class BookCatalogCrudRepository
         'BookCatalog',
       );
 
-      // Determinar el tipo final de orden (puede cambiar si la cantidad queda en 0)
-      const finalMovementType =
-        updatedBook.stockQuantity === 0
-          ? this.inventoryMovementTrackerService.determineMovementType(false, false)
-          : movementType;
-
-      // Marcar orden como completada
-      await this.inventoryMovementTrackerService.markMovementCompleted(orderId, queryRunner, {
-        movementType: finalMovementType,
-        priceAfter: updatedBook.price,
-        quantityAfter: updatedBook.stockQuantity,
-      });
+      // Marcar movimiento como completado
+      await this.inventoryMovementTrackerService.markMovementCompleted(movementId, queryRunner);
 
       await queryRunner.commitTransaction();
       return updatedBook;
     } catch (error) {
       await queryRunner.rollbackTransaction();
-
-      // Marcar orden como error si existe
-      if (orderId) {
-        try {
-          await this.inventoryMovementTrackerService.markMovementError(
-            orderId,
-            queryRunner,
-            error.message,
-          );
-        } catch (orderError) {
-          console.error('Error marking order as failed:', orderError);
-        }
-      }
 
       if (error instanceof HttpException) {
         throw error;
@@ -322,25 +311,30 @@ export class BookCatalogCrudRepository
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    let orderId: string;
-
     try {
       const book = await this.getBookProfile(bookId);
 
-      // Crear orden ARCHIVED antes de desactivar
-      orderId = await this.inventoryMovementTrackerService.createPendingMovement(
+      // Crear movimiento de inventario PENDING para desactivación
+      const movementId = await this.inventoryMovementTrackerService.createPendingMovement(
         {
-          entityType: 'book',
+          entityType: 'BookCatalog',
           entityId: bookId,
           userId: performedBy,
-          userFullName,
-          userRole,
-          priceBefore: book.price,
-          priceAfter: book.price,
+          userFullName: userFullName,
+          userRole: userRole,
           quantityBefore: book.stockQuantity,
-          quantityAfter: 0, // Se archiva
-          movementType: this.inventoryMovementTrackerService.determineMovementType(false, true),
-          notes: `Libro archivado: ${book.title}`,
+          quantityAfter: 0,
+          priceBefore: book.price,
+          priceAfter: 0,
+          movementType: this.inventoryMovementTrackerService.determineMovementType(
+            false, // isCreate
+            true, // isDelete
+            book.price, // priceBefore
+            0, // priceAfter
+            book.stockQuantity, // quantityBefore
+            0, // quantityAfter
+          ),
+          notes: `Book archived: ${book.title} - Stock was: ${book.stockQuantity}`,
         },
         queryRunner,
       );
@@ -357,26 +351,13 @@ export class BookCatalogCrudRepository
         'BookCatalog',
       );
 
-      // Marcar orden como completada
-      await this.inventoryMovementTrackerService.markMovementCompleted(orderId, queryRunner);
+      // Marcar movimiento como completado
+      await this.inventoryMovementTrackerService.markMovementCompleted(movementId, queryRunner);
 
       await queryRunner.commitTransaction();
       return { id: bookId };
     } catch (error) {
       await queryRunner.rollbackTransaction();
-
-      // Marcar orden como error si existe
-      if (orderId) {
-        try {
-          await this.inventoryMovementTrackerService.markMovementError(
-            orderId,
-            queryRunner,
-            error.message,
-          );
-        } catch (orderError) {
-          console.error('Error marking order as failed:', orderError);
-        }
-      }
 
       if (error instanceof HttpException) {
         throw error;
@@ -422,10 +403,24 @@ export class BookCatalogCrudRepository
 
   async _validateUniqueConstraints(
     dto: Partial<BookCatalog>,
-    entityId?: string,
-    constraints?: any[],
+    managerOrId?: EntityManager | string,
+    constraints?: {
+      field: keyof BookCatalog;
+      message: string;
+      transform?: (value: any) => any;
+    }[],
   ): Promise<void> {
     if (!constraints) return;
+
+    // Detectar si el segundo argumento es manager o entityId
+    let manager: EntityManager | undefined;
+    let entityId: string | undefined;
+
+    if (managerOrId instanceof EntityManager) {
+      manager = managerOrId;
+    } else if (typeof managerOrId === 'string') {
+      entityId = managerOrId;
+    }
 
     for (const constraint of constraints) {
       const fieldValue = dto[constraint.field];
@@ -433,11 +428,21 @@ export class BookCatalogCrudRepository
 
       const transformedValue = constraint.transform ? constraint.transform(fieldValue) : fieldValue;
 
-      let existingEntity: BookCatalog;
+      let existingEntity: BookCatalog | null = null;
+
       if (entityId) {
-        existingEntity = await this.findByIsbnExcludingId(transformedValue, entityId);
+        // con entityId (excluir el mismo registro)
+        existingEntity = await (manager
+          ? manager.findOne(BookCatalog, {
+              where: { isbnCode: transformedValue, id: Not(entityId) },
+            })
+          : this.findByIsbnExcludingId(transformedValue, entityId));
       } else {
-        existingEntity = await this.findByIsbn(transformedValue);
+        existingEntity = await (manager
+          ? manager.findOne(BookCatalog, {
+              where: { isbnCode: transformedValue },
+            })
+          : this.findByIsbn(transformedValue));
       }
 
       if (existingEntity) {

@@ -51,4 +51,13 @@ export class BookAuthorCsvExportFiltersDto {
   @IsDateString()
   @Transform(({ value }) => (value ? new Date(value).toISOString() : undefined))
   endDate?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter by email',
+    type: String,
+    example: 'author@example.com',
+  })
+  @IsOptional()
+  @IsString()
+  email?: string;
 }
