@@ -66,46 +66,80 @@ export class PublishingHouseListResponseDto {
     hasNext: boolean;
     hasPrev: boolean;
   };
+
+  @ApiProperty({
+    description: 'Mensaje de respuesta',
+    example: 'Editoriales obtenidas exitosamente',
+  })
+  message: string;
+}
+
+export class GetPublishingHouseResponseDto {
+  @ApiProperty({
+    description: 'Información de la editorial',
+    type: PublishingHouseResponseDto,
+  })
+  data: PublishingHouseResponseDto;
+
+  @ApiProperty({
+    description: 'Mensaje de respuesta',
+    example: 'Editorial obtenida exitosamente',
+  })
+  message: string;
 }
 
 export class CreatePublishingHouseResponseDto {
+  @ApiProperty({
+    description: 'Información de la editorial creada',
+    type: PublishingHouseResponseDto,
+  })
+  data: PublishingHouseResponseDto;
+
   @ApiProperty({
     description: 'Mensaje de confirmación',
     example: 'Editorial creada exitosamente',
   })
   message: string;
-
-  @ApiProperty({
-    description: 'Información de la editorial creada',
-    type: PublishingHouseResponseDto,
-  })
-  publisher: PublishingHouseResponseDto;
 }
 
 export class UpdatePublishingHouseResponseDto {
+  @ApiProperty({
+    description: 'Información de la editorial actualizada',
+    type: PublishingHouseResponseDto,
+  })
+  data: PublishingHouseResponseDto;
+
   @ApiProperty({
     description: 'Mensaje de confirmación',
     example: 'Editorial actualizada exitosamente',
   })
   message: string;
-
-  @ApiProperty({
-    description: 'Información de la editorial actualizada',
-    type: PublishingHouseResponseDto,
-  })
-  publisher: PublishingHouseResponseDto;
 }
 
 export class DeletePublishingHouseResponseDto {
+  @ApiProperty({
+    description: 'ID de la editorial eliminada',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  data: string;
+
   @ApiProperty({
     description: 'Mensaje de confirmación',
     example: 'Editorial eliminada exitosamente',
   })
   message: string;
+}
+
+export class PublishingHouseCsvExportResponseDto {
+  @ApiProperty({
+    description: 'Archivo CSV con las editoriales',
+    example: 'ID,Name,Country,Website URL,Created At,Updated At\n...',
+  })
+  data: string;
 
   @ApiProperty({
-    description: 'ID de la editorial eliminada',
-    example: '550e8400-e29b-41d4-a716-446655440000',
+    description: 'Mensaje de respuesta',
+    example: 'Editoriales exportadas exitosamente',
   })
-  deletedPublisherId: string;
+  message: string;
 }

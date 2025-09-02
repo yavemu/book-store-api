@@ -3,20 +3,9 @@ import {
   ApiOperation,
   ApiResponse,
   ApiQuery,
-  ApiExtraModels,
-  getSchemaPath,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { BookCatalogResponseDto } from '../dto';
-import {
-  PaginationDto,
-  BadRequestResponseDto,
-  UnauthorizedResponseDto,
-  ConflictResponseDto,
-  ForbiddenResponseDto,
-  NotFoundResponseDto,
-} from '../../../common/dto';
-import { ApiResponseDto } from '../../../common/dto';
+import { BookCatalogListResponseDto } from '../dto';
 
 export function ApiGetBooks() {
   return applyDecorators(
@@ -62,38 +51,10 @@ export function ApiGetBooks() {
       type: Number,
       description: 'Precio máximo para filtrar libros',
     }),
-    ApiExtraModels(PaginationDto, ApiResponseDto, BookCatalogResponseDto),
     ApiResponse({
       status: 200,
       description: 'Catálogo de libros obtenido exitosamente',
-      schema: {
-        allOf: [
-          { $ref: getSchemaPath(ApiResponseDto) },
-          {
-            properties: {
-              data: {
-                properties: {
-                  data: {
-                    type: 'array',
-                    items: { $ref: getSchemaPath(BookCatalogResponseDto) },
-                  },
-                  meta: {
-                    type: 'object',
-                    properties: {
-                      total: { type: 'number' },
-                      page: { type: 'number' },
-                      limit: { type: 'number' },
-                      totalPages: { type: 'number' },
-                      hasNext: { type: 'boolean' },
-                      hasPrev: { type: 'boolean' },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        ],
-      },
+      type: BookCatalogListResponseDto,
     }),
   );
 }

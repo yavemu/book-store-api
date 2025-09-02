@@ -36,6 +36,7 @@ import {
   ApiDeletePublishingHouse,
   ApiSearchPublishingHouses,
   ApiFilterPublishingHouses,
+  ApiSimpleFilterPublishingHouses,
   ApiExportPublishingHousesCsv,
 } from '../decorators';
 
@@ -73,7 +74,7 @@ export class PublishingHousesController {
 
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
-  @ApiFilterPublishingHouses()
+  @ApiSimpleFilterPublishingHouses()
   simpleFilter(@Query('term') term: string, @Query() pagination: PaginationDto) {
     return this.publishingHouseSearchService.simpleFilter(term, pagination);
   }

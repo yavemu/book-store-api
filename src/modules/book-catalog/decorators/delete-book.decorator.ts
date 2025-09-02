@@ -7,13 +7,10 @@ import {
   ApiUnauthorizedResponse,
   ApiBearerAuth,
   ApiParam,
-  getSchemaPath,
 } from '@nestjs/swagger';
+import { DeleteBookCatalogResponseDto } from '../dto';
 import {
-  ApiResponseDto,
-  BadRequestResponseDto,
   UnauthorizedResponseDto,
-  ConflictResponseDto,
   ForbiddenResponseDto,
   NotFoundResponseDto,
 } from '../../../common/dto';
@@ -34,21 +31,7 @@ export function ApiDeleteBook() {
     ApiResponse({
       status: 200,
       description: 'Libro eliminado exitosamente del catálogo',
-      schema: {
-        allOf: [
-          { $ref: getSchemaPath(ApiResponseDto) },
-          {
-            properties: {
-              data: {
-                type: 'object',
-                properties: {
-                  id: { type: 'string' },
-                },
-              },
-            },
-          },
-        ],
-      },
+      type: DeleteBookCatalogResponseDto,
     }),
     ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',

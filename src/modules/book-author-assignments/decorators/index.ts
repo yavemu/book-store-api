@@ -6,5 +6,6 @@ export * from './get-assignments-by-author.decorator';
 export * from './update-assignment.decorator';
 export * from './delete-assignment.decorator';
 export * from './filter-assignments.decorator';
+export * from './filter-assignments-realtime.decorator';
 export * from './export-assignments-csv.decorator';
 export * from './api-search-assignments.decorator';

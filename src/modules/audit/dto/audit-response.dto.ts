@@ -72,4 +72,38 @@ export class AuditLogListResponseDto {
     hasNext: boolean;
     hasPrev: boolean;
   };
+
+  @ApiProperty({
+    description: 'Mensaje de respuesta',
+    example: 'Registros de auditoría obtenidos exitosamente',
+  })
+  message: string;
+}
+
+export class GetAuditLogResponseDto {
+  @ApiProperty({
+    description: 'Información del registro de auditoría',
+    type: AuditLogResponseDto,
+  })
+  data: AuditLogResponseDto;
+
+  @ApiProperty({
+    description: 'Mensaje de respuesta',
+    example: 'Registro de auditoría obtenido exitosamente',
+  })
+  message: string;
+}
+
+export class AuditCsvExportResponseDto {
+  @ApiProperty({
+    description: 'Archivo CSV con los registros de auditoría',
+    example: 'ID,Action,Entity Type,Entity ID,Performed By,Timestamp,Details\n...',
+  })
+  data: string;
+
+  @ApiProperty({
+    description: 'Mensaje de respuesta',
+    example: 'Registros de auditoría exportados exitosamente',
+  })
+  message: string;
 }

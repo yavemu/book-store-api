@@ -15,7 +15,7 @@ export function ApiFilterGenres() {
       description: 'Filtra géneros literarios utilizando parámetros de consulta específicos.',
     }),
     ApiQuery({
-      name: 'filter',
+      name: 'term',
       required: true,
       type: String,
       description: 'Término de filtrado para géneros',

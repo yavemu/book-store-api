@@ -101,3 +101,79 @@ export class InventoryMovementResponseDto {
   })
   updatedAt: Date;
 }
+
+export class InventoryMovementListResponseDto {
+  @ApiProperty({
+    description: 'Lista de movimientos de inventario',
+    type: [InventoryMovementResponseDto],
+  })
+  data: InventoryMovementResponseDto[];
+
+  @ApiProperty({
+    description: 'Información de paginación',
+    example: {
+      total: 85,
+      page: 1,
+      limit: 15,
+      totalPages: 6,
+      hasNext: true,
+      hasPrev: false,
+    },
+  })
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+
+  @ApiProperty({
+    description: 'Mensaje de respuesta',
+    example: 'Movimientos de inventario obtenidos exitosamente',
+  })
+  message: string;
+}
+
+export class GetInventoryMovementResponseDto {
+  @ApiProperty({
+    description: 'Información del movimiento de inventario',
+    type: InventoryMovementResponseDto,
+  })
+  data: InventoryMovementResponseDto;
+
+  @ApiProperty({
+    description: 'Mensaje de respuesta',
+    example: 'Movimiento de inventario obtenido exitosamente',
+  })
+  message: string;
+}
+
+export class DeleteInventoryMovementResponseDto {
+  @ApiProperty({
+    description: 'ID del movimiento de inventario eliminado',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  data: string;
+
+  @ApiProperty({
+    description: 'Mensaje de confirmación',
+    example: 'Movimiento de inventario eliminado exitosamente',
+  })
+  message: string;
+}
+
+export class InventoryMovementCsvExportResponseDto {
+  @ApiProperty({
+    description: 'Archivo CSV con los movimientos de inventario',
+    example: 'ID,Entity Type,Entity ID,User,Movement Type,Status,Created At\n...',
+  })
+  data: string;
+
+  @ApiProperty({
+    description: 'Mensaje de respuesta',
+    example: 'Movimientos de inventario exportados exitosamente',
+  })
+  message: string;
+}

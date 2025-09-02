@@ -20,7 +20,7 @@ export function ApiFilterUsersRealtime() {
     }),
     ApiBearerAuth(),
     ApiQuery({
-      name: 'filter',
+      name: 'term',
       description: 'Término de búsqueda para filtrar usuarios (mínimo 3 caracteres)',
       required: true,
       type: String,

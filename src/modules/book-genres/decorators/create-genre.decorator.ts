@@ -14,6 +14,7 @@ import {
   ForbiddenResponseDto,
   NotFoundResponseDto,
 } from '../../../common/dto';
+import { CreateBookGenreResponseDto } from '../dto';
 
 export function ApiCreateBookGenre() {
   return applyDecorators(
@@ -26,29 +27,7 @@ export function ApiCreateBookGenre() {
     ApiResponse({
       status: 201,
       description: 'Género de libro creado exitosamente',
-      schema: {
-        type: 'object',
-        properties: {
-          success: { type: 'boolean' },
-          message: {
-            type: 'string',
-          },
-          data: {
-            type: 'object',
-            properties: {
-              id: { type: 'string' },
-              name: { type: 'string' },
-              description: {
-                type: 'string',
-              },
-              createdAt: {
-                type: 'string',
-                format: 'date-time',
-              },
-            },
-          },
-        },
-      },
+      type: CreateBookGenreResponseDto,
     }),
     ApiBadRequestResponse({
       description: 'Datos de entrada inválidos o errores de validación',

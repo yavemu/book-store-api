@@ -121,46 +121,108 @@ export class BookCatalogListResponseDto {
     hasNext: boolean;
     hasPrev: boolean;
   };
+
+  @ApiProperty({
+    description: 'Mensaje de respuesta',
+    example: 'Libros obtenidos exitosamente',
+  })
+  message: string;
+}
+
+export class GetBookCatalogResponseDto {
+  @ApiProperty({
+    description: 'Información del libro',
+    type: BookCatalogResponseDto,
+  })
+  data: BookCatalogResponseDto;
+
+  @ApiProperty({
+    description: 'Mensaje de respuesta',
+    example: 'Libro obtenido exitosamente',
+  })
+  message: string;
 }
 
 export class CreateBookCatalogResponseDto {
+  @ApiProperty({
+    description: 'Información del libro creado',
+    type: BookCatalogResponseDto,
+  })
+  data: BookCatalogResponseDto;
+
   @ApiProperty({
     description: 'Mensaje de confirmación',
     example: 'Libro creado exitosamente en el catálogo',
   })
   message: string;
-
-  @ApiProperty({
-    description: 'Información del libro creado',
-    type: BookCatalogResponseDto,
-  })
-  book: BookCatalogResponseDto;
 }
 
 export class UpdateBookCatalogResponseDto {
+  @ApiProperty({
+    description: 'Información del libro actualizado',
+    type: BookCatalogResponseDto,
+  })
+  data: BookCatalogResponseDto;
+
   @ApiProperty({
     description: 'Mensaje de confirmación',
     example: 'Libro actualizado exitosamente en el catálogo',
   })
   message: string;
-
-  @ApiProperty({
-    description: 'Información del libro actualizado',
-    type: BookCatalogResponseDto,
-  })
-  book: BookCatalogResponseDto;
 }
 
 export class DeleteBookCatalogResponseDto {
+  @ApiProperty({
+    description: 'ID del libro eliminado',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  data: string;
+
   @ApiProperty({
     description: 'Mensaje de confirmación',
     example: 'Libro eliminado exitosamente del catálogo',
   })
   message: string;
+}
+
+export class BookCatalogCsvExportResponseDto {
+  @ApiProperty({
+    description: 'Archivo CSV con los libros',
+    example: 'ID,Título,ISBN,Precio,Disponible,Stock,Género,Editorial,Fecha Publicación\n...',
+  })
+  data: string;
 
   @ApiProperty({
-    description: 'ID del libro eliminado',
+    description: 'Mensaje de respuesta',
+    example: 'Libros exportados exitosamente',
+  })
+  message: string;
+}
+
+export class UploadBookCoverResponseDto {
+  @ApiProperty({
+    description: 'URL de la imagen subida',
+    example: 'https://example.com/covers/book-cover-123.jpg',
+  })
+  data: string;
+
+  @ApiProperty({
+    description: 'Mensaje de confirmación',
+    example: 'Portada del libro subida exitosamente',
+  })
+  message: string;
+}
+
+export class RemoveBookCoverResponseDto {
+  @ApiProperty({
+    description: 'ID del libro al que se removió la portada',
     example: '550e8400-e29b-41d4-a716-446655440000',
   })
-  deletedBookId: string;
+  data: string;
+
+  @ApiProperty({
+    description: 'Mensaje de confirmación',
+    example: 'Portada del libro removida exitosamente',
+  })
+  message: string;
 }

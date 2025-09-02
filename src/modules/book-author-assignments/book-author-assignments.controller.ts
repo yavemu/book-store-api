@@ -35,6 +35,7 @@ import {
   ApiUpdateAssignment,
   ApiDeleteAssignment,
   ApiFilterAssignments,
+  ApiFilterAssignmentsRealtime,
   ApiExportAssignmentsCsv,
   ApiSearchAssignments,
 } from './decorators';
@@ -75,7 +76,7 @@ export class BookAuthorAssignmentsController {
 
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
-  @ApiFilterAssignments()
+  @ApiFilterAssignmentsRealtime()
   simpleFilter(
     @Query('term') term: string,
     @Query() pagination: PaginationDto,

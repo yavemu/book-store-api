@@ -35,6 +35,7 @@ import {
   ApiDeleteAuthor,
   ApiSearchAuthors,
   ApiFilterAuthors,
+  ApiFilterAuthorsRealtime,
   ApiExportAuthorsCsv,
 } from './decorators';
 
@@ -74,7 +75,7 @@ export class BookAuthorsController {
 
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
-  @ApiFilterAuthors()
+  @ApiFilterAuthorsRealtime()
   simpleFilter(@Query('term') term: string, @Query() pagination: PaginationDto) {
     return this.searchService.simpleFilter(term, pagination);
   }

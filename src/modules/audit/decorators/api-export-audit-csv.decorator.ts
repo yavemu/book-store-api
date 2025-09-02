@@ -8,7 +8,8 @@ import {
   ApiQuery,
   ApiProduces,
 } from '@nestjs/swagger';
-import { ForbiddenResponseDto } from '../../../common/dto';
+import { AuditCsvExportResponseDto } from '../dto/audit-response.dto';
+import { UnauthorizedResponseDto, ForbiddenResponseDto } from '../../../common/dto';
 
 export function ApiExportAuditCsv() {
   return applyDecorators(
@@ -67,19 +68,15 @@ export function ApiExportAuditCsv() {
     ApiResponse({
       status: 200,
       description: 'Archivo CSV con datos de auditoría filtrados',
-      content: {
-        'text/csv': {
-          schema: {
-            type: 'string',
-          },
-        },
-      },
+      type: AuditCsvExportResponseDto,
     }),
     ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT requerido',
+      type: UnauthorizedResponseDto,
     }),
     ApiForbiddenResponse({
       description: 'Prohibido - Solo administradores pueden exportar auditorías',
+      type: ForbiddenResponseDto,
     }),
   );
 }

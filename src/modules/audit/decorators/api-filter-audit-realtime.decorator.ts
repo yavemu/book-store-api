@@ -19,7 +19,7 @@ export function ApiFilterAuditRealtime() {
     }),
     ApiBearerAuth(),
     ApiQuery({
-      name: 'filter',
+      name: 'term',
       description: 'Término de búsqueda para filtrar auditorías (mínimo 3 caracteres)',
       required: true,
       type: String,

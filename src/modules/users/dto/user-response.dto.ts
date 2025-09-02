@@ -73,4 +73,52 @@ export class UserListResponseDto {
     hasNext: boolean;
     hasPrev: boolean;
   };
+
+  @ApiProperty({
+    description: 'Mensaje de respuesta',
+    example: 'Usuarios obtenidos exitosamente',
+  })
+  message: string;
+}
+
+export class CreateUserResponseDto {
+  @ApiProperty({
+    description: 'Información del usuario creado',
+    type: UserResponseDto,
+  })
+  data: UserResponseDto;
+
+  @ApiProperty({
+    description: 'Mensaje de confirmación',
+    example: 'Usuario creado exitosamente',
+  })
+  message: string;
+}
+
+export class UpdateUserResponseDto {
+  @ApiProperty({
+    description: 'Información del usuario actualizado',
+    type: UserResponseDto,
+  })
+  data: UserResponseDto;
+
+  @ApiProperty({
+    description: 'Mensaje de confirmación',
+    example: 'Usuario actualizado exitosamente',
+  })
+  message: string;
+}
+
+export class DeleteUserResponseDto {
+  @ApiProperty({
+    description: 'ID del usuario eliminado',
+    example: 'b8c4e4b2-1234-5678-9abc-def123456789',
+  })
+  data: string;
+
+  @ApiProperty({
+    description: 'Mensaje de confirmación',
+    example: 'Usuario eliminado exitosamente',
+  })
+  message: string;
 }

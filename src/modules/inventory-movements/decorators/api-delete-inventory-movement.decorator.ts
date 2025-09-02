@@ -1,5 +1,16 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiParam, ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBearerAuth,
+  ApiTags,
+  ApiNotFoundResponse,
+  ApiUnauthorizedResponse,
+  ApiForbiddenResponse,
+} from '@nestjs/swagger';
+import { DeleteInventoryMovementResponseDto } from '../dto/inventory-movement-response.dto';
+import { UnauthorizedResponseDto, NotFoundResponseDto, ForbiddenResponseDto } from '../../../common/dto';
 
 export function ApiDeleteInventoryMovement() {
   return applyDecorators(
@@ -20,32 +31,19 @@ export function ApiDeleteInventoryMovement() {
     ApiResponse({
       status: 200,
       description: 'Movimiento de inventario desactivada exitosamente',
-      schema: {
-        type: 'object',
-        properties: {
-          id: {
-            type: 'string',
-            example: '550e8400-e29b-41d4-a716-446655440000',
-            description: 'ID de la movimiento desactivada',
-          },
-        },
-      },
+      type: DeleteInventoryMovementResponseDto,
     }),
-    ApiResponse({
-      status: 401,
+    ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT faltante o inválido',
+      type: UnauthorizedResponseDto,
     }),
-    ApiResponse({
-      status: 403,
+    ApiForbiddenResponse({
       description: 'Prohibido - Sin permisos suficientes',
+      type: ForbiddenResponseDto,
     }),
-    ApiResponse({
-      status: 404,
+    ApiNotFoundResponse({
       description: 'Movimiento de inventario no encontrada',
-    }),
-    ApiResponse({
-      status: 500,
-      description: 'Error interno del servidor',
+      type: NotFoundResponseDto,
     }),
   );
 }

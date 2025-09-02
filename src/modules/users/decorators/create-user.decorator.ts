@@ -6,11 +6,9 @@ import {
   ApiConflictResponse,
   ApiForbiddenResponse,
   ApiBearerAuth,
-  getSchemaPath,
 } from '@nestjs/swagger';
-import { UserResponseDto } from '../dto/user-response.dto';
+import { CreateUserResponseDto } from '../dto/user-response.dto';
 import {
-  ApiResponseDto,
   BadRequestResponseDto,
   ConflictResponseDto,
   ForbiddenResponseDto,
@@ -27,18 +25,7 @@ export function ApiCreateUser() {
     ApiResponse({
       status: 201,
       description: 'Usuario creado exitosamente',
-      schema: {
-        allOf: [
-          { $ref: getSchemaPath(ApiResponseDto) },
-          {
-            properties: {
-              data: {
-                $ref: getSchemaPath(UserResponseDto),
-              },
-            },
-          },
-        ],
-      },
+      type: CreateUserResponseDto,
     }),
     ApiBadRequestResponse({
       description: 'Datos de entrada inválidos o errores de validación',

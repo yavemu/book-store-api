@@ -9,11 +9,9 @@ import {
   ApiUnauthorizedResponse,
   ApiBearerAuth,
   ApiParam,
-  getSchemaPath,
 } from '@nestjs/swagger';
-import { BookCatalogResponseDto } from '../dto';
+import { UpdateBookCatalogResponseDto } from '../dto';
 import {
-  ApiResponseDto,
   BadRequestResponseDto,
   UnauthorizedResponseDto,
   ConflictResponseDto,
@@ -37,18 +35,7 @@ export function ApiUpdateBook() {
     ApiResponse({
       status: 200,
       description: 'Libro actualizado exitosamente',
-      schema: {
-        allOf: [
-          { $ref: getSchemaPath(ApiResponseDto) },
-          {
-            properties: {
-              data: {
-                $ref: getSchemaPath(BookCatalogResponseDto),
-              },
-            },
-          },
-        ],
-      },
+      type: UpdateBookCatalogResponseDto,
     }),
     ApiBadRequestResponse({
       description: 'Datos de entrada inválidos o errores de validación',

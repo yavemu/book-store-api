@@ -6,4 +6,5 @@ export * from './delete-publishing-house.decorator';
 export * from './search-publishing-houses.decorator';
 export * from './get-publishing-houses-by-country.decorator';
 export * from './filter-publishing-houses.decorator';
+export * from './simple-filter-publishing-houses.decorator';
 export * from './export-publishing-houses-csv.decorator';

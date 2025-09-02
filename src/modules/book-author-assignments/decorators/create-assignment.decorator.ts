@@ -15,7 +15,7 @@ import {
   ForbiddenResponseDto,
   NotFoundResponseDto,
 } from '../../../common/dto';
-import { CreateBookAuthorAssignmentDto } from '../dto';
+import { CreateBookAuthorAssignmentDto, CreateBookAuthorAssignmentResponseDto } from '../dto';
 
 export function ApiCreateAssignment() {
   return applyDecorators(
@@ -32,16 +32,7 @@ export function ApiCreateAssignment() {
     ApiResponse({
       status: 201,
       description: 'Asignación libro-autor creada exitosamente',
-      schema: {
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          bookId: { type: 'string' },
-          authorId: { type: 'string' },
-          assignmentOrder: { type: 'number' },
-          createdAt: { type: 'string' },
-        },
-      },
+      type: CreateBookAuthorAssignmentResponseDto,
     }),
     ApiBadRequestResponse({
       description: 'Solicitud incorrecta - Datos de entrada inválidos',

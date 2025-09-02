@@ -7,6 +7,8 @@ import {
   ApiNotFoundResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { GetAuditLogResponseDto } from '../dto/audit-response.dto';
+import { UnauthorizedResponseDto, NotFoundResponseDto } from '../../../common/dto';
 
 export function ApiGetAuditById() {
   return applyDecorators(
@@ -23,25 +25,15 @@ export function ApiGetAuditById() {
     ApiResponse({
       status: 200,
       description: 'Log de auditoría encontrado exitosamente',
-      schema: {
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' },
-          userId: { type: 'string', format: 'uuid' },
-          entityId: { type: 'string', format: 'uuid' },
-          entityType: { type: 'string' },
-          action: { type: 'string' },
-          changes: { type: 'object' },
-          timestamp: { type: 'string', format: 'date-time' },
-          metadata: { type: 'object' },
-        },
-      },
+      type: GetAuditLogResponseDto,
     }),
     ApiNotFoundResponse({
       description: 'Log de auditoría no encontrado',
+      type: NotFoundResponseDto,
     }),
     ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',
+      type: UnauthorizedResponseDto,
     }),
     ApiBearerAuth(),
   );

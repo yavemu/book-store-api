@@ -58,45 +58,71 @@ export class BookAuthorAssignmentSearchRepository
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthorAssignment>> {
     try {
-      if (!term || term.trim() === '') {
+      const maxLimit = Math.min(pagination.limit || 10, 50);
+      
+      // If no search term provided, return all assignments with pagination
+      if (!term || term.trim().length === 0) {
         const options: FindManyOptions<BookAuthorAssignment> = {
-          order: { [pagination.sortBy]: pagination.sortOrder },
-          skip: pagination.offset,
-          take: pagination.limit,
           relations: ['book', 'author'],
+          order: { [pagination.sortBy || 'createdAt']: pagination.sortOrder || 'DESC' },
+          skip: pagination.offset,
+          take: maxLimit,
         };
         return await this._findManyWithPagination(options, pagination);
       }
 
-      const allAssignmentsOptions: FindManyOptions<BookAuthorAssignment> = {
-        order: { [pagination.sortBy]: pagination.sortOrder },
-        relations: ['book', 'author'],
+      // Validate minimum search term length
+      const trimmedTerm = term.trim();
+      if (trimmedTerm.length < 3) {
+        throw new HttpException(
+          'Search term must be at least 3 characters long',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // Use TypeORM QueryBuilder for efficient LIKE queries across all fields
+      const queryBuilder = this.repository
+        .createQueryBuilder('assignment')
+        .leftJoinAndSelect('assignment.book', 'book')
+        .leftJoinAndSelect('assignment.author', 'author')
+        .where('assignment.deletedAt IS NULL') // Soft delete filter
+        .andWhere(
+          '(LOWER(book.title) LIKE LOWER(:term) OR ' +
+          'LOWER(book.isbnCode) LIKE LOWER(:term) OR ' +
+          'LOWER(author.firstName) LIKE LOWER(:term) OR ' +
+          'LOWER(author.lastName) LIKE LOWER(:term) OR ' +
+          'LOWER(author.email) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` }
+        );
+
+      // Get total count for pagination metadata
+      const totalCount = await queryBuilder.getCount();
+
+      // Apply sorting and pagination
+      queryBuilder
+        .orderBy(`assignment.${pagination.sortBy || 'createdAt'}`, pagination.sortOrder || 'DESC')
+        .skip(pagination.offset)
+        .take(maxLimit);
+
+      const assignments = await queryBuilder.getMany();
+
+      // Return using standard pagination format
+      return {
+        data: assignments,
+        meta: {
+          total: totalCount,
+          page: pagination.page,
+          limit: maxLimit,
+          totalPages: Math.ceil(totalCount / maxLimit),
+          hasNext: pagination.offset + maxLimit < totalCount,
+          hasPrev: pagination.page > 1,
+        },
       };
-
-      const allAssignments = await this._findMany(allAssignmentsOptions);
-      const trimmedTerm = term.trim().toLowerCase();
-
-      const filteredAssignments = allAssignments.filter(
-        (assignment) =>
-          (assignment.book &&
-            assignment.book.title &&
-            assignment.book.title.toLowerCase().includes(trimmedTerm)) ||
-          (assignment.author &&
-            assignment.author.firstName &&
-            assignment.author.firstName.toLowerCase().includes(trimmedTerm)) ||
-          (assignment.author &&
-            assignment.author.lastName &&
-            assignment.author.lastName.toLowerCase().includes(trimmedTerm)),
-      );
-
-      const total = filteredAssignments.length;
-      const startIndex = pagination.offset || 0;
-      const endIndex = startIndex + (pagination.limit || 10);
-      const paginatedData = filteredAssignments.slice(startIndex, endIndex);
-
-      return this._buildPaginatedResult(paginatedData, total, pagination);
     } catch (error) {
-      throw new HttpException('Failed to filter assignments', HttpStatus.INTERNAL_SERVER_ERROR);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Failed to perform simple filter', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

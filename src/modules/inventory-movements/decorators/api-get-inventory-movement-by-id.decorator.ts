@@ -1,5 +1,15 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiParam, ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBearerAuth,
+  ApiTags,
+  ApiNotFoundResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { GetInventoryMovementResponseDto } from '../dto/inventory-movement-response.dto';
+import { UnauthorizedResponseDto, NotFoundResponseDto } from '../../../common/dto';
 
 export function ApiGetInventoryMovementById() {
   return applyDecorators(
@@ -19,22 +29,15 @@ export function ApiGetInventoryMovementById() {
     ApiResponse({
       status: 200,
       description: 'Movimiento de inventario encontrada y devuelta exitosamente',
+      type: GetInventoryMovementResponseDto,
     }),
-    ApiResponse({
-      status: 401,
+    ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT faltante o inválido',
+      type: UnauthorizedResponseDto,
     }),
-    ApiResponse({
-      status: 403,
-      description: 'Prohibido - Sin permisos suficientes',
-    }),
-    ApiResponse({
-      status: 404,
+    ApiNotFoundResponse({
       description: 'Movimiento de inventario no encontrada',
-    }),
-    ApiResponse({
-      status: 500,
-      description: 'Error interno del servidor',
+      type: NotFoundResponseDto,
     }),
   );
 }
