@@ -12,6 +12,7 @@ import { PaginationDto } from '../../../common/dto/pagination.dto';
 
 export function ApiGetPublishingHousesByCountry() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Obtener editoriales por país - Acceso: ADMIN, USER',
       description: 'Obtiene una lista paginada de editoriales filtradas por un país específico.',

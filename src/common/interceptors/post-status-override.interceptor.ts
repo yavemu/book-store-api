@@ -4,11 +4,7 @@ import { map } from 'rxjs/operators';
 
 @Injectable()
 export class PostStatusOverrideInterceptor implements NestInterceptor {
-  private readonly searchFilterPaths = [
-    '/search',
-    '/filter', 
-    '/advanced-filter'
-  ];
+  private readonly searchFilterPaths = ['/search', '/filter', '/advanced-filter'];
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
@@ -26,6 +22,6 @@ export class PostStatusOverrideInterceptor implements NestInterceptor {
   }
 
   private isSearchOrFilterEndpoint(url: string): boolean {
-    return this.searchFilterPaths.some(path => url.includes(path));
+    return this.searchFilterPaths.some((path) => url.includes(path));
   }
 }

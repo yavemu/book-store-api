@@ -21,6 +21,7 @@ import { UpdateBookAuthorAssignmentDto } from '../dto';
 
 export function ApiUpdateAssignment() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Actualizar asignación autor-libro - Acceso: ADMIN',
       description:

@@ -11,6 +11,7 @@ import { PaginationDto } from '../../../common/dto/pagination.dto';
 
 export function ApiGetPublishingHouses() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Obtener lista de editoriales - Acceso: ADMIN, USER',
       description:

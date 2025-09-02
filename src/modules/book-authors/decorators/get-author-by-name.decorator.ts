@@ -18,6 +18,7 @@ import { BookAuthorResponseDto } from '../dto';
 
 export function ApiGetAuthorByName() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Obtener autor por nombre completo - Acceso: ADMIN, USER',
       description: 'Obtiene un autor específico utilizando su nombre y apellido.',

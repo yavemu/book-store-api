@@ -17,6 +17,7 @@ import { PublishingHouseResponseDto } from '../dto';
 
 export function ApiGetPublishingHouseById() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Obtener editorial por ID - Acceso: ADMIN, USER',
       description:

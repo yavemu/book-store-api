@@ -13,6 +13,7 @@ import { UserRole } from '../../../common/enums/user-role.enum';
 
 export function ApiFilterUsers() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Filtrar usuarios avanzado (Solo Administradores) - Acceso: ADMIN, USER',
       description:

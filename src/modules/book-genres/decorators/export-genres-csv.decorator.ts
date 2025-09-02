@@ -10,6 +10,7 @@ import {
 
 export function ApiExportGenresCsv() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Exportar géneros a CSV - Acceso: ADMIN',
       description:

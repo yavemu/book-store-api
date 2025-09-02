@@ -9,6 +9,7 @@ import {
 
 export function ApiExactSearchBooks() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Búsqueda exacta de libros - Acceso: ADMIN, USER',
       description:

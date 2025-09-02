@@ -21,6 +21,7 @@ import { ApiResponseDto } from '../../../common/dto';
 
 export function ApiGetBooksByPublisher() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Obtener libros por editorial - Acceso: ADMIN, USER',
       description:

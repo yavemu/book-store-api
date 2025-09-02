@@ -19,6 +19,7 @@ import {
 
 export function ApiGetBookById() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Obtener libro por ID - Acceso: ADMIN, USER',
       description:

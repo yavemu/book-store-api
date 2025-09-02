@@ -9,6 +9,7 @@ import {
 
 export function ApiAdvancedFilterAudit() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Filtro avanzado de logs de auditoría - Acceso: ADMIN',
       description:

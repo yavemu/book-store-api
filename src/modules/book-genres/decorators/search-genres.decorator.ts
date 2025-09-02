@@ -11,6 +11,7 @@ import { PaginationDto } from '../../../common/dto';
 
 export function ApiSearchGenres() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Buscar géneros de libros - Acceso: ADMIN, USER',
       description: 'Busca géneros de libros por término en nombre o descripción.',

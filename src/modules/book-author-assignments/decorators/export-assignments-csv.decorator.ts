@@ -10,6 +10,7 @@ import {
 
 export function ApiExportAssignmentsCsv() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Exportar asignaciones libro-autor a CSV - Acceso: ADMIN',
       description:

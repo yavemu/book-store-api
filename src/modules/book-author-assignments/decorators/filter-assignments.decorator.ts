@@ -10,6 +10,7 @@ import { AssignmentFiltersDto } from '../dto';
 
 export function ApiFilterAssignments() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Filtrar asignaciones libro-autor con criterios avanzados - Acceso: ADMIN, USER',
       description:

@@ -3,6 +3,7 @@ import { ApiOperation, ApiResponse, ApiBody, ApiBearerAuth, ApiProduces } from '
 
 export function ApiExportInventoryMovementsCsv() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Exportar movimientos de inventario a CSV - Acceso: ADMIN, USER',
       description: `

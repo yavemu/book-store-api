@@ -10,6 +10,7 @@ import {
 
 export function ApiSimpleFilterBooks() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Filtro simple de libros - Acceso: ADMIN, USER',
       description:

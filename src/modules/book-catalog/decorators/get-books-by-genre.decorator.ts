@@ -21,6 +21,7 @@ import { ApiResponseDto } from '../../../common/dto';
 
 export function ApiGetBooksByGenre() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Obtener libros por género - Acceso: ADMIN, USER',
       description: 'Obtiene una lista paginada de libros que pertenecen a un género específico.',

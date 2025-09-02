@@ -10,6 +10,7 @@ import { PublishingHouseFiltersDto } from '../dto';
 
 export function ApiFilterPublishingHouses() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Filtrar casas editoriales con criterios avanzados - Acceso: ADMIN, USER',
       description:

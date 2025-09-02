@@ -12,6 +12,7 @@ import { ForbiddenResponseDto } from '../../../common/dto';
 
 export function ApiExportAuditCsv() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Exportar auditoría a CSV (Solo Administradores) - Acceso: ADMIN',
       description:

@@ -10,6 +10,7 @@ import {
 
 export function ApiExportPublishingHousesCsv() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Exportar casas editoriales a CSV - Acceso: ADMIN',
       description:

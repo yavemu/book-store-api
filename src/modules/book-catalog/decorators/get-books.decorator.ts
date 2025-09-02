@@ -20,6 +20,7 @@ import { ApiResponseDto } from '../../../common/dto';
 
 export function ApiGetBooks() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Obtener catálogo de libros - Acceso: ADMIN, USER',
       description:

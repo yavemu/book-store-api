@@ -9,6 +9,7 @@ import {
 
 export function ApiFilterGenres() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Filtrar géneros literarios - Acceso: ADMIN, USER',
       description: 'Filtra géneros literarios utilizando parámetros de consulta específicos.',

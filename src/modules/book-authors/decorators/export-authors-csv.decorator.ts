@@ -10,6 +10,7 @@ import {
 
 export function ApiExportAuthorsCsv() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Exportar autores a CSV - Acceso: ADMIN',
       description:

@@ -17,6 +17,7 @@ import {
 
 export function ApiGetGenreById() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Obtener género por ID - Acceso: ADMIN, USER',
       description: 'Obtiene un género específico de libros utilizando su ID único.',

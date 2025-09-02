@@ -10,6 +10,7 @@ import { BookAuthorFiltersDto } from '../dto';
 
 export function ApiFilterAuthors() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Filtrar autores con criterios avanzados - Acceso: ADMIN, USER',
       description:

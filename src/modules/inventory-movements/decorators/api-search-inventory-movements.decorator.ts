@@ -3,6 +3,7 @@ import { ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagg
 
 export function ApiSearchInventoryMovements() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Buscar movimientos de inventario con filtros avanzados - Acceso: ADMIN, USER',
       description: `

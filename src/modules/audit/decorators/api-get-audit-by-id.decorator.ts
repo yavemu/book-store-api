@@ -10,6 +10,7 @@ import {
 
 export function ApiGetAuditById() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Obtener log de auditoría por ID - Acceso: ADMIN',
       description: 'Obtiene los detalles específicos de un log de auditoría mediante su ID único.',

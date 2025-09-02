@@ -18,6 +18,7 @@ import {
 
 export function ApiDeleteGenre() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Eliminar género de libro - Acceso: ADMIN',
       description:

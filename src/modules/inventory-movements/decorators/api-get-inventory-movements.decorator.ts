@@ -3,6 +3,7 @@ import { ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth, ApiTags } from '@ne
 
 export function ApiGetInventoryMovements() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiTags('InventoryMovements'),
     ApiBearerAuth(),
     ApiOperation({

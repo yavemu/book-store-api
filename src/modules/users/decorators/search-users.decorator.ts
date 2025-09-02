@@ -11,6 +11,7 @@ import { UnauthorizedResponseDto, ForbiddenResponseDto } from '../../../common/d
 
 export function ApiSearchUsers() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Search users - Acceso: ADMIN, USER',
       description: 'Search users by term with pagination',

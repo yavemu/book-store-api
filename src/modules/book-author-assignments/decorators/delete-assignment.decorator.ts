@@ -18,6 +18,7 @@ import {
 
 export function ApiDeleteAssignment() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Eliminar asignación autor-libro - Acceso: ADMIN',
       description:

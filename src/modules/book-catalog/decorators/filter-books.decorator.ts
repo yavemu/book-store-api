@@ -14,6 +14,7 @@ import { ApiResponseDto } from '../../../common/dto/api-response.dto';
 
 export function ApiFilterBooks() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Filtrar libros con criterios avanzados - Acceso: ADMIN, USER',
       description:

@@ -13,6 +13,7 @@ import { UserRole } from '../../../common/enums/user-role.enum';
 
 export function ApiExportUsersCsv() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Exportar usuarios a CSV - Acceso: ADMIN',
       description:

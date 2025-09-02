@@ -21,6 +21,7 @@ import { ApiResponseDto } from '../../../common/dto';
 
 export function ApiSearchBooks() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Buscar libros en el catálogo - Acceso: ADMIN, USER',
       description:

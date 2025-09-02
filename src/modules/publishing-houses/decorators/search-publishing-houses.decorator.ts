@@ -12,6 +12,7 @@ import { PaginationDto } from '../../../common/dto/pagination.dto';
 
 export function ApiSearchPublishingHouses() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Buscar editoriales - Acceso: ADMIN, USER',
       description: 'Busca editoriales por término en nombre, descripción o país.',

@@ -11,6 +11,7 @@ import { PaginationDto } from '../../../common/dto/pagination.dto';
 
 export function ApiGetAssignmentsByBook() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Obtener asignaciones por libro - Acceso: ADMIN, USER',
       description: 'Obtiene todas las asignaciones de autores para un libro específico.',

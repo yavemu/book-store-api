@@ -9,6 +9,7 @@ import {
 
 export function ApiAdvancedFilterBooks() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Filtro avanzado de libros del catálogo - Acceso: ADMIN, USER',
       description:

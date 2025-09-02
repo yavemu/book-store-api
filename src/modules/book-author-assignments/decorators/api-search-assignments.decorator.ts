@@ -9,6 +9,7 @@ import {
 
 export function ApiSearchAssignments() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Buscar asignaciones autor-libro - Acceso: ADMIN, USER',
       description: 'Busca asignaciones entre autores y libros utilizando un término de búsqueda.',

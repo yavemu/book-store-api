@@ -11,6 +11,7 @@ import { ForbiddenResponseDto } from '../../../common/dto';
 
 export function ApiFilterAuditRealtime() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Filtrar registros de auditoría en tiempo real - Acceso: ADMIN',
       description:

@@ -12,6 +12,7 @@ import { UserRole } from '../../../common/enums/user-role.enum';
 
 export function ApiFilterUsersRealtime() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Filtrar usuarios en tiempo real - Acceso: ADMIN, USER',
       description:

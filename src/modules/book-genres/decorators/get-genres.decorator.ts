@@ -10,6 +10,7 @@ import { PaginationDto } from '../../../common/dto';
 
 export function ApiGetGenres() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Obtener géneros de libros - Acceso: ADMIN, USER',
       description:

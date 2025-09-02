@@ -11,6 +11,7 @@ import { PaginationDto } from '../../../common/dto/pagination.dto';
 
 export function ApiGetAuthors() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Obtener lista de autores - Acceso: ADMIN, USER',
       description:

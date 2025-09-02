@@ -12,6 +12,7 @@ import { PaginationDto } from '../../../common/dto/pagination.dto';
 
 export function ApiSearchAuthors() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Buscar autores - Acceso: ADMIN, USER',
       description: 'Busca autores por término en nombre, apellido o biografía.',

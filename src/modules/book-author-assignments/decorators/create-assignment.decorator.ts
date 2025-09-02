@@ -19,6 +19,7 @@ import { CreateBookAuthorAssignmentDto } from '../dto';
 
 export function ApiCreateAssignment() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Crear asignación autor-libro - Acceso: ADMIN',
       description:

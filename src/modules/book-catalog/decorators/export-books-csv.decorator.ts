@@ -20,6 +20,7 @@ import {
 
 export function ApiExportBooksCsv() {
   return applyDecorators(
+    ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Exportar catálogo de libros a CSV - Acceso: ADMIN, USER',
       description: `Exporta el catálogo completo de libros a formato CSV con filtros opcionales para análisis y reporting. Incluye todos los metadatos bibliográficos y información de inventario. - Acceso: Administradores, gestores de inventario y usuarios regulares.
