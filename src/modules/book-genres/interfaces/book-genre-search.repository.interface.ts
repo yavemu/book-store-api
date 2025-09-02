@@ -15,5 +15,5 @@ export interface IBookGenreSearchRepository {
 
   // Methods needed by service
   exactSearchGenres(searchDto: any): Promise<PaginatedResult<BookGenre>>;
-  simpleFilterGenres(filterDto: any): Promise<PaginatedResult<BookGenre>>;
+  simpleFilterGenres(term: string, pagination: PaginationDto): Promise<PaginatedResult<BookGenre>>;
 }

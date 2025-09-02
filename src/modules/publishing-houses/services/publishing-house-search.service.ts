@@ -22,9 +22,10 @@ export class PublishingHouseSearchService implements IPublishingHouseSearchServi
   }
 
   async simpleFilter(
-    filterDto: PublishingHouseSimpleFilterDto,
+    term: string,
+    pagination: PaginationDto,
   ): Promise<PaginatedResult<PublishingHouse>> {
-    return this.publishingHouseSearchRepository.simpleFilterPublishingHouses(filterDto);
+    return this.publishingHouseSearchRepository.simpleFilterPublishingHouses(term, pagination);
   }
 
   async findWithFilters(

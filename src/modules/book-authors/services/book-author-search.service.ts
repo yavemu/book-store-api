@@ -72,9 +72,9 @@ export class BookAuthorSearchService implements IBookAuthorSearchService {
     }
   }
 
-  async simpleFilter(filterDto: BookAuthorSimpleFilterDto): Promise<PaginatedResult<BookAuthor>> {
+  async simpleFilter(term: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
     try {
-      return await this.searchRepository.simpleFilterAuthors(filterDto);
+      return await this.searchRepository.simpleFilterAuthors(term, pagination);
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_GET_ALL);
     }

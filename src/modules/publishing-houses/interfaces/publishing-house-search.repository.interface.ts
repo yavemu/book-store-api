@@ -10,7 +10,8 @@ export interface IPublishingHouseSearchRepository {
     searchDto: PublishingHouseExactSearchDto,
   ): Promise<PaginatedResult<PublishingHouse>>;
   simpleFilterPublishingHouses(
-    filterDto: PublishingHouseSimpleFilterDto,
+    term: string,
+    pagination: PaginationDto,
   ): Promise<PaginatedResult<PublishingHouse>>;
   checkNameExists(name: string): Promise<boolean>;
   findWithFilters(

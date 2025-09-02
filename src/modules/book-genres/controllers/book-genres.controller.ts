@@ -71,12 +71,11 @@ export class BookGenresController {
     return this.genreSearchService.exactSearch(searchDto);
   }
 
-  @Post('filter')
-  @HttpCode(200)
+  @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterGenres()
-  simpleFilter(@Body() filterDto: BookGenreSimpleFilterDto) {
-    return this.genreSearchService.simpleFilter(filterDto);
+  simpleFilter(@Query('term') term: string, @Query() pagination: PaginationDto) {
+    return this.genreSearchService.simpleFilter(term, pagination);
   }
 
   @Post('advanced-filter')

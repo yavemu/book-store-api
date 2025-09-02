@@ -14,5 +14,5 @@ export interface IBookGenreSearchService {
 
   // Methods needed by controller
   exactSearch(searchDto: any): Promise<PaginatedResult<BookGenre>>;
-  simpleFilter(filterDto: any): Promise<PaginatedResult<BookGenre>>;
+  simpleFilter(term: string, pagination: PaginationDto): Promise<PaginatedResult<BookGenre>>;
 }

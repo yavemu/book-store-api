@@ -19,8 +19,8 @@ export class BookCatalogSearchService implements IBookCatalogSearchService {
     return await this.bookCatalogSearchRepository.exactSearchBooks(searchDto);
   }
 
-  async simpleFilter(filterDto: BookSimpleFilterDto): Promise<PaginatedResult<BookCatalog>> {
-    return await this.bookCatalogSearchRepository.simpleFilterBooks(filterDto);
+  async simpleFilter(term: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>> {
+    return await this.bookCatalogSearchRepository.simpleFilterBooks(term, pagination);
   }
 
   async advancedFilter(

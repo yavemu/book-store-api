@@ -24,7 +24,6 @@ import { CreateBookCatalogDto } from '../dto/create-book-catalog.dto';
 import { UpdateBookCatalogDto } from '../dto/update-book-catalog.dto';
 import { BookFiltersDto } from '../dto/book-filters.dto';
 import { BookExactSearchDto } from '../dto/book-exact-search.dto';
-import { BookSimpleFilterDto } from '../dto/book-simple-filter.dto';
 import { CsvExportFiltersDto } from '../dto/csv-export-filters.dto';
 import { UploadBookCoverDto } from '../dto/upload-book-cover.dto';
 import {
@@ -80,12 +79,14 @@ export class BookCatalogController {
     return this.bookCatalogSearchService.exactSearch(searchDto);
   }
 
-  @Post('filter')
-  @HttpCode(200)
+  @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSimpleFilterBooks()
-  filterPost(@Body() filterDto: BookSimpleFilterDto) {
-    return this.bookCatalogSearchService.simpleFilter(filterDto);
+  filter(
+    @Query('term') term: string,
+    @Query() pagination: PaginationDto,
+  ) {
+    return this.bookCatalogSearchService.simpleFilter(term, pagination);
   }
 
   @Post('advanced-filter')

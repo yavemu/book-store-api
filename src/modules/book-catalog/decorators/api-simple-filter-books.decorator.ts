@@ -2,7 +2,6 @@ import { applyDecorators } from '@nestjs/common';
 import {
   ApiOperation,
   ApiResponse,
-  ApiBody,
   ApiQuery,
   ApiUnauthorizedResponse,
   ApiBearerAuth,
@@ -50,24 +49,6 @@ export function ApiSimpleFilterBooks() {
       required: false,
       enum: ['ASC', 'DESC'],
       example: 'DESC',
-    }),
-    ApiBody({
-      description: 'Criterios para filtro simple de libros (alternativo a query params)',
-      required: false,
-      schema: {
-        type: 'object',
-        properties: {
-          term: {
-            type: 'string',
-            description: 'Término parcial para buscar en múltiples campos',
-            minLength: 3,
-          },
-          page: { type: 'number', minimum: 1, default: 1 },
-          limit: { type: 'number', minimum: 1, maximum: 100, default: 10 },
-          sortBy: { type: 'string', default: 'createdAt' },
-          sortOrder: { type: 'string', enum: ['ASC', 'DESC'], default: 'DESC' },
-        },
-      },
     }),
     ApiResponse({
       status: 200,

@@ -5,6 +5,12 @@ import { UserFiltersDto, UserCsvExportFiltersDto } from '../dto';
 export interface IUserSearchRepository {
   searchUsers(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<User>>;
   filterUsers(filterTerm: string, pagination: PaginationDto): Promise<PaginatedResult<User>>;
+  simpleFilterUsers(
+    term: string,
+    pagination: PaginationDto,
+    userId?: string,
+    userRole?: string,
+  ): Promise<PaginatedResult<User>>;
   findUsersWithFilters(
     filters: UserFiltersDto,
     pagination: PaginationDto,

@@ -22,5 +22,5 @@ export interface IBookAuthorSearchRepository {
 
   // Methods needed by services
   exactSearchAuthors(searchDto: any): Promise<PaginatedResult<BookAuthor>>;
-  simpleFilterAuthors(filterDto: any): Promise<PaginatedResult<BookAuthor>>;
+  simpleFilterAuthors(term: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>>;
 }

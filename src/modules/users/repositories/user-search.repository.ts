@@ -72,6 +72,80 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
     }
   }
 
+  async simpleFilterUsers(
+    term: string,
+    pagination: PaginationDto,
+    userId?: string,
+    userRole?: string,
+  ): Promise<PaginatedResult<User>> {
+    try {
+      const maxLimit = Math.min(pagination.limit || 10, 50);
+      
+      // If no search term provided, return all users with pagination
+      if (!term || term.trim().length === 0) {
+        const options: FindManyOptions<User> = {
+          relations: ['role'],
+          order: { [pagination.sortBy || 'createdAt']: pagination.sortOrder || 'DESC' },
+          skip: pagination.offset,
+          take: maxLimit,
+        };
+        return await this._findManyWithPagination(options, pagination);
+      }
+
+      // Validate minimum search term length
+      const trimmedTerm = term.trim();
+      if (trimmedTerm.length < 3) {
+        throw new HttpException(
+          'Search term must be at least 3 characters long',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // Use TypeORM QueryBuilder for efficient LIKE queries across all fields
+      const queryBuilder = this.repository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.role', 'role')
+        .where('user.deletedAt IS NULL') // Soft delete filter
+        .andWhere(
+          '(LOWER(user.username) LIKE LOWER(:term) OR ' +
+          'LOWER(user.email) LIKE LOWER(:term) OR ' +
+          'LOWER(user.firstName) LIKE LOWER(:term) OR ' +
+          'LOWER(user.lastName) LIKE LOWER(:term) OR ' +
+          'LOWER(role.name) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` }
+        );
+
+      // Get total count for pagination metadata
+      const totalCount = await queryBuilder.getCount();
+
+      // Apply sorting and pagination
+      queryBuilder
+        .orderBy(`user.${pagination.sortBy || 'createdAt'}`, pagination.sortOrder || 'DESC')
+        .skip(pagination.offset)
+        .take(maxLimit);
+
+      const users = await queryBuilder.getMany();
+
+      // Return using standard pagination format
+      return {
+        data: users,
+        meta: {
+          total: totalCount,
+          page: pagination.page,
+          limit: maxLimit,
+          totalPages: Math.ceil(totalCount / maxLimit),
+          hasNext: pagination.offset + maxLimit < totalCount,
+          hasPrev: pagination.page > 1,
+        },
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Failed to perform simple filter', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   async checkUsernameExists(username: string): Promise<boolean> {
     try {
       return await this._exists({

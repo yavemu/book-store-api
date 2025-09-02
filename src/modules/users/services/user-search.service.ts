@@ -53,7 +53,12 @@ export class UserSearchService implements IUserSearchService {
     return this.search(searchDto.searchTerm || '', searchDto);
   }
 
-  async simpleFilter(filterDto: any): Promise<PaginatedResult<User>> {
-    return this.filterSearch(filterDto.term || '', filterDto);
+  async simpleFilter(
+    term: string,
+    pagination: PaginationDto,
+    userId?: string,
+    userRole?: string,
+  ): Promise<PaginatedResult<User>> {
+    return this.userSearchRepository.simpleFilterUsers(term, pagination, userId, userRole);
   }
 }

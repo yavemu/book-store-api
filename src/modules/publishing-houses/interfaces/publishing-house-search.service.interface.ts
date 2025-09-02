@@ -8,7 +8,8 @@ import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.d
 export interface IPublishingHouseSearchService {
   exactSearch(searchDto: PublishingHouseExactSearchDto): Promise<PaginatedResult<PublishingHouse>>;
   simpleFilter(
-    filterDto: PublishingHouseSimpleFilterDto,
+    term: string,
+    pagination: PaginationDto,
   ): Promise<PaginatedResult<PublishingHouse>>;
   findWithFilters(
     filters: PublishingHouseFiltersDto,

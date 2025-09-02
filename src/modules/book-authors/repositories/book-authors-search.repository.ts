@@ -53,41 +53,72 @@ export class BookAuthorSearchRepository
   }
 
   async simpleFilterAuthors(
-    filterDto: BookAuthorSimpleFilterDto,
+    term: string,
+    pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>> {
     try {
-      if (!filterDto.term || filterDto.term.trim() === '') {
+      const maxLimit = Math.min(pagination.limit || 10, 50);
+      
+      // If no search term provided, return all authors with pagination
+      if (!term || term.trim().length === 0) {
         const options: FindManyOptions<BookAuthor> = {
-          order: { [filterDto.sortBy]: filterDto.sortOrder },
-          skip: filterDto.offset,
-          take: filterDto.limit,
+          order: { [pagination.sortBy || 'createdAt']: pagination.sortOrder || 'DESC' },
+          skip: pagination.offset,
+          take: maxLimit,
         };
-        return await this._findManyWithPagination(options, filterDto);
+        return await this._findManyWithPagination(options, pagination);
       }
 
-      const allAuthorsOptions: FindManyOptions<BookAuthor> = {
-        order: { [filterDto.sortBy]: filterDto.sortOrder },
+      // Validate minimum search term length
+      const trimmedTerm = term.trim();
+      if (trimmedTerm.length < 3) {
+        throw new HttpException(
+          'Search term must be at least 3 characters long',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // Use TypeORM QueryBuilder for efficient LIKE queries across all fields
+      const queryBuilder = this.repository
+        .createQueryBuilder('author')
+        .where('author.deletedAt IS NULL') // Soft delete filter
+        .andWhere(
+          '(LOWER(author.firstName) LIKE LOWER(:term) OR ' +
+          'LOWER(author.lastName) LIKE LOWER(:term) OR ' +
+          'LOWER(author.email) LIKE LOWER(:term) OR ' +
+          'LOWER(author.biography) LIKE LOWER(:term) OR ' +
+          'LOWER(author.nationality) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` }
+        );
+
+      // Get total count for pagination metadata
+      const totalCount = await queryBuilder.getCount();
+
+      // Apply sorting and pagination
+      queryBuilder
+        .orderBy(`author.${pagination.sortBy || 'createdAt'}`, pagination.sortOrder || 'DESC')
+        .skip(pagination.offset)
+        .take(maxLimit);
+
+      const authors = await queryBuilder.getMany();
+
+      // Return using standard pagination format
+      return {
+        data: authors,
+        meta: {
+          total: totalCount,
+          page: pagination.page,
+          limit: maxLimit,
+          totalPages: Math.ceil(totalCount / maxLimit),
+          hasNext: pagination.offset + maxLimit < totalCount,
+          hasPrev: pagination.page > 1,
+        },
       };
-
-      const allAuthors = await this._findMany(allAuthorsOptions);
-      const trimmedTerm = filterDto.term.trim().toLowerCase();
-
-      const filteredAuthors = allAuthors.filter(
-        (author) =>
-          (author.firstName && author.firstName.toLowerCase().includes(trimmedTerm)) ||
-          (author.lastName && author.lastName.toLowerCase().includes(trimmedTerm)) ||
-          (author.email && author.email.toLowerCase().includes(trimmedTerm)) ||
-          (author.biography && author.biography.toLowerCase().includes(trimmedTerm)),
-      );
-
-      const total = filteredAuthors.length;
-      const startIndex = filterDto.offset || 0;
-      const endIndex = startIndex + (filterDto.limit || 10);
-      const paginatedData = filteredAuthors.slice(startIndex, endIndex);
-
-      return this._buildPaginatedResult(paginatedData, total, filterDto);
     } catch (error) {
-      throw new HttpException('Failed to filter authors', HttpStatus.INTERNAL_SERVER_ERROR);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Failed to perform simple filter', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -221,15 +252,7 @@ export class BookAuthorSearchRepository
     term: string,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>> {
-    const filterDto = {
-      term,
-      sortBy: pagination.sortBy,
-      sortOrder: pagination.sortOrder,
-      offset: pagination.offset,
-      limit: pagination.limit,
-      page: pagination.page,
-    };
-    return this.simpleFilterAuthors(filterDto);
+    return this.simpleFilterAuthors(term, pagination);
   }
 
   async findByNationality(

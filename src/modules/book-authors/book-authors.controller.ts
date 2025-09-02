@@ -72,11 +72,11 @@ export class BookAuthorsController {
     return this.searchService.exactSearch(searchDto);
   }
 
-  @Post('filter')
+  @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterAuthors()
-  simpleFilter(@Body() filterDto: BookAuthorSimpleFilterDto) {
-    return this.searchService.simpleFilter(filterDto);
+  simpleFilter(@Query('term') term: string, @Query() pagination: PaginationDto) {
+    return this.searchService.simpleFilter(term, pagination);
   }
 
   @Post('advanced-filter')
@@ -131,6 +131,6 @@ export class BookAuthorsController {
   }
 
   async filter(filters: any, pagination: PaginationDto) {
-    return this.simpleFilter(filters);
+    return this.simpleFilter(filters.term || '', pagination);
   }
 }

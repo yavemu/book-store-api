@@ -5,7 +5,6 @@ import { BookCatalog } from '../entities/book-catalog.entity';
 import { IBookCatalogSearchRepository } from '../interfaces/book-catalog-search.repository.interface';
 import { BookFiltersDto } from '../dto/book-filters.dto';
 import { BookExactSearchDto } from '../dto/book-exact-search.dto';
-import { BookSimpleFilterDto } from '../dto/book-simple-filter.dto';
 import { CsvExportFiltersDto } from '../dto/csv-export-filters.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import { BaseRepository } from '../../../common/repositories/base.repository';
@@ -92,31 +91,23 @@ export class BookCatalogSearchRepository
     }
   }
 
-  async simpleFilterBooks(filterDto: BookSimpleFilterDto): Promise<PaginatedResult<BookCatalog>> {
+  async simpleFilterBooks(term: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>> {
     try {
-      // Apply role-based limit restrictions for performance
-      const maxLimit = Math.min(filterDto.limit || 10, 50);
-      const effectivePagination = Object.assign(new PaginationDto(), {
-        page: filterDto.page || 1,
-        limit: maxLimit,
-        sortBy: filterDto.sortBy || 'createdAt',
-        sortOrder: filterDto.sortOrder || 'DESC',
-      });
-
+      const maxLimit = Math.min(pagination.limit || 10, 50);
+      
       // If no search term provided, return all books with pagination using BaseRepository
-      if (!filterDto.term || filterDto.term.trim().length === 0) {
+      if (!term || term.trim().length === 0) {
         const options: FindManyOptions<BookCatalog> = {
           relations: ['genre', 'publisher'],
-          order: { [effectivePagination.sortBy]: effectivePagination.sortOrder },
-          skip: effectivePagination.offset,
+          order: { [pagination.sortBy || 'createdAt']: pagination.sortOrder || 'DESC' },
+          skip: pagination.offset,
           take: maxLimit,
         };
-
-        return await this._findManyWithPagination(options, effectivePagination);
+        return await this._findManyWithPagination(options, pagination);
       }
 
       // Validate minimum search term length
-      const trimmedTerm = filterDto.term.trim();
+      const trimmedTerm = term.trim();
       if (trimmedTerm.length < 3) {
         throw new HttpException(
           'Search term must be at least 3 characters long',
@@ -124,30 +115,47 @@ export class BookCatalogSearchRepository
         );
       }
 
-      // For partial searches, we need to get all books and filter in memory
-      // This is a limitation of using only BaseRepository methods
-      const allBooksOptions: FindManyOptions<BookCatalog> = {
-        relations: ['genre', 'publisher'],
-        order: { [effectivePagination.sortBy]: effectivePagination.sortOrder },
+      // Use TypeORM QueryBuilder for efficient LIKE queries across all fields
+      const queryBuilder = this.repository
+        .createQueryBuilder('book')
+        .leftJoinAndSelect('book.genre', 'genre')
+        .leftJoinAndSelect('book.publisher', 'publisher')
+        .where('book.deletedAt IS NULL') // Soft delete filter
+        .andWhere(
+          '(LOWER(book.title) LIKE LOWER(:term) OR ' +
+          'LOWER(book.isbnCode) LIKE LOWER(:term) OR ' +
+          'LOWER(book.summary) LIKE LOWER(:term) OR ' +
+          'CAST(book.publicationYear AS VARCHAR) LIKE :term OR ' +
+          'CAST(book.stockQuantity AS VARCHAR) LIKE :term OR ' +
+          'CAST(book.price AS VARCHAR) LIKE :term OR ' +
+          'LOWER(genre.name) LIKE LOWER(:term) OR ' +
+          'LOWER(publisher.name) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` }
+        );
+
+      // Get total count for pagination metadata
+      const totalCount = await queryBuilder.getCount();
+
+      // Apply sorting and pagination
+      queryBuilder
+        .orderBy(`book.${pagination.sortBy || 'createdAt'}`, pagination.sortOrder || 'DESC')
+        .skip(pagination.offset)
+        .take(maxLimit);
+
+      const books = await queryBuilder.getMany();
+
+      // Return using standard pagination format
+      return {
+        data: books,
+        meta: {
+          total: totalCount,
+          page: pagination.page,
+          limit: maxLimit,
+          totalPages: Math.ceil(totalCount / maxLimit),
+          hasNext: pagination.offset + maxLimit < totalCount,
+          hasPrev: pagination.page > 1,
+        },
       };
-
-      const allBooks = await this._findMany(allBooksOptions);
-
-      // Filter books in memory for ILIKE behavior
-      const filteredBooks = allBooks.filter(
-        (book) =>
-          (book.title && book.title.toLowerCase().includes(trimmedTerm.toLowerCase())) ||
-          (book.isbnCode && book.isbnCode.toLowerCase().includes(trimmedTerm.toLowerCase())) ||
-          (book.summary && book.summary.toLowerCase().includes(trimmedTerm.toLowerCase())),
-      );
-
-      // Apply pagination manually
-      const total = filteredBooks.length;
-      const startIndex = effectivePagination.offset;
-      const endIndex = startIndex + maxLimit;
-      const paginatedData = filteredBooks.slice(startIndex, endIndex);
-
-      return this._buildPaginatedResult(paginatedData, total, effectivePagination);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;

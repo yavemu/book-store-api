@@ -49,43 +49,71 @@ export class PublishingHouseSearchRepository
   }
 
   async simpleFilterPublishingHouses(
-    filterDto: PublishingHouseSimpleFilterDto,
+    term: string,
+    pagination: PaginationDto,
   ): Promise<PaginatedResult<PublishingHouse>> {
     try {
-      if (!filterDto.term || filterDto.term.trim() === '') {
+      const maxLimit = Math.min(pagination.limit || 10, 50);
+      
+      // If no search term provided, return all publishing houses with pagination
+      if (!term || term.trim().length === 0) {
         const options: FindManyOptions<PublishingHouse> = {
-          order: { [filterDto.sortBy]: filterDto.sortOrder },
-          skip: filterDto.offset,
-          take: filterDto.limit,
+          order: { [pagination.sortBy || 'createdAt']: pagination.sortOrder || 'DESC' },
+          skip: pagination.offset,
+          take: maxLimit,
         };
-        return await this._findManyWithPagination(options, filterDto);
+        return await this._findManyWithPagination(options, pagination);
       }
 
-      const allPublishingHousesOptions: FindManyOptions<PublishingHouse> = {
-        order: { [filterDto.sortBy]: filterDto.sortOrder },
+      // Validate minimum search term length
+      const trimmedTerm = term.trim();
+      if (trimmedTerm.length < 3) {
+        throw new HttpException(
+          'Search term must be at least 3 characters long',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // Use TypeORM QueryBuilder for efficient LIKE queries across all fields
+      const queryBuilder = this.repository
+        .createQueryBuilder('publisher')
+        .where('publisher.deletedAt IS NULL') // Soft delete filter
+        .andWhere(
+          '(LOWER(publisher.name) LIKE LOWER(:term) OR ' +
+          'LOWER(publisher.country) LIKE LOWER(:term) OR ' +
+          'LOWER(publisher.websiteUrl) LIKE LOWER(:term) OR ' +
+          'LOWER(publisher.contactEmail) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` }
+        );
+
+      // Get total count for pagination metadata
+      const totalCount = await queryBuilder.getCount();
+
+      // Apply sorting and pagination
+      queryBuilder
+        .orderBy(`publisher.${pagination.sortBy || 'createdAt'}`, pagination.sortOrder || 'DESC')
+        .skip(pagination.offset)
+        .take(maxLimit);
+
+      const publishers = await queryBuilder.getMany();
+
+      // Return using standard pagination format
+      return {
+        data: publishers,
+        meta: {
+          total: totalCount,
+          page: pagination.page,
+          limit: maxLimit,
+          totalPages: Math.ceil(totalCount / maxLimit),
+          hasNext: pagination.offset + maxLimit < totalCount,
+          hasPrev: pagination.page > 1,
+        },
       };
-
-      const allPublishingHouses = await this._findMany(allPublishingHousesOptions);
-      const trimmedTerm = filterDto.term.trim().toLowerCase();
-
-      const filteredPublishingHouses = allPublishingHouses.filter(
-        (house) =>
-          (house.name && house.name.toLowerCase().includes(trimmedTerm)) ||
-          (house.country && house.country.toLowerCase().includes(trimmedTerm)) ||
-          (house.websiteUrl && house.websiteUrl.toLowerCase().includes(trimmedTerm)),
-      );
-
-      const total = filteredPublishingHouses.length;
-      const startIndex = filterDto.offset || 0;
-      const endIndex = startIndex + (filterDto.limit || 10);
-      const paginatedData = filteredPublishingHouses.slice(startIndex, endIndex);
-
-      return this._buildPaginatedResult(paginatedData, total, filterDto);
     } catch (error) {
-      throw new HttpException(
-        'Failed to filter publishing houses',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Failed to perform simple filter', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -184,15 +212,7 @@ export class PublishingHouseSearchRepository
     searchTerm: string,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<PublishingHouse>> {
-    const filterDto = {
-      term: searchTerm,
-      sortBy: pagination.sortBy,
-      sortOrder: pagination.sortOrder,
-      offset: pagination.offset,
-      limit: pagination.limit,
-      page: pagination.page,
-    };
-    return this.simpleFilterPublishingHouses(filterDto);
+    return this.simpleFilterPublishingHouses(searchTerm, pagination);
   }
 
   async getPublishersByCountry(

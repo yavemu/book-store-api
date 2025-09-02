@@ -10,7 +10,7 @@ import {
 export interface IBookAuthorSearchService {
   // Standardized search methods (following book-catalog pattern)
   exactSearch(searchDto: BookAuthorExactSearchDto): Promise<PaginatedResult<BookAuthor>>;
-  simpleFilter(filterDto: BookAuthorSimpleFilterDto): Promise<PaginatedResult<BookAuthor>>;
+  simpleFilter(term: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>>;
   advancedFilter(
     filters: BookAuthorFiltersDto,
     pagination: PaginationDto,

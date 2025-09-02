@@ -51,39 +51,69 @@ export class BookGenreSearchRepository
   }
 
   async simpleFilterGenres(
-    filterDto: BookGenreSimpleFilterDto,
+    term: string,
+    pagination: PaginationDto,
   ): Promise<PaginatedResult<BookGenre>> {
     try {
-      if (!filterDto.term || filterDto.term.trim() === '') {
+      const maxLimit = Math.min(pagination.limit || 10, 50);
+      
+      // If no search term provided, return all genres with pagination
+      if (!term || term.trim().length === 0) {
         const options: FindManyOptions<BookGenre> = {
-          order: { [filterDto.sortBy]: filterDto.sortOrder },
-          skip: filterDto.offset,
-          take: filterDto.limit,
+          order: { [pagination.sortBy || 'createdAt']: pagination.sortOrder || 'DESC' },
+          skip: pagination.offset,
+          take: maxLimit,
         };
-        return await this._findManyWithPagination(options, filterDto);
+        return await this._findManyWithPagination(options, pagination);
       }
 
-      const allGenresOptions: FindManyOptions<BookGenre> = {
-        order: { [filterDto.sortBy]: filterDto.sortOrder },
+      // Validate minimum search term length
+      const trimmedTerm = term.trim();
+      if (trimmedTerm.length < 3) {
+        throw new HttpException(
+          'Search term must be at least 3 characters long',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // Use TypeORM QueryBuilder for efficient LIKE queries across all fields
+      const queryBuilder = this.repository
+        .createQueryBuilder('genre')
+        .where('genre.deletedAt IS NULL') // Soft delete filter
+        .andWhere(
+          '(LOWER(genre.name) LIKE LOWER(:term) OR ' +
+          'LOWER(genre.description) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` }
+        );
+
+      // Get total count for pagination metadata
+      const totalCount = await queryBuilder.getCount();
+
+      // Apply sorting and pagination
+      queryBuilder
+        .orderBy(`genre.${pagination.sortBy || 'createdAt'}`, pagination.sortOrder || 'DESC')
+        .skip(pagination.offset)
+        .take(maxLimit);
+
+      const genres = await queryBuilder.getMany();
+
+      // Return using standard pagination format
+      return {
+        data: genres,
+        meta: {
+          total: totalCount,
+          page: pagination.page,
+          limit: maxLimit,
+          totalPages: Math.ceil(totalCount / maxLimit),
+          hasNext: pagination.offset + maxLimit < totalCount,
+          hasPrev: pagination.page > 1,
+        },
       };
-
-      const allGenres = await this._findMany(allGenresOptions);
-      const trimmedTerm = filterDto.term.trim().toLowerCase();
-
-      const filteredGenres = allGenres.filter(
-        (genre) =>
-          (genre.name && genre.name.toLowerCase().includes(trimmedTerm)) ||
-          (genre.description && genre.description.toLowerCase().includes(trimmedTerm)),
-      );
-
-      const total = filteredGenres.length;
-      const startIndex = filterDto.offset || 0;
-      const endIndex = startIndex + (filterDto.limit || 10);
-      const paginatedData = filteredGenres.slice(startIndex, endIndex);
-
-      return this._buildPaginatedResult(paginatedData, total, filterDto);
     } catch (error) {
-      throw new HttpException('Failed to filter genres', HttpStatus.INTERNAL_SERVER_ERROR);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Failed to perform simple filter', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -215,29 +245,13 @@ export class BookGenreSearchRepository
     searchTerm: string,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookGenre>> {
-    const filterDto = {
-      term: searchTerm,
-      sortBy: pagination.sortBy,
-      sortOrder: pagination.sortOrder,
-      offset: pagination.offset,
-      limit: pagination.limit,
-      page: pagination.page,
-    };
-    return this.simpleFilterGenres(filterDto);
+    return this.simpleFilterGenres(searchTerm, pagination);
   }
 
   async filterGenres(
     filterTerm: string,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookGenre>> {
-    const filterDto = {
-      term: filterTerm,
-      sortBy: pagination.sortBy,
-      sortOrder: pagination.sortOrder,
-      offset: pagination.offset,
-      limit: pagination.limit,
-      page: pagination.page,
-    };
-    return this.simpleFilterGenres(filterDto);
+    return this.simpleFilterGenres(filterTerm, pagination);
   }
 }

@@ -71,12 +71,11 @@ export class PublishingHousesController {
     return this.publishingHouseSearchService.exactSearch(searchDto);
   }
 
-  @Post('filter')
-  @HttpCode(200)
+  @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterPublishingHouses()
-  simpleFilter(@Body() filterDto: PublishingHouseSimpleFilterDto) {
-    return this.publishingHouseSearchService.simpleFilter(filterDto);
+  simpleFilter(@Query('term') term: string, @Query() pagination: PaginationDto) {
+    return this.publishingHouseSearchService.simpleFilter(term, pagination);
   }
 
   @Post('advanced-filter')
@@ -130,6 +129,6 @@ export class PublishingHousesController {
   }
 
   async filter(filters: any, pagination: PaginationDto) {
-    return this.simpleFilter(filters);
+    return this.simpleFilter(filters.term || '', pagination);
   }
 }

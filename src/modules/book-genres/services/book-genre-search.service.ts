@@ -19,8 +19,8 @@ export class BookGenreSearchService implements IBookGenreSearchService {
     return await this.genreSearchRepository.exactSearchGenres(searchDto);
   }
 
-  async simpleFilter(filterDto: BookGenreSimpleFilterDto): Promise<PaginatedResult<BookGenre>> {
-    return await this.genreSearchRepository.simpleFilterGenres(filterDto);
+  async simpleFilter(term: string, pagination: PaginationDto): Promise<PaginatedResult<BookGenre>> {
+    return await this.genreSearchRepository.simpleFilterGenres(term, pagination);
   }
 
   async findWithFilters(

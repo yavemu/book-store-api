@@ -14,7 +14,8 @@ export interface IUserSearchService {
     userRole?: string,
   ): Promise<PaginatedResult<User>>;
   simpleFilter(
-    filterDto: UserSimpleFilterDto,
+    term: string,
+    pagination: PaginationDto,
     userId?: string,
     userRole?: string,
   ): Promise<PaginatedResult<User>>;

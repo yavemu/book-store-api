@@ -72,12 +72,15 @@ export class UsersController {
     return this.userSearchService.exactSearch(searchDto, req.user?.userId, req.user?.role?.name);
   }
 
-  @Post('filter')
-  @HttpCode(200)
+  @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterUsersRealtime()
-  async simpleFilter(@Body() filterDto: UserSimpleFilterDto, @Request() req) {
-    return this.userSearchService.simpleFilter(filterDto, req.user?.userId, req.user?.role?.name);
+  async filter(
+    @Query('term') term: string,
+    @Query() pagination: PaginationDto,
+    @Request() req,
+  ) {
+    return this.userSearchService.simpleFilter(term, pagination, req.user?.userId, req.user?.role?.name);
   }
 
   @Post('advanced-filter')
