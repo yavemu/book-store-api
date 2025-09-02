@@ -312,10 +312,10 @@ describe('UsersController', () => {
 
       mockSearchService.simpleFilter.mockResolvedValue(mockPaginatedResult);
 
-      const result = await controller.simpleFilter(filterDto, mockRequest);
+      const result = await controller.filter(filterDto.term, pagination, mockRequest);
 
       expect(result).toEqual(mockPaginatedResult);
-      expect(mockSearchService.simpleFilter).toHaveBeenCalledWith(filterDto, 'user123', 'admin');
+      expect(mockSearchService.simpleFilter).toHaveBeenCalledWith(filterDto.term, pagination, 'user123', 'admin');
     });
 
     it('should handle filter errors', async () => {
@@ -323,7 +323,7 @@ describe('UsersController', () => {
       const error = new Error('Filter failed');
       mockSearchService.simpleFilter.mockRejectedValue(error);
 
-      await expect(controller.simpleFilter(filterDto, mockRequest)).rejects.toThrow(
+      await expect(controller.filter(filterDto.term, pagination, mockRequest)).rejects.toThrow(
         'Filter failed',
       );
     });

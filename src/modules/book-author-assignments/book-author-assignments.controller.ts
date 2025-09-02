@@ -73,12 +73,14 @@ export class BookAuthorAssignmentsController {
     return this.bookAuthorAssignmentSearchService.exactSearch(searchDto);
   }
 
-  @Post('filter')
-  @HttpCode(200)
+  @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterAssignments()
-  simpleFilter(@Body() filterDto: AssignmentSimpleFilterDto) {
-    return this.bookAuthorAssignmentSearchService.simpleFilter(filterDto);
+  simpleFilter(
+    @Query('term') term: string,
+    @Query() pagination: PaginationDto,
+  ) {
+    return this.bookAuthorAssignmentSearchService.simpleFilter(term, pagination);
   }
 
   @Post('advanced-filter')
@@ -132,7 +134,7 @@ export class BookAuthorAssignmentsController {
   }
 
   async filter(filters: any, pagination: PaginationDto) {
-    return this.simpleFilter(filters);
+    return this.simpleFilter(filters.term || '', pagination);
   }
 
   async checkAssignment(bookId: string, authorId: string) {

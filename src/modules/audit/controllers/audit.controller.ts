@@ -52,12 +52,14 @@ export class AuditController {
     return this.auditSearchService.exactSearch(searchDto);
   }
 
-  @Post('filter')
-  @HttpCode(200)
+  @Get('filter')
   @Auth(UserRole.ADMIN)
   @ApiFilterAuditRealtime()
-  async simpleFilter(@Body() filterDto: AuditSimpleFilterDto) {
-    return this.auditSearchService.simpleFilter(filterDto);
+  async simpleFilter(
+    @Query('term') term: string,
+    @Query() pagination: PaginationDto,
+  ) {
+    return this.auditSearchService.simpleFilter(term, pagination);
   }
 
   @Post('advanced-filter')
@@ -74,7 +76,7 @@ export class AuditController {
   }
 
   async filter(filterTerm: any, pagination: PaginationDto) {
-    return this.simpleFilter(filterTerm);
+    return this.simpleFilter(filterTerm.term, pagination);
   }
 
   @Get('export/csv')

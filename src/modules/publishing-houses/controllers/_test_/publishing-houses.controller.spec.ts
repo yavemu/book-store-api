@@ -288,10 +288,15 @@ describe('PublishingHousesController', () => {
       filterDto.limit = 10;
       mockSearchService.simpleFilter.mockResolvedValue(mockPaginatedResult);
 
-      const result = await controller.simpleFilter(filterDto);
+      const pagination = new PaginationDto();
+      pagination.page = filterDto.page;
+      pagination.limit = filterDto.limit;
+      pagination.sortBy = 'createdAt';
+      pagination.sortOrder = 'DESC';
+      const result = await controller.simpleFilter(filterDto.term, pagination);
 
       expect(result).toEqual(mockPaginatedResult);
-      expect(mockSearchService.simpleFilter).toHaveBeenCalledWith(filterDto);
+      expect(mockSearchService.simpleFilter).toHaveBeenCalledWith(filterDto.term, pagination);
     });
   });
 
@@ -360,7 +365,7 @@ describe('PublishingHousesController', () => {
         const result = await controller.filter(filters, pagination);
 
         expect(result).toEqual(mockPaginatedResult);
-        expect(spy).toHaveBeenCalledWith(filters);
+        expect(spy).toHaveBeenCalledWith(filters.term, pagination);
       });
     });
   });

@@ -11,7 +11,7 @@ import {
 export interface IAuditSearchService {
   // Standardized search methods (following book-catalog pattern)
   exactSearch(searchDto: AuditExactSearchDto): Promise<PaginatedResult<AuditLog>>;
-  simpleFilter(filterDto: AuditSimpleFilterDto): Promise<PaginatedResult<AuditLog>>;
+  simpleFilter(term: string, pagination: PaginationDto): Promise<PaginatedResult<AuditLog>>;
   advancedFilter(
     filters: AuditFiltersDto,
     pagination: PaginationDto,

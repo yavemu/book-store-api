@@ -8,7 +8,8 @@ import { AssignmentSimpleFilterDto } from '../dto/assignment-simple-filter.dto';
 export interface IBookAuthorAssignmentSearchService {
   exactSearch(searchDto: AssignmentExactSearchDto): Promise<PaginatedResult<BookAuthorAssignment>>;
   simpleFilter(
-    filterDto: AssignmentSimpleFilterDto,
+    term: string,
+    pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthorAssignment>>;
   advancedFilter(
     filters: AssignmentFiltersDto,

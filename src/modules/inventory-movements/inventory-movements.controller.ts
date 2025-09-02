@@ -73,14 +73,18 @@ export class InventoryMovementsController {
     };
   }
 
-  @Post('filter')
-  @HttpCode(200)
+  @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchInventoryMovements()
-  async simpleFilter(@Body() filterDto: InventoryMovementSimpleFilterDto, @Request() req) {
+  async simpleFilter(
+    @Query('term') term: string,
+    @Query() pagination: PaginationDto,
+    @Request() req,
+  ) {
     return {
       data: await this.inventoryMovementCrudService.simpleFilterMovements(
-        filterDto,
+        term,
+        pagination,
         req.user?.userId,
         req.user?.role?.name,
       ),

@@ -54,26 +54,27 @@ export class BookAuthorAssignmentSearchRepository
   }
 
   async simpleFilterAssignments(
-    filterDto: AssignmentSimpleFilterDto,
+    term: string,
+    pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthorAssignment>> {
     try {
-      if (!filterDto.term || filterDto.term.trim() === '') {
+      if (!term || term.trim() === '') {
         const options: FindManyOptions<BookAuthorAssignment> = {
-          order: { [filterDto.sortBy]: filterDto.sortOrder },
-          skip: filterDto.offset,
-          take: filterDto.limit,
+          order: { [pagination.sortBy]: pagination.sortOrder },
+          skip: pagination.offset,
+          take: pagination.limit,
           relations: ['book', 'author'],
         };
-        return await this._findManyWithPagination(options, filterDto);
+        return await this._findManyWithPagination(options, pagination);
       }
 
       const allAssignmentsOptions: FindManyOptions<BookAuthorAssignment> = {
-        order: { [filterDto.sortBy]: filterDto.sortOrder },
+        order: { [pagination.sortBy]: pagination.sortOrder },
         relations: ['book', 'author'],
       };
 
       const allAssignments = await this._findMany(allAssignmentsOptions);
-      const trimmedTerm = filterDto.term.trim().toLowerCase();
+      const trimmedTerm = term.trim().toLowerCase();
 
       const filteredAssignments = allAssignments.filter(
         (assignment) =>
@@ -89,11 +90,11 @@ export class BookAuthorAssignmentSearchRepository
       );
 
       const total = filteredAssignments.length;
-      const startIndex = filterDto.offset || 0;
-      const endIndex = startIndex + (filterDto.limit || 10);
+      const startIndex = pagination.offset || 0;
+      const endIndex = startIndex + (pagination.limit || 10);
       const paginatedData = filteredAssignments.slice(startIndex, endIndex);
 
-      return this._buildPaginatedResult(paginatedData, total, filterDto);
+      return this._buildPaginatedResult(paginatedData, total, pagination);
     } catch (error) {
       throw new HttpException('Failed to filter assignments', HttpStatus.INTERNAL_SERVER_ERROR);
     }

@@ -181,13 +181,15 @@ describe('BookCatalogSearchService', () => {
       mockSearchRepository.simpleFilterBooks.mockResolvedValue(filterResult);
 
       // Act
-      const result = await service.simpleFilter(filterDto);
+      const pagination = BookCatalogMockFactory.createMockPaginationDto();
+      const result = await service.simpleFilter(filterDto.term, pagination);
 
       // Assert
       expect(result).toEqual(filterResult);
       AssertionHelper.expectMockToHaveBeenCalledWith(
         mockSearchRepository.simpleFilterBooks,
-        filterDto,
+        filterDto.term,
+        pagination,
       );
       AssertionHelper.expectMockToHaveBeenCalledOnce(mockSearchRepository.simpleFilterBooks);
       AssertionHelper.expectValidPaginatedResult(result, mockBooks.length);
@@ -203,13 +205,15 @@ describe('BookCatalogSearchService', () => {
       mockSearchRepository.simpleFilterBooks.mockResolvedValue(filterResult);
 
       // Act
-      const result = await service.simpleFilter(filterDto);
+      const pagination = BookCatalogMockFactory.createMockPaginationDto();
+      const result = await service.simpleFilter(filterDto.term, pagination);
 
       // Assert
       expect(result.data).toHaveLength(5);
       AssertionHelper.expectMockToHaveBeenCalledWith(
         mockSearchRepository.simpleFilterBooks,
-        filterDto,
+        filterDto.term,
+        pagination,
       );
     });
 
@@ -223,7 +227,8 @@ describe('BookCatalogSearchService', () => {
       mockSearchRepository.simpleFilterBooks.mockResolvedValue(filterResult);
 
       // Act
-      const result = await service.simpleFilter(filterDto);
+      const pagination = BookCatalogMockFactory.createMockPaginationDto();
+      const result = await service.simpleFilter(filterDto.term, pagination);
 
       // Assert
       expect(result.data).toHaveLength(3);
@@ -241,7 +246,8 @@ describe('BookCatalogSearchService', () => {
       mockSearchRepository.simpleFilterBooks.mockResolvedValue(emptyResult);
 
       // Act
-      const result = await service.simpleFilter(filterDto);
+      const pagination = BookCatalogMockFactory.createMockPaginationDto();
+      const result = await service.simpleFilter(filterDto.term, pagination);
 
       // Assert
       expect(result.data).toHaveLength(0);
@@ -256,7 +262,7 @@ describe('BookCatalogSearchService', () => {
 
       // Act & Assert
       await AssertionHelper.expectAsyncToThrow(
-        () => service.simpleFilter(filterDto),
+        () => service.simpleFilter(filterDto.term, pagination),
         'Database query failed',
       );
     });
@@ -581,7 +587,7 @@ describe('BookCatalogSearchService', () => {
       // Act - Simulate concurrent search operations
       const promises = [
         service.exactSearch(exactSearchDto),
-        service.simpleFilter(simpleFilterDto),
+        service.simpleFilter(simpleFilterDto.term, pagination),
         service.advancedFilter(advancedFiltersDto, pagination),
       ];
       const results = await Promise.all(promises);
@@ -620,7 +626,8 @@ describe('BookCatalogSearchService', () => {
 
       // Act
       const exactSearchResult = await service.exactSearch(exactSearchDto);
-      const simpleFilterResult = await service.simpleFilter(simpleFilterDto);
+      const pagination = BookCatalogMockFactory.createMockPaginationDto();
+      const simpleFilterResult = await service.simpleFilter(simpleFilterDto.term, pagination);
 
       // Assert
       expect(exactSearchResult.data[0].id).toBe(simpleFilterResult.data[0].id);
@@ -652,7 +659,7 @@ describe('BookCatalogSearchService', () => {
       );
 
       await AssertionHelper.expectAsyncToThrow(
-        () => service.simpleFilter(filterDto),
+        () => service.simpleFilter(filterDto.term, pagination),
         'Database connection lost',
       );
 

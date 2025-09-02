@@ -40,5 +40,5 @@ export interface IAuditSearchRepository {
 
   // Standardized search methods (following book-catalog pattern)
   exactSearchAuditLogs(searchDto: AuditExactSearchDto): Promise<PaginatedResult<AuditLog>>;
-  simpleFilterAuditLogs(filterDto: AuditSimpleFilterDto): Promise<PaginatedResult<AuditLog>>;
+  simpleFilterAuditLogs(term: string, pagination: PaginationDto): Promise<PaginatedResult<AuditLog>>;
 }

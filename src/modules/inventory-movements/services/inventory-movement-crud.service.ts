@@ -55,12 +55,14 @@ export class InventoryMovementCrudService implements IInventoryMovementCrudServi
   }
 
   async simpleFilterMovements(
-    filterDto: InventoryMovementSimpleFilterDto,
+    term: string,
+    pagination: PaginationDto,
     requestingUserId?: string,
     requestingUserRole?: string,
   ): Promise<PaginatedResult<InventoryMovement>> {
     return this.movementCrudRepository.simpleFilterMovements(
-      filterDto,
+      term,
+      pagination,
       requestingUserId,
       requestingUserRole,
     );

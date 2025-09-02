@@ -10,7 +10,8 @@ export interface IBookAuthorAssignmentSearchRepository {
     searchDto: AssignmentExactSearchDto,
   ): Promise<PaginatedResult<BookAuthorAssignment>>;
   simpleFilterAssignments(
-    filterDto: AssignmentSimpleFilterDto,
+    term: string,
+    pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthorAssignment>>;
   findWithFilters(
     filters: AssignmentFiltersDto,

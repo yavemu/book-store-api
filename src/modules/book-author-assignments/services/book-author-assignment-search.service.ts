@@ -33,10 +33,11 @@ export class BookAuthorAssignmentSearchService implements IBookAuthorAssignmentS
   }
 
   async simpleFilter(
-    filterDto: AssignmentSimpleFilterDto,
+    term: string,
+    pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthorAssignment>> {
     try {
-      return await this.searchRepository.simpleFilterAssignments(filterDto);
+      return await this.searchRepository.simpleFilterAssignments(term, pagination);
     } catch (error) {
       this.errorHandler.handleError(
         error,

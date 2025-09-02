@@ -334,14 +334,22 @@ export class InventoryMovementCrudRepository
     );
   }
 
-  async simpleFilterMovements(filterDto: any): Promise<PaginatedResult<InventoryMovement>> {
+  async simpleFilterMovements(
+    term: string,
+    pagination: PaginationDto,
+    requestingUserId?: string,
+    requestingUserRole?: string,
+  ): Promise<PaginatedResult<InventoryMovement>> {
+    const searchDto = { searchTerm: term };
+    const filtersDto = {};
+    const advancedFiltersDto = {};
     return this.searchMovements(
-      filterDto,
-      filterDto,
-      filterDto,
-      filterDto,
-      filterDto.requestingUserId,
-      filterDto.requestingUserRole,
+      pagination,
+      filtersDto,
+      searchDto,
+      advancedFiltersDto,
+      requestingUserId,
+      requestingUserRole,
     );
   }
 

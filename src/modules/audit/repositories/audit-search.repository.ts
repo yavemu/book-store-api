@@ -312,13 +312,13 @@ export class AuditSearchRepository implements IAuditSearchRepository {
     };
   }
 
-  async simpleFilterAuditLogs(filterDto: AuditSimpleFilterDto): Promise<PaginatedResult<AuditLog>> {
-    if (!filterDto.term || filterDto.term.trim().length === 0) {
+  async simpleFilterAuditLogs(term: string, pagination: PaginationDto): Promise<PaginatedResult<AuditLog>> {
+    if (!term || term.trim().length === 0) {
       // Return all logs if no search term
-      return await this.getAuditTrail(filterDto);
+      return await this.getAuditTrail(pagination);
     }
 
-    const trimmedTerm = filterDto.term.trim();
+    const trimmedTerm = term.trim();
     const [data, total] = await this.auditLogRepository.findAndCount({
       where: [
         { performedBy: ILike(`%${trimmedTerm}%`) },
@@ -326,21 +326,21 @@ export class AuditSearchRepository implements IAuditSearchRepository {
         { details: ILike(`%${trimmedTerm}%`) },
         { entityType: ILike(`%${trimmedTerm}%`) },
       ],
-      order: { [filterDto.sortBy || 'createdAt']: filterDto.sortOrder || 'DESC' },
-      skip: filterDto.offset,
-      take: filterDto.limit,
+      order: { [pagination.sortBy || 'createdAt']: pagination.sortOrder || 'DESC' },
+      skip: pagination.offset,
+      take: pagination.limit,
     });
 
-    const totalPages = Math.ceil(total / filterDto.limit);
+    const totalPages = Math.ceil(total / pagination.limit);
     return {
       data,
       meta: {
         total,
-        page: filterDto.page,
-        limit: filterDto.limit,
+        page: pagination.page,
+        limit: pagination.limit,
         totalPages,
-        hasNext: filterDto.page < totalPages,
-        hasPrev: filterDto.page > 1,
+        hasNext: pagination.page < totalPages,
+        hasPrev: pagination.page > 1,
       },
     };
   }

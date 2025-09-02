@@ -312,13 +312,15 @@ describe('BookCatalogController', () => {
         mockBookCatalogSearchService.simpleFilter.mockResolvedValue(filterResult);
 
         // Act
-        const result = await controller.filterPost(filterDto);
+        const pagination = BookCatalogMockFactory.createMockPaginationDto();
+        const result = await controller.filter(filterDto.term, pagination);
 
         // Assert
         expect(result).toEqual(filterResult);
         AssertionHelper.expectMockToHaveBeenCalledWith(
           mockBookCatalogSearchService.simpleFilter,
-          filterDto,
+          filterDto.term,
+          pagination,
         );
       });
     });

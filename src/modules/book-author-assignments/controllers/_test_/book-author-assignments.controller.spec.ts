@@ -256,10 +256,15 @@ describe('BookAuthorAssignmentsController', () => {
 
       mockSearchService.simpleFilter.mockResolvedValue(mockPaginatedResult);
 
-      const result = await controller.simpleFilter(filterDto);
+      const pagination = new PaginationDto();
+      pagination.page = 1;
+      pagination.limit = 10;
+      pagination.sortBy = 'createdAt';
+      pagination.sortOrder = 'DESC';
+      const result = await controller.simpleFilter(filterDto.term, pagination);
 
       expect(result).toEqual(mockPaginatedResult);
-      expect(mockSearchService.simpleFilter).toHaveBeenCalledWith(filterDto);
+      expect(mockSearchService.simpleFilter).toHaveBeenCalledWith(filterDto.term, pagination);
     });
 
     it('should handle filter errors', async () => {
@@ -267,7 +272,12 @@ describe('BookAuthorAssignmentsController', () => {
       const error = new Error('Filter failed');
       mockSearchService.simpleFilter.mockRejectedValue(error);
 
-      await expect(controller.simpleFilter(filterDto)).rejects.toThrow('Filter failed');
+      const pagination = new PaginationDto();
+      pagination.page = 1;
+      pagination.limit = 10;
+      pagination.sortBy = 'createdAt';
+      pagination.sortOrder = 'DESC';
+      await expect(controller.simpleFilter(filterDto.term, pagination)).rejects.toThrow('Filter failed');
     });
   });
 

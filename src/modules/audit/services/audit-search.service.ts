@@ -90,9 +90,9 @@ export class AuditSearchService implements IAuditSearchService {
     return await this.auditSearchRepository.exactSearchAuditLogs(searchDto);
   }
 
-  async simpleFilter(filterDto: AuditSimpleFilterDto): Promise<PaginatedResult<AuditLog>> {
+  async simpleFilter(term: string, pagination: PaginationDto): Promise<PaginatedResult<AuditLog>> {
     // Implementation will delegate to existing repository methods
-    return await this.auditSearchRepository.simpleFilterAuditLogs(filterDto);
+    return await this.auditSearchRepository.simpleFilterAuditLogs(term, pagination);
   }
 
   async advancedFilter(

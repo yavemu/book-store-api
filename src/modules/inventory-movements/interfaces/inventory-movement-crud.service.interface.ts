@@ -26,7 +26,8 @@ export interface IInventoryMovementCrudService {
     requestingUserRole?: string,
   ): Promise<PaginatedResult<InventoryMovement>>;
   simpleFilterMovements(
-    filterDto: InventoryMovementSimpleFilterDto,
+    term: string,
+    pagination: PaginationDto,
     requestingUserId?: string,
     requestingUserRole?: string,
   ): Promise<PaginatedResult<InventoryMovement>>;
