@@ -10,6 +10,8 @@ import {
   Inject,
   Request,
   Res,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
@@ -76,8 +78,12 @@ export class BookAuthorsController {
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterAuthorsRealtime()
-  simpleFilter(@Query('term') term: string, @Query() pagination: PaginationDto) {
-    return this.searchService.simpleFilter(term, pagination);
+  simpleFilter(@Query() dto: BookAuthorSimpleFilterDto) {
+    // Validar que el término sea obligatorio
+    if (!dto.term || dto.term.trim().length === 0) {
+      throw new HttpException('Filter term is required', HttpStatus.BAD_REQUEST);
+    }
+    return this.searchService.simpleFilter(dto.term, dto);
   }
 
   @Post('advanced-filter')
@@ -132,6 +138,10 @@ export class BookAuthorsController {
   }
 
   async filter(filters: any, pagination: PaginationDto) {
-    return this.simpleFilter(filters.term || '', pagination);
+    const dto = Object.assign(new BookAuthorSimpleFilterDto(), {
+      term: filters.term || '',
+      ...pagination
+    });
+    return this.simpleFilter(dto);
   }
 }

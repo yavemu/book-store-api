@@ -135,7 +135,7 @@ export class BookCatalogController {
     @Body() updateBookCatalogDto: UpdateBookCatalogDto,
     @Request() req: any,
   ) {
-    return this.bookCatalogCrudService.update(id, updateBookCatalogDto, req.user.id);
+    return this.bookCatalogCrudService.update(id, updateBookCatalogDto, req);
   }
 
   @Delete(':id')

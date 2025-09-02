@@ -4,6 +4,7 @@ import { InventoryMovementsController } from './inventory-movements.controller';
 import { InventoryMovement } from './entities/inventory-movement.entity';
 import { InventoryMovementCrudService } from './services/inventory-movement-crud.service';
 import { InventoryMovementCrudRepository } from './repositories/inventory-movement-crud.repository';
+import { InventoryMovementSearchRepository } from './repositories/inventory-movements-search.repository';
 import { InventoryMovementTrackerService } from './services/inventory-movement-tracker.service';
 import { AuditModule } from '../audit/audit.module';
 import { FileExportService } from '../../common/services/file-export.service';
@@ -22,6 +23,11 @@ import { FileExportService } from '../../common/services/file-export.service';
     {
       provide: 'IInventoryMovementCrudRepository',
       useClass: InventoryMovementCrudRepository,
+    },
+    InventoryMovementSearchRepository,
+    {
+      provide: 'IInventoryMovementSearchRepository',
+      useClass: InventoryMovementSearchRepository,
     },
     InventoryMovementTrackerService,
     {

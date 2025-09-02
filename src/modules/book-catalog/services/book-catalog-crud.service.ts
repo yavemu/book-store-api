@@ -37,12 +37,18 @@ export class BookCatalogCrudService implements IBookCatalogCrudService {
   async update(
     id: string,
     updateBookCatalogDto: UpdateBookCatalogDto,
-    performedBy: string,
+    req: any,
   ): Promise<BookCatalog> {
+    const userId = req.user?.userId || req.user?.id || req.id;
+    const userFullName = req.user?.username || 'Unknown User';
+    const userRole = req.user?.role?.name || 'user';
+    
     return await this.bookCatalogCrudRepository.updateBookProfile(
       id,
       updateBookCatalogDto,
-      performedBy,
+      userId,
+      userFullName,
+      userRole,
     );
   }
 

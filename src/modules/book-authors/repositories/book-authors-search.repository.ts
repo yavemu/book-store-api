@@ -8,6 +8,7 @@ import {
   MoreThanOrEqual,
   LessThanOrEqual,
 } from 'typeorm';
+import { SqlSanitizer } from '../../../common/utils/sql-sanitizer.util';
 import { BookAuthor } from '../entities/book-author.entity';
 import { IBookAuthorSearchRepository } from '../interfaces/book-author-search.repository.interface';
 import { BookAuthorFiltersDto } from '../dto/book-author-filters.dto';
@@ -27,6 +28,7 @@ export class BookAuthorSearchRepository
     private readonly authorRepository: Repository<BookAuthor>,
   ) {
     super(authorRepository);
+    // El repositorio base ya tiene acceso a través del constructor
   }
 
   async exactSearchAuthors(
@@ -57,26 +59,26 @@ export class BookAuthorSearchRepository
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>> {
     try {
-      const maxLimit = Math.min(pagination.limit || 10, 50);
+      // Sanitizar parámetros de paginación
+      const sanitizedPagination = SqlSanitizer.sanitizePaginationParams(pagination.page, pagination.limit);
+      const maxLimit = Math.min(sanitizedPagination.limit, 50);
       
-      // If no search term provided, return all authors with pagination
+      // Si no se proporciona término de búsqueda, retornar error (ahora es obligatorio)
       if (!term || term.trim().length === 0) {
-        const options: FindManyOptions<BookAuthor> = {
-          order: { [pagination.sortBy || 'createdAt']: pagination.sortOrder || 'DESC' },
-          skip: pagination.offset,
-          take: maxLimit,
-        };
-        return await this._findManyWithPagination(options, pagination);
+        throw new HttpException('Filter term is required', HttpStatus.BAD_REQUEST);
       }
 
-      // Validate minimum search term length
-      const trimmedTerm = term.trim();
-      if (trimmedTerm.length < 3) {
+      // Sanitizar el término de búsqueda
+      const sanitizedTerm = SqlSanitizer.sanitizeSearchTerm(term);
+      if (!sanitizedTerm || sanitizedTerm.length < 2) {
         throw new HttpException(
-          'Search term must be at least 3 characters long',
+          'Search term must be at least 2 characters long after sanitization',
           HttpStatus.BAD_REQUEST,
         );
       }
+
+      // Sanitizar parámetros de ordenamiento
+      const { sortBy, sortOrder } = SqlSanitizer.sanitizeSortParams(pagination.sortBy, pagination.sortOrder);
 
       // Use TypeORM QueryBuilder for efficient LIKE queries across all fields
       const queryBuilder = this.repository
@@ -88,7 +90,7 @@ export class BookAuthorSearchRepository
           'LOWER(author.email) LIKE LOWER(:term) OR ' +
           'LOWER(author.biography) LIKE LOWER(:term) OR ' +
           'LOWER(author.nationality) LIKE LOWER(:term))',
-          { term: `%${trimmedTerm}%` }
+          { term: `%${sanitizedTerm}%` }
         );
 
       // Get total count for pagination metadata
@@ -96,8 +98,8 @@ export class BookAuthorSearchRepository
 
       // Apply sorting and pagination
       queryBuilder
-        .orderBy(`author.${pagination.sortBy || 'createdAt'}`, pagination.sortOrder || 'DESC')
-        .skip(pagination.offset)
+        .orderBy(`author.${sortBy}`, sortOrder)
+        .skip(sanitizedPagination.offset)
         .take(maxLimit);
 
       const authors = await queryBuilder.getMany();
@@ -107,11 +109,11 @@ export class BookAuthorSearchRepository
         data: authors,
         meta: {
           total: totalCount,
-          page: pagination.page,
+          page: sanitizedPagination.page,
           limit: maxLimit,
           totalPages: Math.ceil(totalCount / maxLimit),
-          hasNext: pagination.offset + maxLimit < totalCount,
-          hasPrev: pagination.page > 1,
+          hasNext: sanitizedPagination.offset + maxLimit < totalCount,
+          hasPrev: sanitizedPagination.page > 1,
         },
       };
     } catch (error) {
@@ -156,22 +158,27 @@ export class BookAuthorSearchRepository
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>> {
     try {
+      // Sanitizar filtros
+      const sanitizedFilters = SqlSanitizer.sanitizeFilters(filters);
+      const sanitizedPagination = SqlSanitizer.sanitizePaginationParams(pagination.page, pagination.limit);
+      const { sortBy, sortOrder } = SqlSanitizer.sanitizeSortParams(pagination.sortBy, pagination.sortOrder);
+
       const whereConditions: any = {};
 
-      if (filters.firstName) {
-        whereConditions.firstName = ILike(`%${filters.firstName}%`);
+      if (sanitizedFilters.firstName) {
+        whereConditions.firstName = ILike(`%${sanitizedFilters.firstName}%`);
       }
 
-      if (filters.lastName) {
-        whereConditions.lastName = ILike(`%${filters.lastName}%`);
+      if (sanitizedFilters.lastName) {
+        whereConditions.lastName = ILike(`%${sanitizedFilters.lastName}%`);
       }
 
-      if (filters.email) {
-        whereConditions.email = ILike(`%${filters.email}%`);
+      if (sanitizedFilters.email) {
+        whereConditions.email = ILike(`%${sanitizedFilters.email}%`);
       }
 
-      if (filters.biography) {
-        whereConditions.biography = ILike(`%${filters.biography}%`);
+      if (sanitizedFilters.biography) {
+        whereConditions.biography = ILike(`%${sanitizedFilters.biography}%`);
       }
 
       if (filters.createdAfter && filters.createdBefore) {
@@ -187,12 +194,12 @@ export class BookAuthorSearchRepository
 
       const options: FindManyOptions<BookAuthor> = {
         where: whereConditions,
-        order: { [pagination.sortBy]: pagination.sortOrder },
-        skip: pagination.offset,
-        take: pagination.limit,
+        order: { [sortBy]: sortOrder },
+        skip: sanitizedPagination.offset,
+        take: sanitizedPagination.limit,
       };
 
-      return await this._findManyWithPagination(options, pagination);
+      return await this._findManyWithPagination(options, sanitizedPagination);
     } catch (error) {
       throw new HttpException('Failed to filter authors', HttpStatus.INTERNAL_SERVER_ERROR);
     }

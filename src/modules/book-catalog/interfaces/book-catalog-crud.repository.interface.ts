@@ -16,6 +16,8 @@ export interface IBookCatalogCrudRepository {
     bookId: string,
     updateBookCatalogDto: UpdateBookCatalogDto,
     performedBy: string,
+    userFullName?: string,
+    userRole?: string,
   ): Promise<BookCatalog>;
   deactivateBook(bookId: string, performedBy: string): Promise<{ id: string }>;
 }

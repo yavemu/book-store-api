@@ -9,7 +9,7 @@ import { PaginatedResult } from '../../../common/interfaces/paginated-result.int
 import { BaseRepository } from '../../../common/repositories/base.repository';
 import { IAuditLoggerService } from '../../audit/interfaces/audit-logger.service.interface';
 import { AuditAction } from '../../audit/enums/audit-action.enum';
-import { MovementFiltersDto, MovementSearchDto, MovementAdvancedFiltersDto } from '../dto';
+import { MovementFiltersDto, MovementSearchDto, MovementAdvancedFiltersDto, InventoryMovementExactSearchDto } from '../dto';
 
 @Injectable()
 export class InventoryMovementCrudRepository
@@ -323,14 +323,19 @@ export class InventoryMovementCrudRepository
   }
 
   // Methods required by IInventoryMovementCrudRepository interface
-  async exactSearchMovements(searchDto: any): Promise<PaginatedResult<InventoryMovement>> {
+  async exactSearchMovements(
+    searchDto: InventoryMovementExactSearchDto,
+    requestingUserId?: string,
+    requestingUserRole?: string,
+  ): Promise<PaginatedResult<InventoryMovement>> {
+    // Usar searchDto como paginación y filtros
     return this.searchMovements(
-      searchDto,
-      searchDto,
-      searchDto,
-      searchDto,
-      searchDto.requestingUserId,
-      searchDto.requestingUserRole,
+      searchDto, // pagination
+      {}, // filters
+      { searchTerm: searchDto.searchValue }, // search
+      {}, // advancedFilters
+      requestingUserId,
+      requestingUserRole,
     );
   }
 
@@ -353,14 +358,19 @@ export class InventoryMovementCrudRepository
     );
   }
 
-  async advancedFilterMovements(filtersDto: any): Promise<PaginatedResult<InventoryMovement>> {
+  async advancedFilterMovements(
+    filters: MovementAdvancedFiltersDto,
+    pagination: PaginationDto,
+    requestingUserId?: string,
+    requestingUserRole?: string,
+  ): Promise<PaginatedResult<InventoryMovement>> {
     return this.searchMovements(
-      filtersDto,
-      filtersDto,
-      filtersDto,
-      filtersDto,
-      filtersDto.requestingUserId,
-      filtersDto.requestingUserRole,
+      pagination, // pagination
+      {}, // filters
+      {}, // search
+      filters, // advancedFilters
+      requestingUserId,
+      requestingUserRole,
     );
   }
 }

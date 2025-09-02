@@ -27,6 +27,7 @@ export class BookAuthorAssignmentSearchRepository
     private readonly assignmentRepository: Repository<BookAuthorAssignment>,
   ) {
     super(assignmentRepository);
+    // El repositorio base ya tiene acceso a través del constructor
   }
 
   async exactSearchAssignments(

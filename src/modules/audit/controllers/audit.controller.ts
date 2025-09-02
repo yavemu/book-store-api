@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, Body, Inject, Res, Param, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Query, Body, Inject, Res, Param, HttpCode, HttpException, HttpStatus } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { IAuditSearchService } from '../interfaces/audit-search.service.interface';
@@ -37,13 +37,6 @@ export class AuditController {
     return this.auditSearchService.getAuditTrail(pagination);
   }
 
-  @Get(':id')
-  @Auth(UserRole.ADMIN)
-  @ApiGetAuditById()
-  async findOne(@Param('id') id: string) {
-    return this.auditSearchService.getAuditById(id);
-  }
-
   @Post('search')
   @HttpCode(200)
   @Auth(UserRole.ADMIN)
@@ -55,11 +48,19 @@ export class AuditController {
   @Get('filter')
   @Auth(UserRole.ADMIN)
   @ApiFilterAuditRealtime()
-  async simpleFilter(
-    @Query('term') term: string,
-    @Query() pagination: PaginationDto,
-  ) {
-    return this.auditSearchService.simpleFilter(term, pagination);
+  async simpleFilter(@Query() dto: AuditSimpleFilterDto) {
+    // Validar que el término sea obligatorio
+    if (!dto.term || dto.term.trim().length === 0) {
+      throw new HttpException('Filter term is required', HttpStatus.BAD_REQUEST);
+    }
+    return this.auditSearchService.simpleFilter(dto.term, dto);
+  }
+
+  @Get(':id')
+  @Auth(UserRole.ADMIN)
+  @ApiGetAuditById()
+  async findOne(@Param('id') id: string) {
+    return this.auditSearchService.getAuditById(id);
   }
 
   @Post('advanced-filter')
@@ -76,7 +77,11 @@ export class AuditController {
   }
 
   async filter(filterTerm: any, pagination: PaginationDto) {
-    return this.simpleFilter(filterTerm.term, pagination);
+    const dto = Object.assign(new AuditSimpleFilterDto(), {
+      term: filterTerm.term,
+      ...pagination
+    });
+    return this.simpleFilter(dto);
   }
 
   @Get('export/csv')

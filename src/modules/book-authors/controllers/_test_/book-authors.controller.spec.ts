@@ -309,7 +309,8 @@ describe('BookAuthorsController', () => {
       pagination.limit = filterDto.limit;
       pagination.sortBy = 'createdAt';
       pagination.sortOrder = 'DESC';
-      const result = await controller.simpleFilter(filterDto.term, pagination);
+      const dto = Object.assign({}, filterDto, pagination);
+      const result = await controller.simpleFilter(dto);
 
       expect(result).toEqual(mockPaginatedResult);
       expect(mockSearchService.simpleFilter).toHaveBeenCalledWith(filterDto.term, pagination);

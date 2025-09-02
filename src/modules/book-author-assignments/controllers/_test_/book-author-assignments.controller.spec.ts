@@ -261,7 +261,8 @@ describe('BookAuthorAssignmentsController', () => {
       pagination.limit = 10;
       pagination.sortBy = 'createdAt';
       pagination.sortOrder = 'DESC';
-      const result = await controller.simpleFilter(filterDto.term, pagination);
+      const dto = Object.assign({}, filterDto, pagination);
+      const result = await controller.simpleFilter(dto);
 
       expect(result).toEqual(mockPaginatedResult);
       expect(mockSearchService.simpleFilter).toHaveBeenCalledWith(filterDto.term, pagination);
@@ -277,7 +278,8 @@ describe('BookAuthorAssignmentsController', () => {
       pagination.limit = 10;
       pagination.sortBy = 'createdAt';
       pagination.sortOrder = 'DESC';
-      await expect(controller.simpleFilter(filterDto.term, pagination)).rejects.toThrow('Filter failed');
+      const dto = Object.assign({}, filterDto, pagination);
+      await expect(controller.simpleFilter(dto)).rejects.toThrow('Filter failed');
     });
   });
 

@@ -1,7 +1,8 @@
-import { Controller, Get, Param, Query, Request, Post, Body, Res, HttpCode } from '@nestjs/common';
+import { Controller, Get, Param, Query, Request, Post, Body, Res, HttpCode, HttpException, HttpStatus, Inject } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { InventoryMovementCrudService } from './services/inventory-movement-crud.service';
+import { IInventoryMovementSearchRepository } from './interfaces/inventory-movement-search.repository.interface';
 import { Auth } from '../../common/decorators/auth.decorator';
 import { UserRole } from '../../common/enums/user-role.enum';
 import { PaginationDto } from '../../common/dto/pagination.dto';
@@ -28,6 +29,8 @@ export class InventoryMovementsController {
   constructor(
     private readonly inventoryMovementCrudService: InventoryMovementCrudService,
     private readonly fileExportService: FileExportService,
+    @Inject('IInventoryMovementSearchRepository')
+    private readonly searchRepository: IInventoryMovementSearchRepository,
   ) {}
 
   @Get()
@@ -76,15 +79,15 @@ export class InventoryMovementsController {
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchInventoryMovements()
-  async simpleFilter(
-    @Query('term') term: string,
-    @Query() pagination: PaginationDto,
-    @Request() req,
-  ) {
+  async simpleFilter(@Query() dto: InventoryMovementSimpleFilterDto, @Request() req) {
+    // Validar que el término sea obligatorio
+    if (!dto.term || dto.term.trim().length === 0) {
+      throw new HttpException('Filter term is required', HttpStatus.BAD_REQUEST);
+    }
+    
     return {
-      data: await this.inventoryMovementCrudService.simpleFilterMovements(
-        term,
-        pagination,
+      data: await this.searchRepository.simpleFilterMovements(
+        dto,
         req.user?.userId,
         req.user?.role?.name,
       ),
