@@ -22,6 +22,7 @@ import { BookExactSearchDto } from '../../dto/book-exact-search.dto';
 import { BookSimpleFilterDto } from '../../dto/book-simple-filter.dto';
 import { CsvExportFiltersDto } from '../../dto/csv-export-filters.dto';
 import { PaginationDto } from '../../../../common/dto/pagination.dto';
+import { PaginationInputDto } from '../../../../common/dto/pagination-input.dto';
 
 /**
  * BookCatalogController Test Suite
@@ -276,7 +277,10 @@ describe('BookCatalogController', () => {
         mockBookCatalogSearchService.exactSearch.mockResolvedValue(searchResult);
 
         // Act
-        const result = await controller.exactSearch(searchDto);
+        const pagination = new PaginationInputDto();
+        pagination.page = 1;
+        pagination.limit = 10;
+        const result = await controller.exactSearch(searchDto, pagination);
 
         // Assert
         expect(result).toEqual(searchResult);
@@ -290,13 +294,16 @@ describe('BookCatalogController', () => {
       it('should return empty results for no matches', async () => {
         // Arrange
         const searchDto = BookCatalogMockFactory.createMockBookExactSearchDto({
-          searchValue: 'Non-existent Book',
+          title: 'Non-existent Book',
         });
         const emptyResult = BookCatalogMockFactory.createMockPaginatedResult([]);
         mockBookCatalogSearchService.exactSearch.mockResolvedValue(emptyResult);
 
         // Act
-        const result = await controller.exactSearch(searchDto);
+        const pagination = new PaginationInputDto();
+        pagination.page = 1;
+        pagination.limit = 10;
+        const result = await controller.exactSearch(searchDto, pagination);
 
         // Assert
         expect(result.data).toHaveLength(0);

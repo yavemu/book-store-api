@@ -21,73 +21,36 @@ export class BookCatalogSearchRepository
     super(bookRepository);
   }
 
-  async exactSearchBooks(searchDto: BookExactSearchDto): Promise<PaginatedResult<BookCatalog>> {
+  async exactSearchBooks(searchDto: BookExactSearchDto, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>> {
     try {
-      // Validate search field
-      if (!['title', 'isbnCode', 'author', 'genre', 'publisher'].includes(searchDto.searchField)) {
-        throw new HttpException('Invalid search field', HttpStatus.BAD_REQUEST);
-      }
+      const whereCondition: any = {};
+      
+      // Build where condition based on provided fields
+      if (searchDto.title) whereCondition.title = searchDto.title;
+      if (searchDto.isbnCode) whereCondition.isbnCode = searchDto.isbnCode;
+      if (searchDto.price !== undefined) whereCondition.price = searchDto.price;
+      if (searchDto.isAvailable !== undefined) whereCondition.isAvailable = searchDto.isAvailable;
+      if (searchDto.stockQuantity !== undefined) whereCondition.stockQuantity = searchDto.stockQuantity;
+      if (searchDto.publicationDate) whereCondition.publicationDate = searchDto.publicationDate;
+      if (searchDto.pageCount !== undefined) whereCondition.pageCount = searchDto.pageCount;
+      if (searchDto.summary) whereCondition.summary = searchDto.summary;
+      if (searchDto.genreId) whereCondition.genreId = searchDto.genreId;
+      if (searchDto.publisherId) whereCondition.publisherId = searchDto.publisherId;
 
-      // Validate and sanitize search value
-      if (!searchDto.searchValue || searchDto.searchValue.trim().length === 0) {
-        throw new HttpException('Search value cannot be empty', HttpStatus.BAD_REQUEST);
-      }
+      const options: FindManyOptions<BookCatalog> = {
+        where: whereCondition,
+        relations: ['genre', 'publisher'],
+        order: { [pagination.sortBy || 'createdAt']: pagination.sortOrder || 'DESC' },
+        skip: pagination.offset,
+        take: pagination.limit,
+      };
 
-      const trimmedSearchValue = searchDto.searchValue.trim();
-      let options: FindManyOptions<BookCatalog>;
-
-      // Apply EXACT search logic based on field using BaseRepository methods
-      switch (searchDto.searchField) {
-        case 'title':
-          options = {
-            where: { title: trimmedSearchValue },
-            relations: ['genre', 'publisher'],
-            order: { [searchDto.sortBy]: searchDto.sortOrder },
-            skip: searchDto.offset,
-            take: searchDto.limit,
-          };
-          break;
-        case 'isbnCode':
-          options = {
-            where: { isbnCode: trimmedSearchValue },
-            relations: ['genre', 'publisher'],
-            order: { [searchDto.sortBy]: searchDto.sortOrder },
-            skip: searchDto.offset,
-            take: searchDto.limit,
-          };
-          break;
-        case 'genre':
-          options = {
-            where: { genre: { name: trimmedSearchValue } },
-            relations: ['genre', 'publisher'],
-            order: { [searchDto.sortBy]: searchDto.sortOrder },
-            skip: searchDto.offset,
-            take: searchDto.limit,
-          };
-          break;
-        case 'publisher':
-          options = {
-            where: { publisher: { name: trimmedSearchValue } },
-            relations: ['genre', 'publisher'],
-            order: { [searchDto.sortBy]: searchDto.sortOrder },
-            skip: searchDto.offset,
-            take: searchDto.limit,
-          };
-          break;
-        default:
-          // For complex searches like 'author', use a simpler approach with BaseRepository
-          throw new HttpException(
-            'Author search not supported in exact mode',
-            HttpStatus.BAD_REQUEST,
-          );
-      }
-
-      return await this._findManyWithPagination(options, searchDto);
+      return await this._findManyWithPagination(options, pagination);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Failed to perform exact search', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Failed to search books', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

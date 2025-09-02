@@ -12,6 +12,7 @@ import {
   UserSimpleFilterDto,
 } from '../../dto';
 import { PaginationDto } from '../../../../common/dto/pagination.dto';
+import { PaginationInputDto } from '../../../../common/dto/pagination-input.dto';
 import { User } from '../../entities/user.entity';
 import { Response } from 'express';
 
@@ -283,12 +284,14 @@ describe('UsersController', () => {
   describe('exactSearch()', () => {
     it('should perform exact search', async () => {
       const searchDto = new UserExactSearchDto();
-      searchDto.searchField = 'email';
-      searchDto.searchValue = 'test@example.com';
+      searchDto.email = 'test@example.com';
 
       mockSearchService.exactSearch.mockResolvedValue(mockPaginatedResult);
 
-      const result = await controller.exactSearch(searchDto, mockRequest);
+      const pagination = new PaginationInputDto();
+      pagination.page = 1;
+      pagination.limit = 10;
+      const result = await controller.exactSearch(searchDto, pagination, mockRequest);
 
       expect(result).toEqual(mockPaginatedResult);
       expect(mockSearchService.exactSearch).toHaveBeenCalledWith(searchDto, 'user123', 'admin');
@@ -299,7 +302,10 @@ describe('UsersController', () => {
       const error = new Error('Search failed');
       mockSearchService.exactSearch.mockRejectedValue(error);
 
-      await expect(controller.exactSearch(searchDto, mockRequest)).rejects.toThrow(
+      const pagination = new PaginationInputDto();
+      pagination.page = 1;
+      pagination.limit = 10;
+      await expect(controller.exactSearch(searchDto, pagination, mockRequest)).rejects.toThrow(
         'Search failed',
       );
     });

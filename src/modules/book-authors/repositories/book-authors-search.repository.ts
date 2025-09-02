@@ -33,19 +33,26 @@ export class BookAuthorSearchRepository
 
   async exactSearchAuthors(
     searchDto: BookAuthorExactSearchDto,
+    pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>> {
     try {
       const whereCondition: any = {};
-      whereCondition[searchDto.searchField] = searchDto.searchValue;
+      
+      // Build where condition based on provided fields
+      if (searchDto.firstName) whereCondition.firstName = searchDto.firstName;
+      if (searchDto.lastName) whereCondition.lastName = searchDto.lastName;
+      if (searchDto.nationality) whereCondition.nationality = searchDto.nationality;
+      if (searchDto.birthDate) whereCondition.birthDate = searchDto.birthDate;
+      if (searchDto.biography) whereCondition.biography = searchDto.biography;
 
       const options: FindManyOptions<BookAuthor> = {
         where: whereCondition,
-        order: { [searchDto.sortBy]: searchDto.sortOrder },
-        skip: searchDto.offset,
-        take: searchDto.limit,
+        order: { [pagination.sortBy || 'createdAt']: pagination.sortOrder || 'DESC' },
+        skip: pagination.offset,
+        take: pagination.limit,
       };
 
-      return await this._findManyWithPagination(options, searchDto);
+      return await this._findManyWithPagination(options, pagination);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;

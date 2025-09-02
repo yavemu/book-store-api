@@ -4,7 +4,7 @@ import { Response } from 'express';
 import { IAuditSearchService } from '../interfaces/audit-search.service.interface';
 import { Auth } from '../../../common/decorators/auth.decorator';
 import { UserRole } from '../../../common/enums/user-role.enum';
-import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
 import {
   AuditFiltersDto,
   AuditExactSearchDto,
@@ -33,7 +33,7 @@ export class AuditController {
   @Get()
   @Auth(UserRole.ADMIN)
   @ApiGetAuditLogs()
-  async findAll(@Query() pagination: PaginationDto) {
+  async findAll(@Query() pagination: PaginationInputDto) {
     return this.auditSearchService.getAuditTrail(pagination);
   }
 
@@ -41,19 +41,19 @@ export class AuditController {
   @HttpCode(200)
   @Auth(UserRole.ADMIN)
   @ApiSearchAuditLogs()
-  async exactSearch(@Body() searchDto: AuditExactSearchDto) {
+  async exactSearch(@Body() searchDto: AuditExactSearchDto, @Query() pagination: PaginationInputDto) {
     return this.auditSearchService.exactSearch(searchDto);
   }
 
   @Get('filter')
   @Auth(UserRole.ADMIN)
   @ApiFilterAuditRealtime()
-  async simpleFilter(@Query() dto: AuditSimpleFilterDto) {
+  async simpleFilter(@Query('term') term: string, @Query() pagination: PaginationInputDto) {
     // Validar que el término sea obligatorio
-    if (!dto.term || dto.term.trim().length === 0) {
+    if (!term || term.trim().length === 0) {
       throw new HttpException('Filter term is required', HttpStatus.BAD_REQUEST);
     }
-    return this.auditSearchService.simpleFilter(dto.term, dto);
+    return this.auditSearchService.simpleFilter(term, pagination);
   }
 
   @Get(':id')
@@ -67,21 +67,17 @@ export class AuditController {
   @HttpCode(200)
   @Auth(UserRole.ADMIN)
   @ApiAdvancedFilterAudit()
-  async advancedFilter(@Body() filters: AuditFiltersDto, @Query() pagination: PaginationDto) {
+  async advancedFilter(@Body() filters: AuditFiltersDto, @Query() pagination: PaginationInputDto) {
     return this.auditSearchService.advancedFilter(filters, pagination);
   }
 
   // Legacy method names for backward compatibility with tests
-  async search(searchTerm: any, pagination: PaginationDto) {
-    return this.exactSearch(searchTerm);
+  async search(searchTerm: any, pagination: PaginationInputDto) {
+    return this.exactSearch(searchTerm, pagination);
   }
 
-  async filter(filterTerm: any, pagination: PaginationDto) {
-    const dto = Object.assign(new AuditSimpleFilterDto(), {
-      term: filterTerm.term,
-      ...pagination
-    });
-    return this.simpleFilter(dto);
+  async filter(filterTerm: any, pagination: PaginationInputDto) {
+    return this.simpleFilter(filterTerm.term, pagination);
   }
 
   @Get('export/csv')

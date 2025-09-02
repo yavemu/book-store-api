@@ -121,12 +121,13 @@ export class BookCatalogMockFactory {
 
   static createMockBookExactSearchDto(overrides?: Partial<BookExactSearchDto>): BookExactSearchDto {
     const dto = new BookExactSearchDto();
-    dto.searchField = overrides?.searchField || 'title';
-    dto.searchValue = overrides?.searchValue || 'Search Title';
-    dto.page = overrides?.page || 1;
-    dto.limit = overrides?.limit || 10;
-    dto.sortBy = overrides?.sortBy || 'createdAt';
-    dto.sortOrder = overrides?.sortOrder || 'DESC';
+    dto.title = overrides?.title || 'Cien años de soledad';
+    dto.isbnCode = overrides?.isbnCode || '9788439732471';
+    dto.price = overrides?.price || 25.99;
+    dto.isAvailable = overrides?.isAvailable || true;
+    dto.stockQuantity = overrides?.stockQuantity || 100;
+    dto.genreId = overrides?.genreId || 'uuid-del-genero';
+    dto.publisherId = overrides?.publisherId || 'uuid-de-la-editorial';
     return dto;
   }
 

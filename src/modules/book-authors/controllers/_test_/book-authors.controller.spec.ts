@@ -12,6 +12,7 @@ import {
   BookAuthorCsvExportFiltersDto,
 } from '../../dto';
 import { PaginationDto } from '../../../../common/dto/pagination.dto';
+import { PaginationInputDto } from '../../../../common/dto/pagination-input.dto';
 import { BookAuthor } from '../../entities/book-author.entity';
 import { Response } from 'express';
 
@@ -259,13 +260,13 @@ describe('BookAuthorsController', () => {
   describe('exactSearch()', () => {
     it('should perform exact search successfully', async () => {
       const searchDto = new BookAuthorExactSearchDto();
-      searchDto.searchField = 'firstName';
-      searchDto.searchValue = 'Stephen';
-      searchDto.page = 1;
-      searchDto.limit = 10;
+      searchDto.firstName = 'Stephen';
+      const pagination = new PaginationInputDto();
+      pagination.page = 1;
+      pagination.limit = 10;
       mockSearchService.exactSearch.mockResolvedValue(mockPaginatedResult);
 
-      const result = await controller.exactSearch(searchDto);
+      const result = await controller.exactSearch(searchDto, pagination);
 
       expect(result).toEqual(mockPaginatedResult);
       expect(mockSearchService.exactSearch).toHaveBeenCalledWith(searchDto);
@@ -273,10 +274,10 @@ describe('BookAuthorsController', () => {
 
     it('should return empty results for no matches', async () => {
       const searchDto = new BookAuthorExactSearchDto();
-      searchDto.searchField = 'firstName';
-      searchDto.searchValue = 'NonExistent';
-      searchDto.page = 1;
-      searchDto.limit = 10;
+      searchDto.firstName = 'NonExistent';
+      const pagination = new PaginationInputDto();
+      pagination.page = 1;
+      pagination.limit = 10;
       const emptyResult = {
         data: [],
         meta: {
@@ -290,7 +291,7 @@ describe('BookAuthorsController', () => {
       };
       mockSearchService.exactSearch.mockResolvedValue(emptyResult);
 
-      const result = await controller.exactSearch(searchDto);
+      const result = await controller.exactSearch(searchDto, pagination);
 
       expect(result.data).toHaveLength(0);
     });
@@ -304,16 +305,13 @@ describe('BookAuthorsController', () => {
       filterDto.limit = 10;
       mockSearchService.simpleFilter.mockResolvedValue(mockPaginatedResult);
 
-      const pagination = new PaginationDto();
-      pagination.page = filterDto.page;
-      pagination.limit = filterDto.limit;
-      pagination.sortBy = 'createdAt';
-      pagination.sortOrder = 'DESC';
-      const dto = Object.assign({}, filterDto, pagination);
-      const result = await controller.simpleFilter(dto);
+      const paginationQuery = new PaginationInputDto();
+      paginationQuery.page = 1;
+      paginationQuery.limit = 10;
+      const result = await controller.simpleFilter(filterDto.term, paginationQuery);
 
       expect(result).toEqual(mockPaginatedResult);
-      expect(mockSearchService.simpleFilter).toHaveBeenCalledWith(filterDto.term, pagination);
+      expect(mockSearchService.simpleFilter).toHaveBeenCalledWith(filterDto.term, paginationQuery);
     });
   });
 
@@ -361,8 +359,7 @@ describe('BookAuthorsController', () => {
     describe('search()', () => {
       it('should call exactSearch method', async () => {
         const searchTerm = new BookAuthorExactSearchDto();
-        searchTerm.searchField = 'firstName';
-        searchTerm.searchValue = 'Stephen';
+        searchTerm.firstName = 'Stephen';
         const spy = jest.spyOn(controller, 'exactSearch').mockResolvedValue(mockPaginatedResult);
 
         const result = await controller.search(searchTerm, pagination);

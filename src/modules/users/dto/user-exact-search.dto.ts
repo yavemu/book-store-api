@@ -1,25 +1,44 @@
-import { IsString, IsNotEmpty, IsIn } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { IsString, IsOptional, IsEmail, IsUUID } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
-export class UserExactSearchDto extends PaginationDto {
+export class UserExactSearchDto {
   @IsString()
-  @IsNotEmpty()
-  @IsIn(['email', 'firstName', 'lastName'])
-  @ApiProperty({
-    description: 'Field to search exactly in',
-    example: 'email',
-    enum: ['email', 'firstName', 'lastName'],
-    required: true,
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'Nombre de usuario',
+    example: 'admin',
   })
-  searchField: string;
+  username?: string;
 
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty({
-    description: 'Exact value to search for',
+  @IsEmail()
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'Correo electrónico del usuario',
     example: 'admin@bookstore.com',
-    required: true,
   })
-  searchValue: string;
+  email?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'Nombre del usuario',
+    example: 'Juan',
+  })
+  firstName?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'Apellido del usuario',
+    example: 'Pérez',
+  })
+  lastName?: string;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'ID del rol del usuario',
+    example: 'uuid-del-rol',
+  })
+  roleId?: string;
 }

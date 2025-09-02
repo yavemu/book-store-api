@@ -24,7 +24,7 @@ import {
   PublishingHouseExactSearchDto,
   PublishingHouseSimpleFilterDto,
 } from '../dto';
-import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
 import { PublishingHouse } from '../entities/publishing-house.entity';
 import { Auth } from '../../../common/decorators/auth.decorator';
 import { UserRole } from '../../../common/enums/user-role.enum';
@@ -60,7 +60,7 @@ export class PublishingHousesController {
   @Get()
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetPublishingHouses()
-  findAll(@Query() pagination: PaginationDto) {
+  findAll(@Query() pagination: PaginationInputDto) {
     return this.publishingHouseService.findAll(pagination);
   }
 
@@ -68,14 +68,14 @@ export class PublishingHousesController {
   @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchPublishingHouses()
-  exactSearch(@Body() searchDto: PublishingHouseExactSearchDto) {
+  exactSearch(@Body() searchDto: PublishingHouseExactSearchDto, @Query() pagination: PaginationInputDto) {
     return this.publishingHouseSearchService.exactSearch(searchDto);
   }
 
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSimpleFilterPublishingHouses()
-  simpleFilter(@Query('term') term: string, @Query() pagination: PaginationDto) {
+  simpleFilter(@Query('term') term: string, @Query() pagination: PaginationInputDto) {
     return this.publishingHouseSearchService.simpleFilter(term, pagination);
   }
 
@@ -83,7 +83,7 @@ export class PublishingHousesController {
   @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterPublishingHouses()
-  advancedFilter(@Body() filters: PublishingHouseFiltersDto, @Query() pagination: PaginationDto) {
+  advancedFilter(@Body() filters: PublishingHouseFiltersDto, @Query() pagination: PaginationInputDto) {
     return this.publishingHouseSearchService.findWithFilters(filters, pagination);
   }
 
@@ -125,11 +125,11 @@ export class PublishingHousesController {
   }
 
   // Legacy method names for backward compatibility with tests
-  async search(searchTerm: any, pagination: PaginationDto) {
-    return this.exactSearch(searchTerm);
+  async search(searchTerm: any, pagination: PaginationInputDto) {
+    return this.exactSearch(searchTerm, pagination);
   }
 
-  async filter(filters: any, pagination: PaginationDto) {
+  async filter(filters: any, pagination: PaginationInputDto) {
     return this.simpleFilter(filters.term || '', pagination);
   }
 }

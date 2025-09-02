@@ -1,25 +1,89 @@
-import { IsString, IsNotEmpty, IsIn } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { IsString, IsOptional, IsNumber, IsBoolean, IsDateString, IsUUID } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
-export class BookExactSearchDto extends PaginationDto {
+export class BookExactSearchDto {
   @IsString()
-  @IsNotEmpty()
-  @IsIn(['title', 'isbnCode', 'author', 'genre', 'publisher'])
-  @ApiProperty({
-    description: 'Field to search exactly in',
-    example: 'title',
-    enum: ['title', 'isbnCode', 'author', 'genre', 'publisher'],
-    required: true,
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'Título del libro',
+    example: 'Cien años de soledad',
   })
-  searchField: string;
+  title?: string;
 
   @IsString()
-  @IsNotEmpty()
-  @ApiProperty({
-    description: 'Exact value to search for',
-    example: 'The Great Gatsby',
-    required: true,
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'Código ISBN del libro',
+    example: '9788439732471',
   })
-  searchValue: string;
+  isbnCode?: string;
+
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  @ApiPropertyOptional({
+    description: 'Precio del libro',
+    example: 25.99,
+  })
+  price?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  @Type(() => Boolean)
+  @ApiPropertyOptional({
+    description: 'Disponibilidad del libro',
+    example: true,
+  })
+  isAvailable?: boolean;
+
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  @ApiPropertyOptional({
+    description: 'Cantidad en stock',
+    example: 100,
+  })
+  stockQuantity?: number;
+
+  @IsDateString()
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'Fecha de publicación',
+    example: '2023-01-15',
+  })
+  publicationDate?: Date;
+
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  @ApiPropertyOptional({
+    description: 'Número de páginas',
+    example: 350,
+  })
+  pageCount?: number;
+
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'Resumen del libro',
+    example: 'Una obra maestra de la literatura latinoamericana...',
+  })
+  summary?: string;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'ID del género',
+    example: 'uuid-del-genero',
+  })
+  genreId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'ID de la editorial',
+    example: 'uuid-de-la-editorial',
+  })
+  publisherId?: string;
 }

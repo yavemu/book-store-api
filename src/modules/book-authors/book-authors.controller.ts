@@ -26,6 +26,7 @@ import {
   BookAuthorSimpleFilterDto,
   BookAuthorCsvExportFiltersDto,
 } from './dto';
+import { PaginationInputDto } from '../../common/dto/pagination-input.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { Auth } from '../../common/decorators/auth.decorator';
 import { UserRole } from '../../common/enums/user-role.enum';
@@ -64,32 +65,39 @@ export class BookAuthorsController {
   @Get()
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetAuthors()
-  findAll(@Query() pagination: PaginationDto) {
+  findAll(@Query() pagination: PaginationInputDto) {
     return this.crudService.findAll(pagination);
   }
 
   @Post('search')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchAuthors()
-  exactSearch(@Body() searchDto: BookAuthorExactSearchDto) {
-    return this.searchService.exactSearch(searchDto);
+  exactSearch(@Body() searchDto: BookAuthorExactSearchDto, @Query() pagination: PaginationInputDto) {
+    const paginationDto: PaginationDto = {
+      page: pagination.page || 1,
+      limit: pagination.limit || 10,
+      sortBy: pagination.sortBy || 'createdAt',
+      sortOrder: pagination.sortOrder || 'DESC',
+      offset: pagination.offset,
+    };
+    return this.searchService.exactSearch(searchDto, paginationDto);
   }
 
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterAuthorsRealtime()
-  simpleFilter(@Query() dto: BookAuthorSimpleFilterDto) {
+  simpleFilter(@Query('term') term: string, @Query() pagination: PaginationInputDto) {
     // Validar que el término sea obligatorio
-    if (!dto.term || dto.term.trim().length === 0) {
+    if (!term || term.trim().length === 0) {
       throw new HttpException('Filter term is required', HttpStatus.BAD_REQUEST);
     }
-    return this.searchService.simpleFilter(dto.term, dto);
+    return this.searchService.simpleFilter(term, pagination);
   }
 
   @Post('advanced-filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterAuthors()
-  advancedFilter(@Body() filters: BookAuthorFiltersDto, @Query() pagination: PaginationDto) {
+  advancedFilter(@Body() filters: BookAuthorFiltersDto, @Query() pagination: PaginationInputDto) {
     return this.searchService.advancedFilter(filters, pagination);
   }
 
@@ -133,15 +141,11 @@ export class BookAuthorsController {
   }
 
   // Legacy method names for backward compatibility with tests
-  async search(searchTerm: any, pagination: PaginationDto) {
-    return this.exactSearch(searchTerm);
+  async search(searchTerm: any, pagination: PaginationInputDto) {
+    return this.exactSearch(searchTerm, pagination);
   }
 
-  async filter(filters: any, pagination: PaginationDto) {
-    const dto = Object.assign(new BookAuthorSimpleFilterDto(), {
-      term: filters.term || '',
-      ...pagination
-    });
-    return this.simpleFilter(dto);
+  async filter(filters: any, pagination: PaginationInputDto) {
+    return this.simpleFilter(filters.term || '', pagination);
   }
 }

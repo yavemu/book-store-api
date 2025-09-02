@@ -64,9 +64,9 @@ export class BookAuthorSearchService implements IBookAuthorSearchService {
   }
 
   // Standardized search methods (following book-catalog pattern)
-  async exactSearch(searchDto: BookAuthorExactSearchDto): Promise<PaginatedResult<BookAuthor>> {
+  async exactSearch(searchDto: BookAuthorExactSearchDto, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
     try {
-      return await this.searchRepository.exactSearchAuthors(searchDto);
+      return await this.searchRepository.exactSearchAuthors(searchDto, pagination);
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_GET_ALL);
     }

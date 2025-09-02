@@ -1,14 +1,13 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
 
-export class AssignmentSimpleFilterDto extends PaginationDto {
+export class AssignmentSimpleFilterDto extends PaginationInputDto {
   @IsString()
-  @IsOptional()
   @ApiProperty({
     description: 'Search term to filter across assignments (bookId, authorId)',
     example: 'book-123',
-    required: false,
+    required: true,
   })
-  term?: string;
+  term: string;
 }

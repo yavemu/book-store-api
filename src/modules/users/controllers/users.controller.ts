@@ -27,6 +27,7 @@ import {
 import { Auth } from '../../../common/decorators/auth.decorator';
 import { UserRole } from '../../../common/enums/user-role.enum';
 import { FileExportService } from '../../../common/services/file-export.service';
+import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import {
   ApiCreateUser,
@@ -61,15 +62,22 @@ export class UsersController {
   @Get()
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetUsers()
-  async findAll(@Query() pagination: PaginationDto, @Request() req) {
+  async findAll(@Query() pagination: PaginationInputDto, @Request() req) {
     return this.userCrudService.findAll(pagination, req.user?.userId, req.user?.role?.name);
   }
 
   @Post('search')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchUsers()
-  async exactSearch(@Body() searchDto: UserExactSearchDto, @Request() req) {
-    return this.userSearchService.exactSearch(searchDto, req.user?.userId, req.user?.role?.name);
+  async exactSearch(@Body() searchDto: UserExactSearchDto, @Query() pagination: PaginationInputDto, @Request() req) {
+    const paginationDto: PaginationDto = {
+      page: pagination.page || 1,
+      limit: pagination.limit || 10,
+      sortBy: pagination.sortBy || 'createdAt',
+      sortOrder: pagination.sortOrder || 'DESC',
+      offset: pagination.offset,
+    };
+    return this.userSearchService.exactSearch(searchDto, paginationDto, req.user?.userId, req.user?.role?.name);
   }
 
   @Get('filter')
@@ -77,7 +85,7 @@ export class UsersController {
   @ApiFilterUsersRealtime()
   async filter(
     @Query('term') term: string,
-    @Query() pagination: PaginationDto,
+    @Query() pagination: PaginationInputDto,
     @Request() req,
   ) {
     return this.userSearchService.simpleFilter(term, pagination, req.user?.userId, req.user?.role?.name);
@@ -89,7 +97,7 @@ export class UsersController {
   @ApiFilterUsers()
   async advancedFilter(
     @Body() filters: UserFiltersDto,
-    @Query() pagination: PaginationDto,
+    @Query() pagination: PaginationInputDto,
     @Request() req,
   ) {
     return this.userSearchService.findWithFilters(

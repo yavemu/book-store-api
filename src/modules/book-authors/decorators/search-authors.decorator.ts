@@ -15,13 +15,7 @@ export function ApiSearchAuthors() {
     ApiBearerAuth('JWT-auth'),
     ApiOperation({
       summary: 'Buscar autores - Acceso: ADMIN, USER',
-      description: 'Busca autores por término en nombre, apellido o biografía.',
-    }),
-    ApiQuery({
-      name: 'term',
-      required: true,
-      type: String,
-      description: 'Término de búsqueda para filtrar autores',
+      description: 'Busca autores por datos completos usando criterios exactos.',
     }),
     ApiExtraModels(PaginationDto),
     ApiResponse({

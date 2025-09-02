@@ -11,6 +11,7 @@ import {
   BookGenreCsvExportFiltersDto,
 } from '../../dto';
 import { PaginationDto } from '../../../../common/dto/pagination.dto';
+import { PaginationInputDto } from '../../../../common/dto/pagination-input.dto';
 import { BookGenre } from '../../entities/book-genre.entity';
 import { Response } from 'express';
 
@@ -240,7 +241,10 @@ describe('BookGenresController', () => {
       searchDto.limit = 10;
       mockSearchService.exactSearch.mockResolvedValue(mockPaginatedResult);
 
-      const result = await controller.exactSearch(searchDto);
+      const pagination = new PaginationInputDto();
+      pagination.page = 1;
+      pagination.limit = 10;
+      const result = await controller.exactSearch(searchDto, pagination);
 
       expect(result).toEqual(mockPaginatedResult);
       expect(mockSearchService.exactSearch).toHaveBeenCalledWith(searchDto);
@@ -265,7 +269,10 @@ describe('BookGenresController', () => {
       };
       mockSearchService.exactSearch.mockResolvedValue(emptyResult);
 
-      const result = await controller.exactSearch(searchDto);
+      const pagination = new PaginationInputDto();
+      pagination.page = 1;
+      pagination.limit = 10;
+      const result = await controller.exactSearch(searchDto, pagination);
 
       expect(result.data).toHaveLength(0);
     });

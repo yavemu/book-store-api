@@ -1,8 +1,8 @@
 import { IsOptional, IsString, MinLength } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
 
-export class BookSimpleFilterDto extends PaginationDto {
+export class BookSimpleFilterDto extends PaginationInputDto {
   @IsOptional()
   @IsString()
   @MinLength(3, { message: 'Filter term must be at least 3 characters long' })

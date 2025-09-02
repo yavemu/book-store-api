@@ -3,7 +3,7 @@ import { IUserSearchService } from '../interfaces/user-search.service.interface'
 import { IUserSearchRepository } from '../interfaces/user-search.repository.interface';
 import { User } from '../entities/user.entity';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
-import { UserFiltersDto, UserCsvExportFiltersDto } from '../dto';
+import { UserFiltersDto, UserCsvExportFiltersDto, UserExactSearchDto } from '../dto';
 
 @Injectable()
 export class UserSearchService implements IUserSearchService {
@@ -49,8 +49,13 @@ export class UserSearchService implements IUserSearchService {
   }
 
   // Methods required by IUserSearchService interface
-  async exactSearch(searchDto: any): Promise<PaginatedResult<User>> {
-    return this.search(searchDto.searchTerm || '', searchDto);
+  async exactSearch(
+    searchDto: UserExactSearchDto,
+    pagination: PaginationDto,
+    userId?: string,
+    userRole?: string,
+  ): Promise<PaginatedResult<User>> {
+    return this.userSearchRepository.exactSearchUsers(searchDto, pagination, userId, userRole);
   }
 
   async simpleFilter(

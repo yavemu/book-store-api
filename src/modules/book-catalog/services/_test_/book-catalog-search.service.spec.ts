@@ -79,20 +79,21 @@ describe('BookCatalogSearchService', () => {
     it('should perform exact search successfully', async () => {
       // Arrange
       const searchDto = BookCatalogMockFactory.createMockBookExactSearchDto({
-        searchField: 'title',
-        searchValue: 'The Great Gatsby',
+        title: 'The Great Gatsby',
       });
       const searchResult = BookCatalogMockFactory.createMockPaginatedResult([mockBook]);
       mockSearchRepository.exactSearchBooks.mockResolvedValue(searchResult);
 
-      // Act
-      const result = await service.exactSearch(searchDto);
+      // Act  
+      const pagination = BookCatalogMockFactory.createMockPaginationDto();
+      const result = await service.exactSearch(searchDto, pagination);
 
       // Assert
       expect(result).toEqual(searchResult);
       AssertionHelper.expectMockToHaveBeenCalledWith(
         mockSearchRepository.exactSearchBooks,
         searchDto,
+        pagination,
       );
       AssertionHelper.expectMockToHaveBeenCalledOnce(mockSearchRepository.exactSearchBooks);
       AssertionHelper.expectValidPaginatedResult(result, 1);
@@ -101,35 +102,36 @@ describe('BookCatalogSearchService', () => {
     it('should handle exact search by title only', async () => {
       // Arrange
       const searchDto = BookCatalogMockFactory.createMockBookExactSearchDto({
-        searchField: 'title',
-        searchValue: 'Specific Book Title',
+        title: 'Specific Book Title',
       });
       const matchingBooks = BookCatalogMockFactory.createMockBookCatalogArray(2);
       const searchResult = BookCatalogMockFactory.createMockPaginatedResult(matchingBooks);
       mockSearchRepository.exactSearchBooks.mockResolvedValue(searchResult);
 
       // Act
-      const result = await service.exactSearch(searchDto);
+      const pagination = BookCatalogMockFactory.createMockPaginationDto();
+      const result = await service.exactSearch(searchDto, pagination);
 
       // Assert
       expect(result.data).toHaveLength(2);
       AssertionHelper.expectMockToHaveBeenCalledWith(
         mockSearchRepository.exactSearchBooks,
         searchDto,
+        pagination,
       );
     });
 
     it('should handle exact search by ISBN only', async () => {
       // Arrange
       const searchDto = BookCatalogMockFactory.createMockBookExactSearchDto({
-        searchField: 'isbnCode',
-        searchValue: '9781234567890',
+        isbnCode: '9781234567890',
       });
       const searchResult = BookCatalogMockFactory.createMockPaginatedResult([mockBook]);
       mockSearchRepository.exactSearchBooks.mockResolvedValue(searchResult);
 
       // Act
-      const result = await service.exactSearch(searchDto);
+      const pagination = BookCatalogMockFactory.createMockPaginationDto();
+      const result = await service.exactSearch(searchDto, pagination);
 
       // Assert
       expect(result.data).toHaveLength(1);
@@ -139,14 +141,14 @@ describe('BookCatalogSearchService', () => {
     it('should return empty results for no exact matches', async () => {
       // Arrange
       const searchDto = BookCatalogMockFactory.createMockBookExactSearchDto({
-        searchField: 'title',
-        searchValue: 'Non-existent Book',
+        title: 'Non-existent Book',
       });
       const emptyResult = BookCatalogMockFactory.createMockPaginatedResult([]);
       mockSearchRepository.exactSearchBooks.mockResolvedValue(emptyResult);
 
       // Act
-      const result = await service.exactSearch(searchDto);
+      const pagination = BookCatalogMockFactory.createMockPaginationDto();
+      const result = await service.exactSearch(searchDto, pagination);
 
       // Assert
       expect(result.data).toHaveLength(0);
@@ -161,7 +163,7 @@ describe('BookCatalogSearchService', () => {
 
       // Act & Assert
       await AssertionHelper.expectAsyncToThrow(
-        () => service.exactSearch(searchDto),
+        () => service.exactSearch(searchDto, BookCatalogMockFactory.createMockPaginationDto()),
         TEST_CONSTANTS.ERROR_MESSAGES.VALIDATION_FAILED,
       );
     });
@@ -586,7 +588,7 @@ describe('BookCatalogSearchService', () => {
 
       // Act - Simulate concurrent search operations
       const promises = [
-        service.exactSearch(exactSearchDto),
+        service.exactSearch(exactSearchDto, pagination),
         service.simpleFilter(simpleFilterDto.term, pagination),
         service.advancedFilter(advancedFiltersDto, pagination),
       ];
@@ -608,8 +610,7 @@ describe('BookCatalogSearchService', () => {
       // Arrange
       const searchTerm = 'specific-book';
       const exactSearchDto = BookCatalogMockFactory.createMockBookExactSearchDto({
-        searchField: 'title',
-        searchValue: searchTerm,
+        title: searchTerm,
       });
       const simpleFilterDto = BookCatalogMockFactory.createMockBookSimpleFilterDto({
         term: searchTerm,
@@ -625,8 +626,8 @@ describe('BookCatalogSearchService', () => {
       mockSearchRepository.simpleFilterBooks.mockResolvedValue(filterResult);
 
       // Act
-      const exactSearchResult = await service.exactSearch(exactSearchDto);
       const pagination = BookCatalogMockFactory.createMockPaginationDto();
+      const exactSearchResult = await service.exactSearch(exactSearchDto, pagination);
       const simpleFilterResult = await service.simpleFilter(simpleFilterDto.term, pagination);
 
       // Assert
@@ -654,7 +655,7 @@ describe('BookCatalogSearchService', () => {
 
       // Act & Assert - All operations should fail with the same error
       await AssertionHelper.expectAsyncToThrow(
-        () => service.exactSearch(searchDto),
+        () => service.exactSearch(searchDto, BookCatalogMockFactory.createMockPaginationDto()),
         'Database connection lost',
       );
 
@@ -678,7 +679,7 @@ describe('BookCatalogSearchService', () => {
 
       // Act & Assert
       await AssertionHelper.expectAsyncToThrow(
-        () => service.exactSearch(invalidSearchDto),
+        () => service.exactSearch(invalidSearchDto, BookCatalogMockFactory.createMockPaginationDto()),
         'Invalid search parameters',
       );
     });

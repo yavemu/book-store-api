@@ -43,6 +43,7 @@ import {
 } from '../decorators';
 import { UserRole } from '../../../common/enums/user-role.enum';
 import { Auth } from '../../../common/decorators/auth.decorator';
+import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 
 @ApiTags('Book Catalog')
@@ -67,7 +68,7 @@ export class BookCatalogController {
   @Get()
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetBooks()
-  findAll(@Query() pagination: PaginationDto) {
+  findAll(@Query() pagination: PaginationInputDto) {
     return this.bookCatalogCrudService.findAll(pagination);
   }
 
@@ -75,8 +76,15 @@ export class BookCatalogController {
   @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiExactSearchBooks()
-  exactSearch(@Body() searchDto: BookExactSearchDto) {
-    return this.bookCatalogSearchService.exactSearch(searchDto);
+  exactSearch(@Body() searchDto: BookExactSearchDto, @Query() pagination: PaginationInputDto) {
+    const paginationDto: PaginationDto = {
+      page: pagination.page || 1,
+      limit: pagination.limit || 10,
+      sortBy: pagination.sortBy || 'createdAt',
+      sortOrder: pagination.sortOrder || 'DESC',
+      offset: pagination.offset,
+    };
+    return this.bookCatalogSearchService.exactSearch(searchDto, paginationDto);
   }
 
   @Get('filter')
@@ -84,7 +92,7 @@ export class BookCatalogController {
   @ApiSimpleFilterBooks()
   filter(
     @Query('term') term: string,
-    @Query() pagination: PaginationDto,
+    @Query() pagination: PaginationInputDto,
   ) {
     return this.bookCatalogSearchService.simpleFilter(term, pagination);
   }
@@ -93,7 +101,7 @@ export class BookCatalogController {
   @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiAdvancedFilterBooks()
-  advancedFilter(@Body() filters: BookFiltersDto, @Query() pagination: PaginationDto) {
+  advancedFilter(@Body() filters: BookFiltersDto, @Query() pagination: PaginationInputDto) {
     return this.bookCatalogSearchService.advancedFilter(filters, pagination);
   }
 

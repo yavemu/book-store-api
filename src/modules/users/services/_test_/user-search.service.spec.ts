@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserSearchService } from '../user-search.service';
 import { IUserSearchRepository } from '../../interfaces/user-search.repository.interface';
 import { PaginationDto, PaginatedResult } from '../../../../common/dto/pagination.dto';
-import { UserFiltersDto, UserCsvExportFiltersDto } from '../../dto';
+import { UserFiltersDto, UserCsvExportFiltersDto, UserExactSearchDto } from '../../dto';
 import { User } from '../../entities/user.entity';
 import { UserRole } from '../../../../common/enums/user-role.enum';
 
@@ -64,6 +64,7 @@ describe('UserSearchService', () => {
     const mockRepository: jest.Mocked<IUserSearchRepository> = {
       searchUsers: jest.fn(),
       filterUsers: jest.fn(),
+      exactSearchUsers: jest.fn(),
       checkEmailExists: jest.fn(),
       checkUsernameExists: jest.fn(),
       findUsersWithFilters: jest.fn(),
@@ -356,50 +357,38 @@ describe('UserSearchService', () => {
   });
 
   describe('exactSearch', () => {
-    const searchDto = {
-      searchTerm: 'test search',
-      page: 1,
-      limit: 10,
+    const searchDto: UserExactSearchDto = {
+      email: 'test@example.com',
+      username: 'testuser',
     };
+    const paginationDto = createPaginationDto();
 
-    it('should perform exact search successfully with search term', async () => {
-      repository.searchUsers.mockResolvedValue(mockPaginatedResult);
+    it('should perform exact search successfully', async () => {
+      repository.exactSearchUsers.mockResolvedValue(mockPaginatedResult);
 
-      const result = await service.exactSearch(searchDto);
+      const result = await service.exactSearch(searchDto, paginationDto);
 
       expect(result).toEqual(mockPaginatedResult);
-      expect(repository.searchUsers).toHaveBeenCalledWith('test search', searchDto);
-      expect(repository.searchUsers).toHaveBeenCalledTimes(1);
+      expect(repository.exactSearchUsers).toHaveBeenCalledWith(searchDto, paginationDto, undefined, undefined);
+      expect(repository.exactSearchUsers).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle exact search with empty search term', async () => {
-      const searchDtoEmpty = { ...searchDto, searchTerm: '' };
-      repository.searchUsers.mockResolvedValue({ data: [], meta: { ...mockPaginatedResult.meta, total: 0 } });
+    it('should handle exact search with user context', async () => {
+      repository.exactSearchUsers.mockResolvedValue(mockPaginatedResult);
 
-      const result = await service.exactSearch(searchDtoEmpty);
+      const result = await service.exactSearch(searchDto, paginationDto, 'user123', 'admin');
 
-      expect(result).toEqual({ data: [], meta: { ...mockPaginatedResult.meta, total: 0 } });
-      expect(repository.searchUsers).toHaveBeenCalledWith('', searchDtoEmpty);
-      expect(repository.searchUsers).toHaveBeenCalledTimes(1);
-    });
-
-    it('should handle exact search without search term', async () => {
-      const searchDtoNoTerm = { page: 1, limit: 10 };
-      repository.searchUsers.mockResolvedValue({ data: [], meta: { ...mockPaginatedResult.meta, total: 0 } });
-
-      const result = await service.exactSearch(searchDtoNoTerm);
-
-      expect(result).toEqual({ data: [], meta: { ...mockPaginatedResult.meta, total: 0 } });
-      expect(repository.searchUsers).toHaveBeenCalledWith('', searchDtoNoTerm);
-      expect(repository.searchUsers).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(mockPaginatedResult);
+      expect(repository.exactSearchUsers).toHaveBeenCalledWith(searchDto, paginationDto, 'user123', 'admin');
+      expect(repository.exactSearchUsers).toHaveBeenCalledTimes(1);
     });
 
     it('should handle repository errors during exact search', async () => {
       const error = new Error('Exact search failed');
-      repository.searchUsers.mockRejectedValue(error);
+      repository.exactSearchUsers.mockRejectedValue(error);
 
-      await expect(service.exactSearch(searchDto)).rejects.toThrow('Exact search failed');
-      expect(repository.searchUsers).toHaveBeenCalledWith('test search', searchDto);
+      await expect(service.exactSearch(searchDto, paginationDto)).rejects.toThrow('Exact search failed');
+      expect(repository.exactSearchUsers).toHaveBeenCalledWith(searchDto, paginationDto, undefined, undefined);
     });
   });
 

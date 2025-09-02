@@ -1,4 +1,5 @@
 export * from './pagination.dto';
+export * from './pagination-input.dto';
 export * from './api-response.dto';
 export * from './unauthorized-response.dto';
 export * from './bad-request-response.dto';

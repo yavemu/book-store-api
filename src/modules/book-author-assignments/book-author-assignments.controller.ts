@@ -26,7 +26,7 @@ import {
   AssignmentSimpleFilterDto,
   AssignmentCsvExportFiltersDto,
 } from './dto';
-import { PaginationDto, PaginatedResult } from '../../common/dto/pagination.dto';
+import { PaginationDto, PaginationInputDto, PaginatedResult } from '../../common/dto';
 import { BookAuthorAssignment } from './entities/book-author-assignment.entity';
 import { Auth } from '../../common/decorators/auth.decorator';
 import { UserRole } from '../../common/enums/user-role.enum';
@@ -65,33 +65,33 @@ export class BookAuthorAssignmentsController {
   @Get()
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetAssignments()
-  findAll(@Query() pagination: PaginationDto) {
+  findAll(@Query() pagination: PaginationInputDto) {
     return this.bookAuthorAssignmentService.findAll(pagination);
   }
 
   @Post('search')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchAssignments()
-  exactSearch(@Body() searchDto: AssignmentExactSearchDto) {
+  exactSearch(@Body() searchDto: AssignmentExactSearchDto, @Query() pagination: PaginationInputDto) {
     return this.bookAuthorAssignmentSearchService.exactSearch(searchDto);
   }
 
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterAssignmentsRealtime()
-  simpleFilter(@Query() dto: AssignmentSimpleFilterDto) {
+  simpleFilter(@Query('term') term: string, @Query() pagination: PaginationInputDto) {
     // Validar que el término sea obligatorio
-    if (!dto.term || dto.term.trim().length === 0) {
+    if (!term || term.trim().length === 0) {
       throw new HttpException('Filter term is required', HttpStatus.BAD_REQUEST);
     }
-    return this.bookAuthorAssignmentSearchService.simpleFilter(dto.term, dto);
+    return this.bookAuthorAssignmentSearchService.simpleFilter(term, pagination);
   }
 
   @Post('advanced-filter')
   @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterAssignments()
-  advancedFilter(@Body() filters: AssignmentFiltersDto, @Query() pagination: PaginationDto) {
+  advancedFilter(@Body() filters: AssignmentFiltersDto, @Query() pagination: PaginationInputDto) {
     return this.bookAuthorAssignmentSearchService.advancedFilter(filters, pagination);
   }
 
@@ -134,15 +134,11 @@ export class BookAuthorAssignmentsController {
 
   // Legacy method names for backward compatibility with tests
   async search(searchTerm: any, pagination: PaginationDto) {
-    return this.exactSearch(searchTerm);
+    return this.exactSearch(searchTerm, pagination);
   }
 
   async filter(filters: any, pagination: PaginationDto) {
-    const dto = Object.assign(new AssignmentSimpleFilterDto(), {
-      term: filters.term || '',
-      ...pagination
-    });
-    return this.simpleFilter(dto);
+    return this.simpleFilter(filters.term || '', pagination);
   }
 
   async checkAssignment(bookId: string, authorId: string) {

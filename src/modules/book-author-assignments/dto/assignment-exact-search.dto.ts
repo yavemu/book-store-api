@@ -1,8 +1,8 @@
 import { IsString, IsNotEmpty, IsIn } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
 
-export class AssignmentExactSearchDto extends PaginationDto {
+export class AssignmentExactSearchDto extends PaginationInputDto {
   @IsString()
   @IsNotEmpty()
   @IsIn(['bookId', 'authorId'])

@@ -9,6 +9,7 @@ import {
   Query,
   Inject,
   Request,
+  HttpCode,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { IRoleCrudService } from '../interfaces/role-crud.service.interface';
@@ -17,7 +18,7 @@ import { IUserContextService } from '../interfaces/user-context.service.interfac
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
 import { RoleResponseDto } from '../dto/role-response.dto';
-import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
 import { Auth } from '../../../common/decorators/auth.decorator';
 import { UserRole } from '../../../common/enums/user-role.enum';
 
@@ -51,7 +52,7 @@ export class RolesController {
     description: 'Roles retrieved successfully',
     type: [RoleResponseDto],
   })
-  findAll(@Query() pagination: PaginationDto) {
+  findAll(@Query() pagination: PaginationInputDto) {
     return this.crudService.findAll(pagination);
   }
 
@@ -63,16 +64,17 @@ export class RolesController {
     description: 'Active roles retrieved successfully',
     type: [RoleResponseDto],
   })
-  findActiveRoles(@Query() pagination: PaginationDto) {
+  findActiveRoles(@Query() pagination: PaginationInputDto) {
     return this.searchService.findActiveRoles(pagination);
   }
 
-  @Get('search')
+  @Post('search')
+  @HttpCode(200)
   @Auth(UserRole.ADMIN)
-  @ApiOperation({ summary: 'Search roles by term' })
-  @ApiResponse({ status: 200, description: 'Roles found successfully', type: [RoleResponseDto] })
-  searchRoles(@Query('term') term: string, @Query() pagination: PaginationDto) {
-    return this.searchService.searchRoles(term, pagination);
+  @ApiOperation({ summary: 'Buscar roles - Acceso: ADMIN' })
+  @ApiResponse({ status: 200, description: 'Resultados de búsqueda de roles obtenidos exitosamente', type: [RoleResponseDto] })
+  exactSearch(@Body() searchDto: any, @Query() pagination: PaginationInputDto) {
+    return this.searchService.searchRoles(searchDto, pagination);
   }
 
   @Get('by-permission/:permission')
@@ -85,7 +87,7 @@ export class RolesController {
   })
   findRolesByPermission(
     @Param('permission') permission: string,
-    @Query() pagination: PaginationDto,
+    @Query() pagination: PaginationInputDto,
   ) {
     return this.searchService.findRolesByPermission(permission, pagination);
   }

@@ -1,8 +1,8 @@
 import { IsString, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { PaginationDto } from '../../../common/dto/pagination.dto';
+import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
 
-export class PublishingHouseSimpleFilterDto extends PaginationDto {
+export class PublishingHouseSimpleFilterDto extends PaginationInputDto {
   @IsString()
   @IsOptional()
   @ApiProperty({

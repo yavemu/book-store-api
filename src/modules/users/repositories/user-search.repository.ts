@@ -13,7 +13,7 @@ import {
 import { User } from '../entities/user.entity';
 import { IUserSearchRepository } from '../interfaces/user-search.repository.interface';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
-import { UserFiltersDto, UserCsvExportFiltersDto } from '../dto';
+import { UserFiltersDto, UserCsvExportFiltersDto, UserExactSearchDto } from '../dto';
 import { BaseRepository } from '../../../common/repositories/base.repository';
 
 @Injectable()
@@ -259,6 +259,39 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
       return csvHeaders + csvRows;
     } catch (error) {
       throw new HttpException('Failed to export users to CSV', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async exactSearchUsers(
+    searchDto: UserExactSearchDto,
+    pagination: PaginationDto,
+    userId?: string,
+    userRole?: string,
+  ): Promise<PaginatedResult<User>> {
+    try {
+      const whereCondition: any = {};
+      
+      // Build where condition based on provided fields
+      if (searchDto.username) whereCondition.username = searchDto.username;
+      if (searchDto.email) whereCondition.email = searchDto.email;
+      if (searchDto.firstName) whereCondition.firstName = searchDto.firstName;
+      if (searchDto.lastName) whereCondition.lastName = searchDto.lastName;
+      if (searchDto.roleId) whereCondition.roleId = searchDto.roleId;
+
+      const options: FindManyOptions<User> = {
+        where: whereCondition,
+        relations: ['role'],
+        order: { [pagination.sortBy || 'createdAt']: pagination.sortOrder || 'DESC' },
+        skip: pagination.offset,
+        take: pagination.limit,
+      };
+
+      return await this._findManyWithPagination(options, pagination);
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Failed to search users', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

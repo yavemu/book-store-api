@@ -13,48 +13,12 @@ export function ApiSearchUsers() {
   return applyDecorators(
     ApiBearerAuth('JWT-auth'),
     ApiOperation({
-      summary: 'Search users - Acceso: ADMIN, USER',
-      description: 'Search users by term with pagination',
-    }),
-    ApiBearerAuth(),
-    ApiQuery({
-      name: 'term',
-      description: 'Search term for username or email',
-      required: true,
-      type: String,
-      example: 'john',
-    }),
-    ApiQuery({
-      name: 'page',
-      description: 'Page number',
-      required: false,
-      type: Number,
-      example: 1,
-    }),
-    ApiQuery({
-      name: 'limit',
-      description: 'Number of items per page',
-      required: false,
-      type: Number,
-      example: 10,
-    }),
-    ApiQuery({
-      name: 'sortBy',
-      description: 'Sort by field',
-      required: false,
-      type: String,
-      example: 'createdAt',
-    }),
-    ApiQuery({
-      name: 'sortOrder',
-      description: 'Sort order',
-      required: false,
-      enum: ['ASC', 'DESC'],
-      example: 'DESC',
+      summary: 'Buscar usuarios - Acceso: ADMIN, USER',
+      description: 'Busca usuarios por datos completos usando criterios exactos.',
     }),
     ApiResponse({
       status: 200,
-      description: 'Users found with pagination metadata',
+      description: 'Resultados de búsqueda de usuarios obtenidos exitosamente',
     }),
     ApiUnauthorizedResponse({
       description: 'Unauthorized',

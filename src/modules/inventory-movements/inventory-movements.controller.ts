@@ -5,7 +5,7 @@ import { InventoryMovementCrudService } from './services/inventory-movement-crud
 import { IInventoryMovementSearchRepository } from './interfaces/inventory-movement-search.repository.interface';
 import { Auth } from '../../common/decorators/auth.decorator';
 import { UserRole } from '../../common/enums/user-role.enum';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import { PaginationInputDto } from '../../common/dto/pagination-input.dto';
 import { SUCCESS_MESSAGES } from '../../common/constants/success-messages';
 import { FileExportService } from '../../common/services/file-export.service';
 import {
@@ -36,7 +36,7 @@ export class InventoryMovementsController {
   @Get()
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetInventoryMovements()
-  async getAllInventoryMovements(@Query() pagination: PaginationDto, @Request() req) {
+  async getAllInventoryMovements(@Query() pagination: PaginationInputDto, @Request() req) {
     return {
       data: await this.inventoryMovementCrudService.findAll(
         pagination,
@@ -65,7 +65,7 @@ export class InventoryMovementsController {
   @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchInventoryMovements()
-  async exactSearch(@Body() searchDto: InventoryMovementExactSearchDto, @Request() req) {
+  async exactSearch(@Body() searchDto: InventoryMovementExactSearchDto, @Query() pagination: PaginationInputDto, @Request() req) {
     return {
       data: await this.inventoryMovementCrudService.exactSearchMovements(
         searchDto,
@@ -79,15 +79,15 @@ export class InventoryMovementsController {
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchInventoryMovements()
-  async simpleFilter(@Query() dto: InventoryMovementSimpleFilterDto, @Request() req) {
+  async simpleFilter(@Query('term') term: string, @Query() pagination: PaginationInputDto, @Request() req) {
     // Validar que el término sea obligatorio
-    if (!dto.term || dto.term.trim().length === 0) {
+    if (!term || term.trim().length === 0) {
       throw new HttpException('Filter term is required', HttpStatus.BAD_REQUEST);
     }
     
     return {
       data: await this.searchRepository.simpleFilterMovements(
-        dto,
+        { term, page: pagination.page, limit: pagination.limit, sortBy: pagination.sortBy, sortOrder: pagination.sortOrder, offset: pagination.offset },
         req.user?.userId,
         req.user?.role?.name,
       ),
@@ -101,7 +101,7 @@ export class InventoryMovementsController {
   @ApiSearchInventoryMovements()
   async advancedFilter(
     @Body() filters: MovementAdvancedFiltersDto,
-    @Query() pagination: PaginationDto,
+    @Query() pagination: PaginationInputDto,
     @Request() req,
   ) {
     return {

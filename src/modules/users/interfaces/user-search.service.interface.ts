@@ -10,6 +10,7 @@ import {
 export interface IUserSearchService {
   exactSearch(
     searchDto: UserExactSearchDto,
+    pagination: PaginationDto,
     userId?: string,
     userRole?: string,
   ): Promise<PaginatedResult<User>>;
