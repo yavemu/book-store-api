@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { IPublishingHouseService } from '../interfaces/publishing-house.service.interface';
-import { IPublishingHouseCrudService } from '../interfaces/publishing-house-crud.service.interface';
-import { IPublishingHouseSearchService } from '../interfaces/publishing-house-search.service.interface';
+import { IPublishingHouseService } from '../interfaces';
+import { IPublishingHouseCrudService } from '../interfaces';
+import { IPublishingHouseSearchService } from '../interfaces';
 import { PublishingHouse } from '../entities/publishing-house.entity';
 import { CreatePublishingHouseDto } from '../dto/create-publishing-house.dto';
 import { UpdatePublishingHouseDto } from '../dto/update-publishing-house.dto';

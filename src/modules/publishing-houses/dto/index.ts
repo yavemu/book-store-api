@@ -6,3 +6,5 @@ export * from './publishing-house-csv-export-filters.dto';
 export * from './publishing-house-exact-search.dto';
 export * from './publishing-house-simple-filter.dto';
 export * from './publishing-house-search.dto';
+export * from './publishing-house-param.dto';
+export * from './publishing-house-query.dto';

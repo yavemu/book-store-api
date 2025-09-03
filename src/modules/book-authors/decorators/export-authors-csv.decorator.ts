@@ -4,9 +4,12 @@ import {
   ApiResponse,
   ApiQuery,
   ApiUnauthorizedResponse,
+  ApiForbiddenResponse,
   ApiBearerAuth,
   ApiProduces,
 } from '@nestjs/swagger';
+import { BookAuthorCsvExportFiltersDto } from '../dto';
+import { UnauthorizedResponseDto, ForbiddenResponseDto } from '../../../common/dto';
 
 export function ApiExportAuthorsCsv() {
   return applyDecorators(
@@ -16,25 +19,8 @@ export function ApiExportAuthorsCsv() {
       description:
         'Exporta la lista de autores en formato CSV aplicando filtros opcionales para generar reportes.',
     }),
-    ApiQuery({
-      name: 'name',
-      required: false,
-      type: String,
-      description: 'Filtrar por nombre del autor',
-    }),
-    ApiQuery({
-      name: 'nationality',
-      required: false,
-      type: String,
-      description: 'Filtrar por nacionalidad',
-    }),
-    ApiQuery({
-      name: 'isActive',
-      required: false,
-      type: Boolean,
-      description: 'Filtrar por estado activo/inactivo',
-    }),
     ApiProduces('text/csv'),
+    ApiQuery({ type: BookAuthorCsvExportFiltersDto }),
     ApiResponse({
       status: 200,
       description: 'Archivo CSV generado exitosamente',
@@ -59,7 +45,11 @@ export function ApiExportAuthorsCsv() {
     }),
     ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',
+      type: UnauthorizedResponseDto,
     }),
-    ApiBearerAuth(),
+    ApiForbiddenResponse({
+      description: 'Acceso denegado - Se requieren permisos válidos',
+      type: ForbiddenResponseDto,
+    }),
   );
 }

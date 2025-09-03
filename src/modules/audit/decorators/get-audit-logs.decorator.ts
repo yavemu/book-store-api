@@ -2,16 +2,17 @@ import { applyDecorators } from '@nestjs/common';
 import {
   ApiOperation,
   ApiResponse,
+  ApiQuery,
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
   ApiBearerAuth,
-  ApiExtraModels,
-  getSchemaPath,
 } from '@nestjs/swagger';
 import { AuditLogListResponseDto } from '../dto/audit-response.dto';
-import { PaginationDto } from '../../../common/dto';
-import { UnauthorizedResponseDto } from '../../../common/dto/unauthorized-response.dto';
-import { ApiResponseDto } from '../../../common/dto/api-response.dto';
+import {
+  PaginationInputDto,
+  UnauthorizedResponseDto,
+  ForbiddenResponseDto,
+} from '../../../common/dto';
 
 export function ApiGetAuditLogs() {
   return applyDecorators(
@@ -21,36 +22,19 @@ export function ApiGetAuditLogs() {
       description:
         'Obtiene una lista paginada de todos los registros de auditoría del sistema. Solo accesible para administradores.',
     }),
-    ApiExtraModels(PaginationDto, ApiResponseDto, AuditLogListResponseDto),
+    ApiQuery({ type: PaginationInputDto }),
     ApiResponse({
       status: 200,
       description: 'Registros de auditoría obtenidos exitosamente',
-      schema: {
-        allOf: [
-          { $ref: getSchemaPath(ApiResponseDto) },
-          {
-            properties: {
-              data: {
-                $ref: getSchemaPath(AuditLogListResponseDto),
-              },
-            },
-          },
-        ],
-      },
+      type: AuditLogListResponseDto,
     }),
     ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',
+      type: UnauthorizedResponseDto,
     }),
     ApiForbiddenResponse({
-      description: 'Acceso denegado - Se requieren permisos de administrador',
-      schema: {
-        type: 'object',
-        properties: {
-          statusCode: { type: 'number' },
-          message: { type: 'string' },
-          error: { type: 'string' },
-        },
-      },
+      description: 'Acceso denegado - Se requieren permisos válidos',
+      type: ForbiddenResponseDto,
     }),
   );
 }

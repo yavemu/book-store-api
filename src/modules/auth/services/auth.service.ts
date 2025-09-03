@@ -1,10 +1,8 @@
 import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { IUserCrudService } from '../../users/interfaces/user-crud.service.interface';
-import { IUserSearchService } from '../../users/interfaces/user-search.service.interface';
-import { IUserAuthService } from '../../users/interfaces/user-auth.service.interface';
-import { IAuditLoggerService } from '../../../modules/audit/interfaces/audit-logger.service.interface';
+import { IUserCrudService, IUserSearchService, IUserAuthService } from '../../users/interfaces';
+import { IAuditLoggerService } from '../../audit/interfaces';
 import { AuditAction } from '../../../modules/audit/enums/audit-action.enum';
 import { User } from '../../users/entities/user.entity';
 import { RegisterUserDto } from '../../users/dto/register-user.dto';

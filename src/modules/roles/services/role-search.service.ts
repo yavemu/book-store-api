@@ -1,10 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Role } from '../entities/role.entity';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
-import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
-import { IRoleSearchService } from '../interfaces/role-search.service.interface';
-import { IRoleSearchRepository } from '../interfaces/role-search.repository.interface';
-import { IErrorHandlerService } from '../interfaces/error-handler.service.interface';
+import { PaginatedResult } from '../interfaces';
+import { IRoleSearchService } from '../interfaces';
+import { IRoleSearchRepository } from '../interfaces';
+import { IErrorHandlerService } from '../interfaces';
 import { ERROR_MESSAGES } from '../../../common/constants/error-messages';
 
 @Injectable()

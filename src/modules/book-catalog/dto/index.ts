@@ -6,3 +6,5 @@ export * from './csv-export-filters.dto';
 export * from './upload-book-cover.dto';
 export * from './book-exact-search.dto';
 export * from './book-simple-filter.dto';
+export * from './book-catalog-param.dto';
+export * from './book-catalog-query.dto';

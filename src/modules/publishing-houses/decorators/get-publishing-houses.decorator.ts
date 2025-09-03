@@ -3,11 +3,16 @@ import {
   ApiOperation,
   ApiResponse,
   ApiQuery,
-  ApiExtraModels,
+  ApiUnauthorizedResponse,
+  ApiForbiddenResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { PublishingHouseListResponseDto } from '../dto';
-import { PaginationDto } from '../../../common/dto/pagination.dto';
+import {
+  PaginationInputDto,
+  UnauthorizedResponseDto,
+  ForbiddenResponseDto,
+} from '../../../common/dto';
 
 export function ApiGetPublishingHouses() {
   return applyDecorators(
@@ -17,24 +22,19 @@ export function ApiGetPublishingHouses() {
       description:
         'Obtiene una lista paginada de todas las editoriales registradas con filtros opcionales. Endpoint público.',
     }),
-    ApiQuery({
-      name: 'search',
-      required: false,
-      type: String,
-      description: 'Término de búsqueda para filtrar por nombre de la editorial',
-    }),
-    ApiQuery({
-      name: 'country',
-      required: false,
-      type: String,
-      description: 'País para filtrar editoriales',
-    }),
-    ApiExtraModels(PaginationDto),
+    ApiQuery({ type: PaginationInputDto }),
     ApiResponse({
       status: 200,
       description: 'Lista de editoriales obtenida exitosamente',
       type: PublishingHouseListResponseDto,
     }),
-    ApiBearerAuth(),
+    ApiUnauthorizedResponse({
+      description: 'No autorizado - Token JWT inválido o faltante',
+      type: UnauthorizedResponseDto,
+    }),
+    ApiForbiddenResponse({
+      description: 'Acceso denegado - Se requieren permisos válidos',
+      type: ForbiddenResponseDto,
+    }),
   );
 }

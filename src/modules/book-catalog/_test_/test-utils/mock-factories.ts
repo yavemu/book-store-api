@@ -6,11 +6,11 @@ import { BookExactSearchDto } from '../../dto/book-exact-search.dto';
 import { BookSimpleFilterDto } from '../../dto/book-simple-filter.dto';
 import { CsvExportFiltersDto } from '../../dto/csv-export-filters.dto';
 import { PaginationDto, PaginatedResult } from '../../../../common/dto/pagination.dto';
-import { IBookCatalogCrudService } from '../../interfaces/book-catalog-crud.service.interface';
-import { IBookCatalogSearchService } from '../../interfaces/book-catalog-search.service.interface';
-import { IFileUploadService } from '../../interfaces/file-upload.service.interface';
-import { IBookCatalogCrudRepository } from '../../interfaces/book-catalog-crud.repository.interface';
-import { IBookCatalogSearchRepository } from '../../interfaces/book-catalog-search.repository.interface';
+import { IBookCatalogCrudService } from './interfaces';
+import { IBookCatalogSearchService } from './interfaces';
+import { IFileUploadService } from './interfaces';
+import { IBookCatalogCrudRepository } from './interfaces';
+import { IBookCatalogSearchRepository } from './interfaces';
 
 /**
  * Mock Factory for Book Catalog Entity

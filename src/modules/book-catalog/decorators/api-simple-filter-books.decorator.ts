@@ -5,7 +5,14 @@ import {
   ApiQuery,
   ApiUnauthorizedResponse,
   ApiBearerAuth,
+  ApiForbiddenResponse,
 } from '@nestjs/swagger';
+import { BookCatalogListResponseDto } from '../dto';
+import {
+  PaginationInputDto,
+  UnauthorizedResponseDto,
+  ForbiddenResponseDto,
+} from '../../../common/dto';
 
 export function ApiSimpleFilterBooks() {
   return applyDecorators(
@@ -19,89 +26,21 @@ export function ApiSimpleFilterBooks() {
       name: 'term',
       description: 'Término parcial para buscar en múltiples campos',
       required: false,
-      type: 'string',
-      example: 'Harry',
+      type: String,
     }),
-    ApiQuery({
-      name: 'page',
-      description: 'Número de página',
-      required: false,
-      type: 'number',
-      example: 1,
-    }),
-    ApiQuery({
-      name: 'limit',
-      description: 'Cantidad de elementos por página',
-      required: false,
-      type: 'number',
-      example: 10,
-    }),
-    ApiQuery({
-      name: 'sortBy',
-      description: 'Campo por el cual ordenar',
-      required: false,
-      type: 'string',
-      example: 'createdAt',
-    }),
-    ApiQuery({
-      name: 'sortOrder',
-      description: 'Orden de clasificación',
-      required: false,
-      enum: ['ASC', 'DESC'],
-      example: 'DESC',
-    }),
+    ApiQuery({ type: PaginationInputDto }),
     ApiResponse({
       status: 200,
       description: 'Libros filtrados obtenidos exitosamente',
-      schema: {
-        type: 'object',
-        properties: {
-          data: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                id: { type: 'string', format: 'uuid' },
-                title: { type: 'string' },
-                isbnCode: { type: 'string' },
-                price: { type: 'number' },
-                stockQuantity: { type: 'number' },
-                isAvailable: { type: 'boolean' },
-                publicationDate: { type: 'string', format: 'date' },
-                genre: {
-                  type: 'object',
-                  properties: {
-                    id: { type: 'string', format: 'uuid' },
-                    name: { type: 'string' },
-                  },
-                },
-                publisher: {
-                  type: 'object',
-                  properties: {
-                    id: { type: 'string', format: 'uuid' },
-                    name: { type: 'string' },
-                  },
-                },
-              },
-            },
-          },
-          meta: {
-            type: 'object',
-            properties: {
-              total: { type: 'number' },
-              page: { type: 'number' },
-              limit: { type: 'number' },
-              totalPages: { type: 'number' },
-              hasNext: { type: 'boolean' },
-              hasPrev: { type: 'boolean' },
-            },
-          },
-        },
-      },
+      type: BookCatalogListResponseDto,
     }),
     ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',
+      type: UnauthorizedResponseDto,
     }),
-    ApiBearerAuth(),
+    ApiForbiddenResponse({
+      description: 'Acceso denegado - Se requieren permisos válidos',
+      type: ForbiddenResponseDto,
+    }),
   );
 }

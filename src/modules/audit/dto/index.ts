@@ -3,3 +3,5 @@ export * from './audit-exact-search.dto';
 export * from './audit-simple-filter.dto';
 export * from './audit-filters.dto';
 export * from './audit-csv-export-filters.dto';
+export * from './audit-param.dto';
+export * from './audit-query.dto';

@@ -5,7 +5,7 @@ import {
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
-import { IErrorHandlerService } from '../interfaces/error-handler.service.interface';
+import { IErrorHandlerService } from '../interfaces';
 
 @Injectable()
 export class ErrorHandlerService implements IErrorHandlerService {

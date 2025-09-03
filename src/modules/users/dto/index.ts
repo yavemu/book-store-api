@@ -7,3 +7,15 @@ export * from './user-csv-export-filters.dto';
 export * from './user-exact-search.dto';
 export * from './user-simple-filter.dto';
 export * from './user-search.dto';
+export * from './user-param.dto';
+export * from './user-query.dto';
+// New unified DTOs
+export * from './create-user-request.dto';
+export * from './get-all-users.dto';
+export * from './get-user-by-id.dto';
+export * from './get-users-by-search.dto';
+export * from './get-users-by-filter.dto';
+export * from './get-users-by-advanced-filter.dto';
+export * from './update-user-request.dto';
+export * from './delete-user-request.dto';
+export * from './export-users-csv-request.dto';

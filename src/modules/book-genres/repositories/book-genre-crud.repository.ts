@@ -1,13 +1,17 @@
-import { Injectable, NotFoundException, HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindManyOptions } from 'typeorm';
+import { Repository } from 'typeorm';
 import { BookGenre } from '../entities/book-genre.entity';
-import { IBookGenreCrudRepository } from '../interfaces/book-genre-crud.repository.interface';
-import { CreateBookGenreDto } from '../dto/create-book-genre.dto';
-import { UpdateBookGenreDto } from '../dto/update-book-genre.dto';
-import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { IBookGenreCrudRepository } from '../interfaces';
+import { PaginatedResult } from '../../../common/dto/pagination.dto';
 import { BaseRepository } from '../../../common/repositories/base.repository';
-import { IAuditLoggerService } from '../../../modules/audit/interfaces/audit-logger.service.interface';
+import {
+  ICreateBookGenreParams,
+  IGetBookGenreByIdParams,
+  IGetAllBookGenresParams,
+  IUpdateBookGenreParams,
+  IDeleteBookGenreParams,
+} from '../interfaces';
 
 @Injectable()
 export class BookGenreCrudRepository
@@ -16,117 +20,62 @@ export class BookGenreCrudRepository
 {
   constructor(
     @InjectRepository(BookGenre)
-    private readonly genreRepository: Repository<BookGenre>,
-    @Inject('IAuditLoggerService')
-    protected readonly auditLogService: IAuditLoggerService,
+    protected readonly repository: Repository<BookGenre>,
   ) {
-    super(genreRepository, auditLogService);
+    super(repository);
   }
 
-  async registerGenre(
-    createBookGenreDto: CreateBookGenreDto,
-    performedBy: string,
-  ): Promise<BookGenre> {
-    try {
-      await this._validateUniqueConstraints(createBookGenreDto, undefined, [
-        {
-          field: 'name',
-          message: 'Genre name already exists',
-          transform: (value: string) => value.trim(),
-        },
-      ]);
-
-      return await this._create(
-        createBookGenreDto,
-        performedBy,
-        'BookGenre',
-        (genre) => `Genre registered: ${genre.name}`,
-      );
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to register genre', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async createGenre(params: ICreateBookGenreParams): Promise<BookGenre> {
+    return await this._create(
+      params.createBookGenreDto,
+      params.performedBy,
+      'BookGenre',
+      (genre) => `Genre created: ${genre.name}`,
+    );
   }
 
-  async getGenreProfile(genreId: string): Promise<BookGenre> {
-    try {
-      const genre = await this._findById(genreId);
-      if (!genre) {
-        throw new NotFoundException('Genre not found');
-      }
-      return genre;
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to get genre profile', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async getGenreById(params: IGetBookGenreByIdParams): Promise<BookGenre> {
+    return await this._findById(params.genreId);
   }
 
-  async updateGenreProfile(
-    genreId: string,
-    updateBookGenreDto: UpdateBookGenreDto,
-    performedBy: string,
-  ): Promise<BookGenre> {
-    try {
-      await this.getGenreProfile(genreId);
+  async getAllGenres(params: IGetAllBookGenresParams): Promise<PaginatedResult<BookGenre>> {
+    const options = {
+      order: { [params.pagination.sortBy]: params.pagination.sortOrder },
+      skip: params.pagination.offset,
+      take: params.pagination.limit,
+    };
 
-      await this._validateUniqueConstraints(updateBookGenreDto, genreId, [
-        {
-          field: 'name',
-          message: 'Genre name already exists',
-          transform: (value: string) => value.trim(),
-        },
-      ]);
-
-      return await this._update(
-        genreId,
-        updateBookGenreDto,
-        performedBy,
-        'BookGenre',
-        (genre) => `Genre ${genre.id} updated.`,
-      );
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to update genre profile', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this._findManyWithPagination(options, params.pagination);
   }
 
-  async deactivateGenre(genreId: string, performedBy: string): Promise<{ id: string }> {
-    try {
-      const genre = await this.getGenreProfile(genreId);
-      return await this._softDelete(
-        genreId,
-        performedBy,
-        'BookGenre',
-        () => `Genre ${genre.id} deactivated.`,
-      );
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to deactivate genre', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async updateGenre(params: IUpdateBookGenreParams): Promise<BookGenre> {
+    return await this._update(
+      params.genreId,
+      params.updateBookGenreDto,
+      params.performedBy,
+      'BookGenre',
+      () => `Genre updated: ${params.genreId}`,
+    );
   }
 
-  async getAllGenres(pagination: PaginationDto): Promise<PaginatedResult<BookGenre>> {
-    try {
-      const options: FindManyOptions<BookGenre> = {
-        order: { [pagination.sortBy]: pagination.sortOrder },
-        skip: pagination.offset,
-        take: pagination.limit,
-      };
+  async deleteGenre(params: IDeleteBookGenreParams): Promise<{ id: string }> {
+    return await this._softDelete(
+      params.genreId,
+      params.performedBy,
+      'BookGenre',
+      () => `Genre deleted: ${params.genreId}`,
+    );
+  }
 
-      return await this._findManyWithPagination(options, pagination);
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to get all genres', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async findByName(name: string): Promise<BookGenre> {
+    return await this._findByField('name', name);
+  }
+
+  async findByNameExcludingId(name: string, excludeId: string): Promise<BookGenre> {
+    return await this._findByField('name', name, { excludeId });
+  }
+
+  async checkNameExists(name: string, excludeId?: string): Promise<boolean> {
+    return await this._existsByField('name', name, excludeId);
   }
 }

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike, Between } from 'typeorm';
 import { AuditLog } from '../entities/audit-log.entity';
 import { AuditAction } from '../enums/audit-action.enum';
-import { IAuditSearchRepository } from '../interfaces/audit-search.repository.interface';
+import { IAuditSearchRepository } from '../interfaces';
 import {
   AuditFiltersDto,
   AuditExactSearchDto,
@@ -312,7 +312,10 @@ export class AuditSearchRepository implements IAuditSearchRepository {
     };
   }
 
-  async simpleFilterAuditLogs(term: string, pagination: PaginationDto): Promise<PaginatedResult<AuditLog>> {
+  async simpleFilterAuditLogs(
+    term: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<AuditLog>> {
     if (!term || term.trim().length === 0) {
       // Return all logs if no search term
       return await this.getAuditTrail(pagination);

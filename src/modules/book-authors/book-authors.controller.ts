@@ -15,9 +15,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { IBookAuthorCrudService } from './interfaces/book-author-crud.service.interface';
-import { IBookAuthorSearchService } from './interfaces/book-author-search.service.interface';
-import { IUserContextService } from './interfaces/user-context.service.interface';
+import { IBookAuthorCrudService, IBookAuthorSearchService, IUserContextService } from './interfaces';
 import { CreateBookAuthorDto } from './dto/create-book-author.dto';
 import { UpdateBookAuthorDto } from './dto/update-book-author.dto';
 import {
@@ -26,6 +24,12 @@ import {
   BookAuthorSimpleFilterDto,
   BookAuthorCsvExportFiltersDto,
 } from './dto';
+import {
+  GetByIdParamDto,
+  UpdateByIdParamDto,
+  SoftDeleteParamDto,
+} from '../../common/dto/operation-param.dto';
+import { FilterTermQueryDto } from '../../common/dto/operation-query.dto';
 import { PaginationInputDto } from '../../common/dto/pagination-input.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { Auth } from '../../common/decorators/auth.decorator';
@@ -57,95 +61,86 @@ export class BookAuthorsController {
   @Post()
   @Auth(UserRole.ADMIN)
   @ApiCreateAuthor()
-  create(@Body() createBookAuthorDto: CreateBookAuthorDto, @Request() req: any) {
-    const userId = this.userContextService.extractUserId(req);
-    return this.crudService.create(createBookAuthorDto, userId);
+  async create(
+    @Body() createBookAuthorDto: CreateBookAuthorDto,
+    @Request() req: any,
+  ): Promise<any> {
+    return this.crudService.create(createBookAuthorDto, req.user.userId);
   }
 
   @Get()
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetAuthors()
-  findAll(@Query() pagination: PaginationInputDto) {
-    return this.crudService.findAll(pagination);
+  async getAll(@Query() pagination: PaginationInputDto, @Request() req: any): Promise<any> {
+    return this.crudService.findAll(pagination, req.user.userId);
   }
 
   @Post('search')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchAuthors()
-  exactSearch(@Body() searchDto: BookAuthorExactSearchDto, @Query() pagination: PaginationInputDto) {
-    const paginationDto: PaginationDto = {
-      page: pagination.page || 1,
-      limit: pagination.limit || 10,
-      sortBy: pagination.sortBy || 'createdAt',
-      sortOrder: pagination.sortOrder || 'DESC',
-      offset: pagination.offset,
-    };
-    return this.searchService.exactSearch(searchDto, paginationDto);
+  async getBySearch(
+    @Body() searchDto: BookAuthorExactSearchDto,
+    @Query() pagination: PaginationInputDto,
+    @Request() req: any,
+  ): Promise<any> {
+    return this.searchService.exactSearch(searchDto, pagination, req.user.userId);
   }
 
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterAuthorsRealtime()
-  simpleFilter(@Query('term') term: string, @Query() pagination: PaginationInputDto) {
-    // Validar que el término sea obligatorio
-    if (!term || term.trim().length === 0) {
-      throw new HttpException('Filter term is required', HttpStatus.BAD_REQUEST);
-    }
-    return this.searchService.simpleFilter(term, pagination);
+  async getByFilterParam(
+    @Query() termQuery: FilterTermQueryDto,
+    @Query() pagination: PaginationInputDto,
+    @Request() req: any,
+  ): Promise<any> {
+    return this.searchService.simpleFilter(termQuery.term, pagination, req.user.userId);
   }
 
   @Post('advanced-filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterAuthors()
-  advancedFilter(@Body() filters: BookAuthorFiltersDto, @Query() pagination: PaginationInputDto) {
-    return this.searchService.advancedFilter(filters, pagination);
+  async getByAdvancedFilter(
+    @Body() filters: BookAuthorFiltersDto,
+    @Query() pagination: PaginationInputDto,
+    @Request() req: any,
+  ): Promise<any> {
+    return this.searchService.advancedFilter(filters, pagination, req.user.userId);
   }
 
   @Get('export/csv')
   @Auth(UserRole.ADMIN)
   @ApiExportAuthorsCsv()
-  async exportToCsv(@Query() filters: BookAuthorCsvExportFiltersDto, @Res() res: Response) {
-    const csvData = await this.searchService.exportToCsv(filters);
-    const filename = `book_authors_${new Date().toISOString().split('T')[0]}.csv`;
-
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.send(csvData);
+  async exportToCsv(
+    @Query() filters: BookAuthorCsvExportFiltersDto,
+    @Res() res: Response,
+    @Request() req: any,
+  ): Promise<any> {
+    return this.searchService.exportToCsv(filters, res, req.user.userId);
   }
 
   @Get(':id')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetAuthorById()
-  findOne(@Param('id') id: string) {
-    return this.crudService.findById(id);
+  async getById(@Param() params: GetByIdParamDto, @Request() req: any): Promise<any> {
+    return this.crudService.findById(params.id, req.user.userId);
   }
 
   @Put(':id')
   @Auth(UserRole.ADMIN)
   @ApiUpdateAuthor()
-  update(
-    @Param('id') id: string,
+  async update(
+    @Param() params: UpdateByIdParamDto,
     @Body() updateBookAuthorDto: UpdateBookAuthorDto,
     @Request() req: any,
-  ) {
-    const userId = this.userContextService.extractUserId(req);
-    return this.crudService.update(id, updateBookAuthorDto, userId);
+  ): Promise<any> {
+    return this.crudService.update(params.id, updateBookAuthorDto, req.user.userId);
   }
 
   @Delete(':id')
   @Auth(UserRole.ADMIN)
   @ApiDeleteAuthor()
-  remove(@Param('id') id: string, @Request() req: any) {
-    const userId = this.userContextService.extractUserId(req);
-    return this.crudService.softDelete(id, userId);
-  }
-
-  // Legacy method names for backward compatibility with tests
-  async search(searchTerm: any, pagination: PaginationInputDto) {
-    return this.exactSearch(searchTerm, pagination);
-  }
-
-  async filter(filters: any, pagination: PaginationInputDto) {
-    return this.simpleFilter(filters.term || '', pagination);
+  async remove(@Param() params: SoftDeleteParamDto, @Request() req: any): Promise<any> {
+    return this.crudService.softDelete(params.id, req.user.userId);
   }
 }

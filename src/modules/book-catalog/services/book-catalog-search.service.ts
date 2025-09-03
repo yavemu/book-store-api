@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { IBookCatalogSearchService } from '../interfaces/book-catalog-search.service.interface';
-import { IBookCatalogSearchRepository } from '../interfaces/book-catalog-search.repository.interface';
+import { IBookCatalogSearchService } from '../interfaces';
+import { IBookCatalogSearchRepository } from '../interfaces';
 import { BookCatalog } from '../entities/book-catalog.entity';
 import { BookFiltersDto } from '../dto/book-filters.dto';
 import { BookExactSearchDto } from '../dto/book-exact-search.dto';
@@ -15,11 +15,17 @@ export class BookCatalogSearchService implements IBookCatalogSearchService {
     private readonly bookCatalogSearchRepository: IBookCatalogSearchRepository,
   ) {}
 
-  async exactSearch(searchDto: BookExactSearchDto, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>> {
+  async exactSearch(
+    searchDto: BookExactSearchDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookCatalog>> {
     return await this.bookCatalogSearchRepository.exactSearchBooks(searchDto, pagination);
   }
 
-  async simpleFilter(term: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>> {
+  async simpleFilter(
+    term: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookCatalog>> {
     return await this.bookCatalogSearchRepository.simpleFilterBooks(term, pagination);
   }
 

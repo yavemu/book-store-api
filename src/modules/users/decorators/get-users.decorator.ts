@@ -2,16 +2,14 @@ import { applyDecorators } from '@nestjs/common';
 import {
   ApiOperation,
   ApiResponse,
+  ApiQuery,
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
   ApiBearerAuth,
-  ApiExtraModels,
-  getSchemaPath,
 } from '@nestjs/swagger';
 import { UserListResponseDto } from '../dto';
 import {
-  PaginationDto,
-  ApiResponseDto,
+  PaginationInputDto,
   UnauthorizedResponseDto,
   ForbiddenResponseDto,
 } from '../../../common/dto';
@@ -24,29 +22,18 @@ export function ApiGetUsers() {
       description:
         'Obtiene una lista paginada de todos los usuarios del sistema. Solo accesible para administradores.',
     }),
-    ApiExtraModels(PaginationDto, ApiResponseDto, UserListResponseDto),
+    ApiQuery({ type: PaginationInputDto }),
     ApiResponse({
       status: 200,
       description: 'Lista de usuarios obtenida exitosamente',
-      schema: {
-        allOf: [
-          { $ref: getSchemaPath(ApiResponseDto) },
-          {
-            properties: {
-              data: {
-                $ref: getSchemaPath(UserListResponseDto),
-              },
-            },
-          },
-        ],
-      },
+      type: UserListResponseDto,
     }),
     ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',
       type: UnauthorizedResponseDto,
     }),
     ApiForbiddenResponse({
-      description: 'Acceso denegado - Se requieren permisos de administrador',
+      description: 'Acceso denegado - Se requieren permisos válidos',
       type: ForbiddenResponseDto,
     }),
   );

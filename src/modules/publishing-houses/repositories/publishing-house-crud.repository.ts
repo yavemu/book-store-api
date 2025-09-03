@@ -1,13 +1,17 @@
-import { Injectable, NotFoundException, HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindManyOptions } from 'typeorm';
+import { Repository } from 'typeorm';
 import { PublishingHouse } from '../entities/publishing-house.entity';
-import { IPublishingHouseCrudRepository } from '../interfaces/publishing-house-crud.repository.interface';
-import { CreatePublishingHouseDto } from '../dto/create-publishing-house.dto';
-import { UpdatePublishingHouseDto } from '../dto/update-publishing-house.dto';
-import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { IPublishingHouseCrudRepository } from '../interfaces';
+import { PaginatedResult } from '../../../common/dto/pagination.dto';
 import { BaseRepository } from '../../../common/repositories/base.repository';
-import { IAuditLoggerService } from '../../../modules/audit/interfaces/audit-logger.service.interface';
+import {
+  ICreatePublishingHouseParams,
+  IGetPublishingHouseByIdParams,
+  IGetAllPublishingHousesParams,
+  IUpdatePublishingHouseParams,
+  IDeletePublishingHouseParams,
+} from '../interfaces';
 
 @Injectable()
 export class PublishingHouseCrudRepository
@@ -16,117 +20,64 @@ export class PublishingHouseCrudRepository
 {
   constructor(
     @InjectRepository(PublishingHouse)
-    private readonly publisherRepository: Repository<PublishingHouse>,
-    @Inject('IAuditLoggerService')
-    protected readonly auditLogService: IAuditLoggerService,
+    protected readonly repository: Repository<PublishingHouse>,
   ) {
-    super(publisherRepository, auditLogService);
+    super(repository);
   }
 
-  async registerPublisher(
-    createPublishingHouseDto: CreatePublishingHouseDto,
-    performedBy: string,
-  ): Promise<PublishingHouse> {
-    try {
-      await this._validateUniqueConstraints(createPublishingHouseDto, undefined, [
-        {
-          field: 'name',
-          message: 'Publisher name already exists',
-          transform: (value: string) => value.trim(),
-        },
-      ]);
-
-      return await this._create(
-        createPublishingHouseDto,
-        performedBy,
-        'PublishingHouse',
-        (publisher) => `Publisher registered: ${publisher.name}`,
-      );
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to register publisher', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async createPublisher(params: ICreatePublishingHouseParams): Promise<PublishingHouse> {
+    return await this._create(
+      params.createPublishingHouseDto,
+      params.performedBy,
+      'PublishingHouse',
+      (publisher) => `Publisher created: ${publisher.name}`,
+    );
   }
 
-  async getPublisherProfile(publisherId: string): Promise<PublishingHouse> {
-    try {
-      const publisher = await this._findById(publisherId);
-      if (!publisher) {
-        throw new NotFoundException('Publisher not found');
-      }
-      return publisher;
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to get publisher profile', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async getPublisherById(params: IGetPublishingHouseByIdParams): Promise<PublishingHouse> {
+    return await this._findById(params.publisherId);
   }
 
-  async updatePublisherProfile(
-    publisherId: string,
-    updatePublishingHouseDto: UpdatePublishingHouseDto,
-    performedBy: string,
-  ): Promise<PublishingHouse> {
-    try {
-      await this.getPublisherProfile(publisherId);
+  async getAllPublishers(
+    params: IGetAllPublishingHousesParams,
+  ): Promise<PaginatedResult<PublishingHouse>> {
+    const options = {
+      order: { [params.pagination.sortBy]: params.pagination.sortOrder },
+      skip: params.pagination.offset,
+      take: params.pagination.limit,
+    };
 
-      await this._validateUniqueConstraints(updatePublishingHouseDto, publisherId, [
-        {
-          field: 'name',
-          message: 'Publisher name already exists',
-          transform: (value: string) => value.trim(),
-        },
-      ]);
-
-      return await this._update(
-        publisherId,
-        updatePublishingHouseDto,
-        performedBy,
-        'PublishingHouse',
-        (publisher) => `Publisher ${publisher.id} updated.`,
-      );
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException(
-        'Failed to update publisher profile',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return await this._findManyWithPagination(options, params.pagination);
   }
 
-  async deactivatePublisher(publisherId: string, performedBy: string): Promise<{ id: string }> {
-    try {
-      const publisher = await this.getPublisherProfile(publisherId);
-      return await this._softDelete(
-        publisherId,
-        performedBy,
-        'PublishingHouse',
-        () => `Publisher ${publisher.id} deactivated.`,
-      );
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException('Failed to deactivate publisher', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async updatePublisher(params: IUpdatePublishingHouseParams): Promise<PublishingHouse> {
+    return await this._update(
+      params.publisherId,
+      params.updatePublishingHouseDto,
+      params.performedBy,
+      'PublishingHouse',
+      () => `Publisher updated: ${params.publisherId}`,
+    );
   }
 
-  async getAllPublishers(pagination: PaginationDto): Promise<PaginatedResult<PublishingHouse>> {
-    try {
-      const options: FindManyOptions<PublishingHouse> = {
-        order: { [pagination.sortBy]: pagination.sortOrder },
-        skip: pagination.offset,
-        take: pagination.limit,
-      };
+  async deletePublisher(params: IDeletePublishingHouseParams): Promise<{ id: string }> {
+    return await this._softDelete(
+      params.publisherId,
+      params.performedBy,
+      'PublishingHouse',
+      () => `Publisher deleted: ${params.publisherId}`,
+    );
+  }
 
-      return await this._findManyWithPagination(options, pagination);
-    } catch (error) {
-      throw new HttpException('Failed to get all publishers', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async findByName(name: string): Promise<PublishingHouse> {
+    return await this._findByField('name', name);
+  }
+
+  async findByNameExcludingId(name: string, excludeId: string): Promise<PublishingHouse> {
+    return await this._findByField('name', name, { excludeId });
+  }
+
+  async checkNameExists(name: string, excludeId?: string): Promise<boolean> {
+    return await this._existsByField('name', name, excludeId);
   }
 }

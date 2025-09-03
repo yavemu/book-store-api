@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { IInventoryMovementCrudService } from '../interfaces/inventory-movement-crud.service.interface';
-import { IInventoryMovementCrudRepository } from '../interfaces/inventory-movement-crud.repository.interface';
+import { IInventoryMovementCrudService } from '../interfaces';
+import { IInventoryMovementCrudRepository } from '../interfaces';
 import { InventoryMovement } from '../entities/inventory-movement.entity';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import {

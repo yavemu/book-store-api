@@ -1,7 +1,19 @@
-import { Controller, Get, Post, Query, Body, Inject, Res, Param, HttpCode, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Query,
+  Body,
+  Inject,
+  Res,
+  Param,
+  HttpException,
+  HttpStatus,
+  Request,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { IAuditSearchService } from '../interfaces/audit-search.service.interface';
+import { IAuditSearchService } from '../interfaces';
 import { Auth } from '../../../common/decorators/auth.decorator';
 import { UserRole } from '../../../common/enums/user-role.enum';
 import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
@@ -11,6 +23,8 @@ import {
   AuditSimpleFilterDto,
   AuditCsvExportFiltersDto,
 } from '../dto';
+import { GetByIdParamDto } from '../../../common/dto/operation-param.dto';
+import { FilterTermQueryDto } from '../../../common/dto/operation-query.dto';
 import { FileExportService } from '../../../common/services/file-export.service';
 import {
   ApiGetAuditLogs,
@@ -33,64 +47,58 @@ export class AuditController {
   @Get()
   @Auth(UserRole.ADMIN)
   @ApiGetAuditLogs()
-  async findAll(@Query() pagination: PaginationInputDto) {
+  async getAll(@Query() pagination: PaginationInputDto, @Request() req): Promise<any> {
     return this.auditSearchService.getAuditTrail(pagination);
   }
 
   @Post('search')
-  @HttpCode(200)
   @Auth(UserRole.ADMIN)
   @ApiSearchAuditLogs()
-  async exactSearch(@Body() searchDto: AuditExactSearchDto, @Query() pagination: PaginationInputDto) {
+  async getBySearch(
+    @Body() searchDto: AuditExactSearchDto,
+    @Query() pagination: PaginationInputDto,
+    @Request() req,
+  ): Promise<any> {
     return this.auditSearchService.exactSearch(searchDto);
   }
 
   @Get('filter')
   @Auth(UserRole.ADMIN)
   @ApiFilterAuditRealtime()
-  async simpleFilter(@Query('term') term: string, @Query() pagination: PaginationInputDto) {
-    // Validar que el término sea obligatorio
-    if (!term || term.trim().length === 0) {
-      throw new HttpException('Filter term is required', HttpStatus.BAD_REQUEST);
-    }
-    return this.auditSearchService.simpleFilter(term, pagination);
+  async getByFilterParam(
+    @Query() termQuery: FilterTermQueryDto,
+    @Query() pagination: PaginationInputDto,
+    @Request() req,
+  ): Promise<any> {
+    return this.auditSearchService.simpleFilter(termQuery.term, pagination);
   }
 
   @Get(':id')
   @Auth(UserRole.ADMIN)
   @ApiGetAuditById()
-  async findOne(@Param('id') id: string) {
-    return this.auditSearchService.getAuditById(id);
+  async getById(@Param() params: GetByIdParamDto, @Request() req): Promise<any> {
+    return this.auditSearchService.getAuditById(params.id);
   }
 
   @Post('advanced-filter')
-  @HttpCode(200)
   @Auth(UserRole.ADMIN)
   @ApiAdvancedFilterAudit()
-  async advancedFilter(@Body() filters: AuditFiltersDto, @Query() pagination: PaginationInputDto) {
+  async getByAdvancedFilter(
+    @Body() filters: AuditFiltersDto,
+    @Query() pagination: PaginationInputDto,
+    @Request() req,
+  ): Promise<any> {
     return this.auditSearchService.advancedFilter(filters, pagination);
-  }
-
-  // Legacy method names for backward compatibility with tests
-  async search(searchTerm: any, pagination: PaginationInputDto) {
-    return this.exactSearch(searchTerm, pagination);
-  }
-
-  async filter(filterTerm: any, pagination: PaginationInputDto) {
-    return this.simpleFilter(filterTerm.term, pagination);
   }
 
   @Get('export/csv')
   @Auth(UserRole.ADMIN)
   @ApiExportAuditCsv()
-  async exportToCsv(@Query() filters: AuditCsvExportFiltersDto, @Res() res: Response) {
-    const csvData = await this.auditSearchService.exportToCsv(filters);
-    const filename = this.fileExportService.generateDateBasedFilename('audit_logs', 'csv');
-
-    this.fileExportService.exportToCsv(res, {
-      content: csvData,
-      filename,
-      type: 'csv',
-    });
+  async exportToCsv(
+    @Query() filters: AuditCsvExportFiltersDto,
+    @Res() res: Response,
+    @Request() req,
+  ): Promise<any> {
+    return this.auditSearchService.exportToCsv(filters);
   }
 }

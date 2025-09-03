@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IUserContextService } from '../interfaces/user-context.service.interface';
+import { IUserContextService } from '../interfaces';
 
 @Injectable()
 export class UserContextService implements IUserContextService {

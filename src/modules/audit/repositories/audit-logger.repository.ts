@@ -3,15 +3,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuditLog } from '../entities/audit-log.entity';
 import { AuditAction } from '../enums/audit-action.enum';
-import { IAuditLoggerRepository } from '../interfaces/audit-logger.repository.interface';
-import { EnhancedAuditData } from '../interfaces/audit-logger.service.interface';
+import { IAuditLoggerRepository } from '../interfaces';
+import { EnhancedAuditData } from '../interfaces';
+import { BaseAuditRepository } from '../../../common/repositories/base-audit.repository';
 
 @Injectable()
-export class AuditLoggerRepository implements IAuditLoggerRepository {
+export class AuditLoggerRepository
+  extends BaseAuditRepository<AuditLog>
+  implements IAuditLoggerRepository
+{
   constructor(
     @InjectRepository(AuditLog)
     private readonly auditLogRepository: Repository<AuditLog>,
-  ) {}
+  ) {
+    super(auditLogRepository);
+  }
 
   async logUserAction(
     performedBy: string,
@@ -20,19 +26,20 @@ export class AuditLoggerRepository implements IAuditLoggerRepository {
     details: string,
     entityType: string,
   ): Promise<AuditLog> {
-    const auditLog = this.auditLogRepository.create({
+    const auditData = {
       performedBy,
       entityId,
       action,
       details,
       entityType,
       result: 'SUCCESS', // Default para compatibilidad hacia atrás
-    });
-    return await this.auditLogRepository.save(auditLog);
+    };
+
+    return await this._createWithoutAudit(auditData);
   }
 
   async logEnhancedAction(auditData: EnhancedAuditData): Promise<AuditLog> {
-    const auditLog = this.auditLogRepository.create({
+    const auditLogData = {
       performedBy: auditData.performedBy,
       entityId: auditData.entityId,
       action: auditData.action,
@@ -46,8 +53,8 @@ export class AuditLoggerRepository implements IAuditLoggerRepository {
       entitySnapshot: auditData.entitySnapshot,
       executionTimeMs: auditData.executionTimeMs,
       errorDetails: auditData.errorDetails,
-    });
+    };
 
-    return await this.auditLogRepository.save(auditLog);
+    return await this._createWithoutAudit(auditLogData);
   }
 }

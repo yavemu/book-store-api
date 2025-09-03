@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { IPublishingHouseCrudService } from '../interfaces/publishing-house-crud.service.interface';
-import { IPublishingHouseCrudRepository } from '../interfaces/publishing-house-crud.repository.interface';
+import { IPublishingHouseCrudService } from '../interfaces';
+import { IPublishingHouseCrudRepository } from '../interfaces';
 import { PublishingHouse } from '../entities/publishing-house.entity';
 import { CreatePublishingHouseDto } from '../dto/create-publishing-house.dto';
 import { UpdatePublishingHouseDto } from '../dto/update-publishing-house.dto';

@@ -11,10 +11,11 @@ import {
   Not,
 } from 'typeorm';
 import { User } from '../entities/user.entity';
-import { IUserSearchRepository } from '../interfaces/user-search.repository.interface';
+import { IUserSearchRepository } from '../interfaces';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import { UserFiltersDto, UserCsvExportFiltersDto, UserExactSearchDto } from '../dto';
 import { BaseRepository } from '../../../common/repositories/base.repository';
+import { USER_ERROR_MESSAGES } from '../enums/error-messages.enum';
 
 @Injectable()
 export class UserSearchRepository extends BaseRepository<User> implements IUserSearchRepository {
@@ -32,7 +33,10 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
       });
     } catch (error) {
       console.error(error);
-      throw new HttpException('Authentication failed', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        USER_ERROR_MESSAGES.FAILED_TO_AUTHENTICATE,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -47,7 +51,10 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
 
       return await this._findManyWithPagination(options, pagination);
     } catch (error) {
-      throw new HttpException('Failed to search users', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        USER_ERROR_MESSAGES.FAILED_TO_SEARCH,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -68,7 +75,10 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
 
       return await this._findManyWithPagination(options, pagination);
     } catch (error) {
-      throw new HttpException('Failed to filter users', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        USER_ERROR_MESSAGES.FAILED_TO_FILTER,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -80,7 +90,7 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
   ): Promise<PaginatedResult<User>> {
     try {
       const maxLimit = Math.min(pagination.limit || 10, 50);
-      
+
       // If no search term provided, return all users with pagination
       if (!term || term.trim().length === 0) {
         const options: FindManyOptions<User> = {
@@ -108,11 +118,11 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
         .where('user.deletedAt IS NULL') // Soft delete filter
         .andWhere(
           '(LOWER(user.username) LIKE LOWER(:term) OR ' +
-          'LOWER(user.email) LIKE LOWER(:term) OR ' +
-          'LOWER(user.firstName) LIKE LOWER(:term) OR ' +
-          'LOWER(user.lastName) LIKE LOWER(:term) OR ' +
-          'LOWER(role.name) LIKE LOWER(:term))',
-          { term: `%${trimmedTerm}%` }
+            'LOWER(user.email) LIKE LOWER(:term) OR ' +
+            'LOWER(user.firstName) LIKE LOWER(:term) OR ' +
+            'LOWER(user.lastName) LIKE LOWER(:term) OR ' +
+            'LOWER(role.name) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` },
         );
 
       // Get total count for pagination metadata
@@ -142,7 +152,10 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Failed to perform simple filter', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        USER_ERROR_MESSAGES.FAILED_TO_SIMPLE_FILTER,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -153,7 +166,7 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
       });
     } catch (error) {
       throw new HttpException(
-        'Failed to check username existence',
+        USER_ERROR_MESSAGES.FAILED_TO_SEARCH,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -191,7 +204,10 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
 
       return await this._findManyWithPagination(options, pagination);
     } catch (error) {
-      throw new HttpException('Failed to filter users', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        USER_ERROR_MESSAGES.FAILED_TO_FILTER,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -258,7 +274,10 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
 
       return csvHeaders + csvRows;
     } catch (error) {
-      throw new HttpException('Failed to export users to CSV', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        USER_ERROR_MESSAGES.FAILED_TO_EXPORT_CSV,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -270,7 +289,7 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
   ): Promise<PaginatedResult<User>> {
     try {
       const whereCondition: any = {};
-      
+
       // Build where condition based on provided fields
       if (searchDto.username) whereCondition.username = searchDto.username;
       if (searchDto.email) whereCondition.email = searchDto.email;
@@ -291,7 +310,10 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Failed to search users', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        USER_ERROR_MESSAGES.FAILED_TO_SEARCH,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -301,7 +323,10 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
         where: { email: email.toLowerCase().trim() },
       });
     } catch (error) {
-      throw new HttpException('Failed to check email existence', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        USER_ERROR_MESSAGES.FAILED_TO_SEARCH,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

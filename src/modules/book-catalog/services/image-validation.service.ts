@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
-import { IImageValidationService } from '../interfaces/image-validation.service.interface';
+import { IImageValidationService } from '../interfaces';
 
 @Injectable()
 export class ImageValidationService implements IImageValidationService {

@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { IPublishingHouseSearchService } from '../interfaces/publishing-house-search.service.interface';
-import { IPublishingHouseSearchRepository } from '../interfaces/publishing-house-search.repository.interface';
+import { IPublishingHouseSearchService } from '../interfaces';
+import { IPublishingHouseSearchRepository } from '../interfaces';
 import { PublishingHouse } from '../entities/publishing-house.entity';
 import { PublishingHouseFiltersDto } from '../dto/publishing-house-filters.dto';
 import { PublishingHouseCsvExportFiltersDto } from '../dto/publishing-house-csv-export-filters.dto';

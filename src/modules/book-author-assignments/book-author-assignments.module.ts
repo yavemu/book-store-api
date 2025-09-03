@@ -8,7 +8,7 @@ import { BookAuthorAssignmentSearchService } from './services/book-author-assign
 import { ValidationService } from './services/validation.service';
 import { ErrorHandlerService } from './services/error-handler.service';
 import { UserContextService } from './services/user-context.service';
-import { BookAuthorAssignmentRepository } from './repositories/book-author-assignment.repository';
+import { BookAuthorAssignmentCrudRepository } from './repositories/book-author-assignments-crud.repository';
 import { AuditModule } from '../audit/audit.module';
 
 @Module({
@@ -22,7 +22,7 @@ import { AuditModule } from '../audit/audit.module';
     ValidationService,
     ErrorHandlerService,
     UserContextService,
-    BookAuthorAssignmentRepository,
+    BookAuthorAssignmentCrudRepository,
 
     // Interface Providers
     {
@@ -51,19 +51,19 @@ import { AuditModule } from '../audit/audit.module';
     },
     {
       provide: 'IBookAuthorAssignmentRepository',
-      useClass: BookAuthorAssignmentRepository,
+      useClass: BookAuthorAssignmentCrudRepository,
     },
     {
       provide: 'IBookAuthorAssignmentCrudRepository',
-      useClass: BookAuthorAssignmentRepository,
+      useClass: BookAuthorAssignmentCrudRepository,
     },
     {
       provide: 'IBookAuthorAssignmentSearchRepository',
-      useClass: BookAuthorAssignmentRepository,
+      useClass: BookAuthorAssignmentCrudRepository,
     },
     {
       provide: 'IBookAuthorAssignmentValidationRepository',
-      useClass: BookAuthorAssignmentRepository,
+      useClass: BookAuthorAssignmentCrudRepository,
     },
   ],
   exports: [
@@ -71,7 +71,7 @@ import { AuditModule } from '../audit/audit.module';
     BookAuthorAssignmentService,
     BookAuthorAssignmentCrudService,
     BookAuthorAssignmentSearchService,
-    BookAuthorAssignmentRepository,
+    BookAuthorAssignmentCrudRepository,
   ],
 })
 export class BookAuthorAssignmentsModule {}

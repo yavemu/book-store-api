@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { IUserSearchService } from '../interfaces/user-search.service.interface';
-import { IUserSearchRepository } from '../interfaces/user-search.repository.interface';
+import { IUserSearchService } from '../interfaces';
+import { IUserSearchRepository } from '../interfaces';
 import { User } from '../entities/user.entity';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import { UserFiltersDto, UserCsvExportFiltersDto, UserExactSearchDto } from '../dto';

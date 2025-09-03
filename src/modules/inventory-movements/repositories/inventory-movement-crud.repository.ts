@@ -3,13 +3,18 @@ import { UserRole } from '../../../common/enums/user-role.enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindManyOptions, SelectQueryBuilder } from 'typeorm';
 import { InventoryMovement } from '../entities/inventory-movement.entity';
-import { IInventoryMovementCrudRepository } from '../interfaces/inventory-movement-crud.repository.interface';
+import { IInventoryMovementCrudRepository } from '../interfaces';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
-import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
+import { PaginatedResult } from '../interfaces';
 import { BaseRepository } from '../../../common/repositories/base.repository';
-import { IAuditLoggerService } from '../../audit/interfaces/audit-logger.service.interface';
+import { IAuditLoggerService } from '../interfaces';
 import { AuditAction } from '../../audit/enums/audit-action.enum';
-import { MovementFiltersDto, MovementSearchDto, MovementAdvancedFiltersDto, InventoryMovementExactSearchDto } from '../dto';
+import {
+  MovementFiltersDto,
+  MovementSearchDto,
+  MovementAdvancedFiltersDto,
+  InventoryMovementExactSearchDto,
+} from '../dto';
 
 @Injectable()
 export class InventoryMovementCrudRepository

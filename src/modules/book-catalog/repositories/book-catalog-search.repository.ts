@@ -2,12 +2,13 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindManyOptions } from 'typeorm';
 import { BookCatalog } from '../entities/book-catalog.entity';
-import { IBookCatalogSearchRepository } from '../interfaces/book-catalog-search.repository.interface';
+import { IBookCatalogSearchRepository } from '../interfaces';
 import { BookFiltersDto } from '../dto/book-filters.dto';
 import { BookExactSearchDto } from '../dto/book-exact-search.dto';
 import { CsvExportFiltersDto } from '../dto/csv-export-filters.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import { BaseRepository } from '../../../common/repositories/base.repository';
+import { BOOK_CATALOG_ERROR_MESSAGES } from '../enums/error-messages.enum';
 
 @Injectable()
 export class BookCatalogSearchRepository
@@ -21,16 +22,20 @@ export class BookCatalogSearchRepository
     super(bookRepository);
   }
 
-  async exactSearchBooks(searchDto: BookExactSearchDto, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>> {
+  async exactSearchBooks(
+    searchDto: BookExactSearchDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookCatalog>> {
     try {
       const whereCondition: any = {};
-      
+
       // Build where condition based on provided fields
       if (searchDto.title) whereCondition.title = searchDto.title;
       if (searchDto.isbnCode) whereCondition.isbnCode = searchDto.isbnCode;
       if (searchDto.price !== undefined) whereCondition.price = searchDto.price;
       if (searchDto.isAvailable !== undefined) whereCondition.isAvailable = searchDto.isAvailable;
-      if (searchDto.stockQuantity !== undefined) whereCondition.stockQuantity = searchDto.stockQuantity;
+      if (searchDto.stockQuantity !== undefined)
+        whereCondition.stockQuantity = searchDto.stockQuantity;
       if (searchDto.publicationDate) whereCondition.publicationDate = searchDto.publicationDate;
       if (searchDto.pageCount !== undefined) whereCondition.pageCount = searchDto.pageCount;
       if (searchDto.summary) whereCondition.summary = searchDto.summary;
@@ -50,14 +55,20 @@ export class BookCatalogSearchRepository
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Failed to search books', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        BOOK_CATALOG_ERROR_MESSAGES.FAILED_TO_SEARCH,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  async simpleFilterBooks(term: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>> {
+  async simpleFilterBooks(
+    term: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookCatalog>> {
     try {
       const maxLimit = Math.min(pagination.limit || 10, 50);
-      
+
       // If no search term provided, return all books with pagination using BaseRepository
       if (!term || term.trim().length === 0) {
         const options: FindManyOptions<BookCatalog> = {
@@ -86,14 +97,14 @@ export class BookCatalogSearchRepository
         .where('book.deletedAt IS NULL') // Soft delete filter
         .andWhere(
           '(LOWER(book.title) LIKE LOWER(:term) OR ' +
-          'LOWER(book.isbnCode) LIKE LOWER(:term) OR ' +
-          'LOWER(book.summary) LIKE LOWER(:term) OR ' +
-          'CAST(book.publicationYear AS VARCHAR) LIKE :term OR ' +
-          'CAST(book.stockQuantity AS VARCHAR) LIKE :term OR ' +
-          'CAST(book.price AS VARCHAR) LIKE :term OR ' +
-          'LOWER(genre.name) LIKE LOWER(:term) OR ' +
-          'LOWER(publisher.name) LIKE LOWER(:term))',
-          { term: `%${trimmedTerm}%` }
+            'LOWER(book.isbnCode) LIKE LOWER(:term) OR ' +
+            'LOWER(book.summary) LIKE LOWER(:term) OR ' +
+            'CAST(book.publicationYear AS VARCHAR) LIKE :term OR ' +
+            'CAST(book.stockQuantity AS VARCHAR) LIKE :term OR ' +
+            'CAST(book.price AS VARCHAR) LIKE :term OR ' +
+            'LOWER(genre.name) LIKE LOWER(:term) OR ' +
+            'LOWER(publisher.name) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` },
         );
 
       // Get total count for pagination metadata
@@ -123,7 +134,10 @@ export class BookCatalogSearchRepository
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Failed to perform simple filter', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        BOOK_CATALOG_ERROR_MESSAGES.FAILED_TO_SIMPLE_FILTER,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -213,7 +227,7 @@ export class BookCatalogSearchRepository
         throw error;
       }
       throw new HttpException(
-        'Failed to perform advanced filter',
+        BOOK_CATALOG_ERROR_MESSAGES.FAILED_TO_ADVANCED_FILTER,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -243,7 +257,10 @@ export class BookCatalogSearchRepository
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Failed to get books by genre', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        BOOK_CATALOG_ERROR_MESSAGES.FAILED_TO_FILTER,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -271,7 +288,10 @@ export class BookCatalogSearchRepository
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Failed to get books by publisher', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        BOOK_CATALOG_ERROR_MESSAGES.FAILED_TO_FILTER,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -367,7 +387,7 @@ export class BookCatalogSearchRepository
         throw error;
       }
       throw new HttpException(
-        'Failed to get books for CSV export',
+        BOOK_CATALOG_ERROR_MESSAGES.FAILED_TO_EXPORT_CSV,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

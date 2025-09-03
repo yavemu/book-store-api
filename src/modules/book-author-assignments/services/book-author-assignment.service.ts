@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { IBookAuthorAssignmentRepository } from '../interfaces/book-author-assignment.repository.interface';
-import { IBookAuthorAssignmentService } from '../interfaces/book-author-assignment.service.interface';
+import { IBookAuthorAssignmentRepository } from '../interfaces';
+import { IBookAuthorAssignmentService } from '../interfaces';
 import { BookAuthorAssignment } from '../entities/book-author-assignment.entity';
 import { CreateBookAuthorAssignmentDto } from '../dto/create-book-author-assignment.dto';
 import { UpdateBookAuthorAssignmentDto } from '../dto/update-book-author-assignment.dto';

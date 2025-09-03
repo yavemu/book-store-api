@@ -5,3 +5,5 @@ export * from './assignment-simple-filter.dto';
 export * from './assignment-filters.dto';
 export * from './assignment-csv-export-filters.dto';
 export * from './book-author-assignment-response.dto';
+export * from './book-author-assignment-param.dto';
+export * from './book-author-assignment-query.dto';

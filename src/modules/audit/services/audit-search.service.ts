@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { IAuditSearchRepository } from '../interfaces/audit-search.repository.interface';
-import { IAuditSearchService } from '../interfaces/audit-search.service.interface';
+import { IAuditSearchRepository } from '../interfaces';
+import { IAuditSearchService } from '../interfaces';
 import { AuditLog } from '../entities/audit-log.entity';
 import { AuditAction } from '../enums/audit-action.enum';
 import {
@@ -100,6 +100,15 @@ export class AuditSearchService implements IAuditSearchService {
     pagination: PaginationDto,
   ): Promise<PaginatedResult<AuditLog>> {
     // Delegate to existing method
+    return await this.findWithFilters(filters, pagination);
+  }
+
+  // Interface compatibility methods
+  async searchLogs(searchTerm: string, pagination: PaginationDto): Promise<PaginatedResult<AuditLog>> {
+    return await this.searchAuditLogs(searchTerm, pagination);
+  }
+
+  async filterLogs(filters: any, pagination: PaginationDto): Promise<PaginatedResult<AuditLog>> {
     return await this.findWithFilters(filters, pagination);
   }
 }

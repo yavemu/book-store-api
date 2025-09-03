@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { SqlSanitizer } from '../../../common/utils/sql-sanitizer.util';
 import { BookAuthor } from '../entities/book-author.entity';
-import { IBookAuthorSearchRepository } from '../interfaces/book-author-search.repository.interface';
+import { IBookAuthorSearchRepository } from '../interfaces';
 import { BookAuthorFiltersDto } from '../dto/book-author-filters.dto';
 import { BookAuthorCsvExportFiltersDto } from '../dto/book-author-csv-export-filters.dto';
 import { BookAuthorExactSearchDto } from '../dto/book-author-exact-search.dto';
@@ -31,13 +31,13 @@ export class BookAuthorSearchRepository
     // El repositorio base ya tiene acceso a través del constructor
   }
 
-  async exactSearchAuthors(
+  async searchAuthorsExact(
     searchDto: BookAuthorExactSearchDto,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>> {
     try {
       const whereCondition: any = {};
-      
+
       // Build where condition based on provided fields
       if (searchDto.firstName) whereCondition.firstName = searchDto.firstName;
       if (searchDto.lastName) whereCondition.lastName = searchDto.lastName;
@@ -61,15 +61,18 @@ export class BookAuthorSearchRepository
     }
   }
 
-  async simpleFilterAuthors(
+  async filterAuthorsSimple(
     term: string,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>> {
     try {
       // Sanitizar parámetros de paginación
-      const sanitizedPagination = SqlSanitizer.sanitizePaginationParams(pagination.page, pagination.limit);
+      const sanitizedPagination = SqlSanitizer.sanitizePaginationParams(
+        pagination.page,
+        pagination.limit,
+      );
       const maxLimit = Math.min(sanitizedPagination.limit, 50);
-      
+
       // Si no se proporciona término de búsqueda, retornar error (ahora es obligatorio)
       if (!term || term.trim().length === 0) {
         throw new HttpException('Filter term is required', HttpStatus.BAD_REQUEST);
@@ -85,7 +88,10 @@ export class BookAuthorSearchRepository
       }
 
       // Sanitizar parámetros de ordenamiento
-      const { sortBy, sortOrder } = SqlSanitizer.sanitizeSortParams(pagination.sortBy, pagination.sortOrder);
+      const { sortBy, sortOrder } = SqlSanitizer.sanitizeSortParams(
+        pagination.sortBy,
+        pagination.sortOrder,
+      );
 
       // Use TypeORM QueryBuilder for efficient LIKE queries across all fields
       const queryBuilder = this.repository
@@ -93,11 +99,11 @@ export class BookAuthorSearchRepository
         .where('author.deletedAt IS NULL') // Soft delete filter
         .andWhere(
           '(LOWER(author.firstName) LIKE LOWER(:term) OR ' +
-          'LOWER(author.lastName) LIKE LOWER(:term) OR ' +
-          'LOWER(author.email) LIKE LOWER(:term) OR ' +
-          'LOWER(author.biography) LIKE LOWER(:term) OR ' +
-          'LOWER(author.nationality) LIKE LOWER(:term))',
-          { term: `%${sanitizedTerm}%` }
+            'LOWER(author.lastName) LIKE LOWER(:term) OR ' +
+            'LOWER(author.email) LIKE LOWER(:term) OR ' +
+            'LOWER(author.biography) LIKE LOWER(:term) OR ' +
+            'LOWER(author.nationality) LIKE LOWER(:term))',
+          { term: `%${sanitizedTerm}%` },
         );
 
       // Get total count for pagination metadata
@@ -131,7 +137,10 @@ export class BookAuthorSearchRepository
     }
   }
 
-  async findByName(name: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
+  async findAuthorsByName(
+    name: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthor>> {
     try {
       const trimmedName = name.trim().toLowerCase();
       const allAuthorsOptions: FindManyOptions<BookAuthor> = {
@@ -160,15 +169,21 @@ export class BookAuthorSearchRepository
     }
   }
 
-  async findWithFilters(
+  async findAuthorsWithFilters(
     filters: BookAuthorFiltersDto,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>> {
     try {
       // Sanitizar filtros
       const sanitizedFilters = SqlSanitizer.sanitizeFilters(filters);
-      const sanitizedPagination = SqlSanitizer.sanitizePaginationParams(pagination.page, pagination.limit);
-      const { sortBy, sortOrder } = SqlSanitizer.sanitizeSortParams(pagination.sortBy, pagination.sortOrder);
+      const sanitizedPagination = SqlSanitizer.sanitizePaginationParams(
+        pagination.page,
+        pagination.limit,
+      );
+      const { sortBy, sortOrder } = SqlSanitizer.sanitizeSortParams(
+        pagination.sortBy,
+        pagination.sortOrder,
+      );
 
       const whereConditions: any = {};
 
@@ -212,7 +227,7 @@ export class BookAuthorSearchRepository
     }
   }
 
-  async exportToCsv(filters: BookAuthorCsvExportFiltersDto): Promise<string> {
+  async exportAuthorsToCsv(filters: BookAuthorCsvExportFiltersDto): Promise<string> {
     try {
       const whereConditions: any = {};
 
@@ -262,26 +277,26 @@ export class BookAuthorSearchRepository
   }
 
   // Methods required by IBookAuthorSearchRepository interface
-  async searchByTerm(
+  async searchAuthorsByTerm(
     term: string,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>> {
-    return this.simpleFilterAuthors(term, pagination);
+    return this.filterAuthorsSimple(term, pagination);
   }
 
-  async findByNationality(
+  async findAuthorsByNationality(
     nationality: string,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>> {
-    return this.findWithFilters({ nationality }, pagination);
+    return this.findAuthorsWithFilters({ nationality }, pagination);
   }
 
-  async findByFullName(
+  async findAuthorsByFullName(
     firstName: string,
     lastName: string,
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>> {
-    return this.findWithFilters({ firstName, lastName }, pagination);
+    return this.findAuthorsWithFilters({ firstName, lastName }, pagination);
   }
 
   // Removed duplicate methods - using existing ones from earlier in file

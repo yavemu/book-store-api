@@ -10,12 +10,11 @@ import {
   Query,
   Inject,
   Res,
-  HttpCode,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { IBookGenreCrudService } from '../interfaces/book-genre-crud.service.interface';
-import { IBookGenreSearchService } from '../interfaces/book-genre-search.service.interface';
+import { IBookGenreCrudService } from '../interfaces';
+import { IBookGenreSearchService } from '../interfaces';
 import {
   CreateBookGenreDto,
   UpdateBookGenreDto,
@@ -24,6 +23,12 @@ import {
   BookGenreFiltersDto,
   BookGenreCsvExportFiltersDto,
 } from '../dto';
+import {
+  GetByIdParamDto,
+  UpdateByIdParamDto,
+  SoftDeleteParamDto,
+} from '../../../common/dto/operation-param.dto';
+import { FilterTermQueryDto } from '../../../common/dto/operation-query.dto';
 import { Auth } from '../../../common/decorators/auth.decorator';
 import { UserRole } from '../../../common/enums/user-role.enum';
 import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
@@ -52,74 +57,83 @@ export class BookGenresController {
   @Post()
   @Auth(UserRole.ADMIN)
   @ApiCreateBookGenre()
-  async create(@Body() createBookGenreDto: CreateBookGenreDto, @Request() req) {
+  async create(@Body() createBookGenreDto: CreateBookGenreDto, @Request() req): Promise<any> {
     return this.genreCrudService.create(createBookGenreDto, req.user.userId);
   }
 
   @Get()
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetGenres()
-  async findAll(@Query() pagination: PaginationInputDto) {
-    return this.genreCrudService.findAll(pagination);
+  async getAll(@Query() pagination: PaginationInputDto, @Request() req): Promise<any> {
+    return this.genreCrudService.findAll(pagination, req.user.userId);
   }
 
   @Post('search')
-  @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchGenres()
-  exactSearch(@Body() searchDto: BookGenreExactSearchDto, @Query() pagination: PaginationInputDto) {
-    return this.genreSearchService.exactSearch(searchDto);
+  async getBySearch(
+    @Body() searchDto: BookGenreExactSearchDto,
+    @Query() pagination: PaginationInputDto,
+    @Request() req,
+  ): Promise<any> {
+    return this.genreSearchService.exactSearch(searchDto, pagination, req.user.userId);
   }
 
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterGenres()
-  simpleFilter(@Query('term') term: string, @Query() pagination: PaginationInputDto) {
-    return this.genreSearchService.simpleFilter(term, pagination);
+  async getByFilterParam(
+    @Query() termQuery: FilterTermQueryDto,
+    @Query() pagination: PaginationInputDto,
+    @Request() req,
+  ): Promise<any> {
+    return this.genreSearchService.simpleFilter(termQuery.term, pagination, req.user.userId);
   }
 
   @Post('advanced-filter')
-  @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiAdvancedFilterGenres()
-  advancedFilter(@Body() filters: BookGenreFiltersDto, @Query() pagination: PaginationInputDto) {
-    return this.genreSearchService.findWithFilters(filters, pagination);
+  async getByAdvancedFilter(
+    @Body() filters: BookGenreFiltersDto,
+    @Query() pagination: PaginationInputDto,
+    @Request() req,
+  ): Promise<any> {
+    return this.genreSearchService.findWithFilters(filters, pagination, req.user.userId);
   }
 
   @Get('export/csv')
   @Auth(UserRole.ADMIN)
   @ApiExportGenresCsv()
-  async exportToCsv(@Query() filters: BookGenreCsvExportFiltersDto, @Res() res: Response) {
-    const csvData = await this.genreSearchService.exportToCsv(filters);
-    const filename = `book_genres_${new Date().toISOString().split('T')[0]}.csv`;
-
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.send(csvData);
+  async exportToCsv(
+    @Query() filters: BookGenreCsvExportFiltersDto,
+    @Res() res: Response,
+    @Request() req,
+  ): Promise<any> {
+    return this.genreSearchService.exportToCsv(filters, res, req.user.userId);
   }
 
   @Get(':id')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetGenreById()
-  async findOne(@Param('id') id: string) {
-    return this.genreCrudService.findById(id);
+  async getById(@Param() params: GetByIdParamDto, @Request() req): Promise<any> {
+    return this.genreCrudService.findById(params.id, req.user.userId);
   }
 
   @Put(':id')
   @Auth(UserRole.ADMIN)
   @ApiUpdateGenre()
   async update(
-    @Param('id') id: string,
+    @Param() params: UpdateByIdParamDto,
     @Body() updateBookGenreDto: UpdateBookGenreDto,
     @Request() req,
-  ) {
-    return this.genreCrudService.update(id, updateBookGenreDto, req.user.userId);
+  ): Promise<any> {
+    return this.genreCrudService.update(params.id, updateBookGenreDto, req.user.userId);
   }
 
   @Delete(':id')
   @Auth(UserRole.ADMIN)
   @ApiDeleteGenre()
-  async softDelete(@Param('id') id: string, @Request() req) {
-    return this.genreCrudService.softDelete(id, req.user.userId);
+  async remove(@Param() params: SoftDeleteParamDto, @Request() req): Promise<any> {
+    return this.genreCrudService.softDelete(params.id, req.user.userId);
   }
 }

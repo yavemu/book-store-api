@@ -1,11 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { IBookAuthorCrudRepository } from '../interfaces/book-author-crud.repository.interface';
-import { IBookAuthorSearchRepository } from '../interfaces/book-author-search.repository.interface';
-import { IBookAuthorValidationRepository } from '../interfaces/book-author-validation.repository.interface';
-import { IBookAuthorCrudService } from '../interfaces/book-author-crud.service.interface';
-import { IBookAuthorSearchService } from '../interfaces/book-author-search.service.interface';
-import { IValidationService } from '../interfaces/validation.service.interface';
-import { IErrorHandlerService } from '../interfaces/error-handler.service.interface';
+import { IBookAuthorCrudRepository } from '../interfaces';
+import { IBookAuthorSearchRepository } from '../interfaces';
+import { IBookAuthorValidationRepository } from '../interfaces';
+import { IBookAuthorCrudService } from '../interfaces';
+import { IBookAuthorSearchService } from '../interfaces';
+import { IValidationService } from '../interfaces';
+import { IErrorHandlerService } from '../interfaces';
 import { BookAuthor } from '../entities/book-author.entity';
 import { CreateBookAuthorDto } from '../dto/create-book-author.dto';
 import { UpdateBookAuthorDto } from '../dto/update-book-author.dto';
@@ -46,7 +46,7 @@ export class BookAuthorService implements IBookAuthorCrudService, IBookAuthorSea
         this.validationRepository,
       );
 
-      return await this.crudRepository.create(createBookAuthorDto, performedBy);
+      return await this.crudRepository.createAuthor({ createBookAuthorDto, performedBy });
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_CREATE);
     }
@@ -54,7 +54,7 @@ export class BookAuthorService implements IBookAuthorCrudService, IBookAuthorSea
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
     try {
-      return await this.crudRepository.findAll(pagination);
+      return await this.crudRepository.getAllAuthors({ pagination });
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_GET_ALL);
     }
@@ -62,7 +62,7 @@ export class BookAuthorService implements IBookAuthorCrudService, IBookAuthorSea
 
   async findById(id: string): Promise<BookAuthor> {
     try {
-      const author = await this.crudRepository.findById(id);
+      const author = await this.crudRepository.getAuthorById({ authorId: id });
       if (!author) {
         this.errorHandler.createNotFoundException(ERROR_MESSAGES.BOOK_AUTHORS.NOT_FOUND);
       }
@@ -78,7 +78,7 @@ export class BookAuthorService implements IBookAuthorCrudService, IBookAuthorSea
     performedBy: string,
   ): Promise<BookAuthor> {
     try {
-      const existingAuthor = await this.crudRepository.findById(id);
+      const existingAuthor = await this.crudRepository.getAuthorById({ authorId: id });
       if (!existingAuthor) {
         this.errorHandler.createNotFoundException(ERROR_MESSAGES.BOOK_AUTHORS.NOT_FOUND);
       }
@@ -103,15 +103,15 @@ export class BookAuthorService implements IBookAuthorCrudService, IBookAuthorSea
         this.validationRepository,
       );
 
-      return await this.crudRepository.update(id, updateBookAuthorDto, performedBy);
+      return await this.crudRepository.updateAuthor({ authorId: id, updateBookAuthorDto, performedBy });
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_UPDATE);
     }
   }
 
-  async softDelete(id: string, performedBy: string): Promise<void> {
+  async softDelete(id: string, performedBy: string): Promise<{ id: string }> {
     try {
-      await this.crudRepository.softDelete(id, performedBy);
+      return await this.crudRepository.deleteAuthor({ authorId: id, performedBy });
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_DELETE);
     }

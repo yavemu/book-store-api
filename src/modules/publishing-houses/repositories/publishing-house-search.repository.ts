@@ -6,9 +6,10 @@ import { PublishingHouseFiltersDto } from '../dto/publishing-house-filters.dto';
 import { PublishingHouseCsvExportFiltersDto } from '../dto/publishing-house-csv-export-filters.dto';
 import { PublishingHouseExactSearchDto } from '../dto/publishing-house-exact-search.dto';
 import { PublishingHouseSimpleFilterDto } from '../dto/publishing-house-simple-filter.dto';
-import { IPublishingHouseSearchRepository } from '../interfaces/publishing-house-search.repository.interface';
+import { IPublishingHouseSearchRepository } from '../interfaces';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import { BaseRepository } from '../../../common/repositories/base.repository';
+import { PUBLISHING_HOUSE_ERROR_MESSAGES } from '../enums/error-messages.enum';
 
 @Injectable()
 export class PublishingHouseSearchRepository
@@ -42,7 +43,7 @@ export class PublishingHouseSearchRepository
         throw error;
       }
       throw new HttpException(
-        'Failed to search publishing houses',
+        PUBLISHING_HOUSE_ERROR_MESSAGES.FAILED_TO_SEARCH,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -54,7 +55,7 @@ export class PublishingHouseSearchRepository
   ): Promise<PaginatedResult<PublishingHouse>> {
     try {
       const maxLimit = Math.min(pagination.limit || 10, 50);
-      
+
       // If no search term provided, return all publishing houses with pagination
       if (!term || term.trim().length === 0) {
         const options: FindManyOptions<PublishingHouse> = {
@@ -80,10 +81,10 @@ export class PublishingHouseSearchRepository
         .where('publisher.deletedAt IS NULL') // Soft delete filter
         .andWhere(
           '(LOWER(publisher.name) LIKE LOWER(:term) OR ' +
-          'LOWER(publisher.country) LIKE LOWER(:term) OR ' +
-          'LOWER(publisher.websiteUrl) LIKE LOWER(:term) OR ' +
-          'LOWER(publisher.contactEmail) LIKE LOWER(:term))',
-          { term: `%${trimmedTerm}%` }
+            'LOWER(publisher.country) LIKE LOWER(:term) OR ' +
+            'LOWER(publisher.websiteUrl) LIKE LOWER(:term) OR ' +
+            'LOWER(publisher.contactEmail) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` },
         );
 
       // Get total count for pagination metadata
@@ -113,7 +114,10 @@ export class PublishingHouseSearchRepository
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException('Failed to perform simple filter', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        PUBLISHING_HOUSE_ERROR_MESSAGES.FAILED_TO_SIMPLE_FILTER,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -124,7 +128,7 @@ export class PublishingHouseSearchRepository
       });
     } catch (error) {
       throw new HttpException(
-        'Failed to check publisher name existence',
+        PUBLISHING_HOUSE_ERROR_MESSAGES.FAILED_TO_SEARCH,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -163,7 +167,7 @@ export class PublishingHouseSearchRepository
       return await this._findManyWithPagination(options, pagination);
     } catch (error) {
       throw new HttpException(
-        'Failed to filter publishing houses',
+        PUBLISHING_HOUSE_ERROR_MESSAGES.FAILED_TO_FILTER,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -201,7 +205,7 @@ export class PublishingHouseSearchRepository
       return csvHeaders + csvRows;
     } catch (error) {
       throw new HttpException(
-        'Failed to export publishing houses to CSV',
+        PUBLISHING_HOUSE_ERROR_MESSAGES.FAILED_TO_EXPORT_CSV,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

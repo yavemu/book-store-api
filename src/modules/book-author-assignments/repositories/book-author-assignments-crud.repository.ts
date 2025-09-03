@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BookAuthorAssignment } from '../entities/book-author-assignment.entity';
-import { IBookAuthorAssignmentCrudRepository } from '../interfaces/book-author-assignment-crud.repository.interface';
+import { IBookAuthorAssignmentCrudRepository } from '../interfaces';
+import { IBaseRepository } from '../interfaces';
 import { CreateBookAuthorAssignmentDto } from '../dto/create-book-author-assignment.dto';
 import { UpdateBookAuthorAssignmentDto } from '../dto/update-book-author-assignment.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
@@ -11,7 +12,7 @@ import { BaseRepository } from '../../../common/repositories/base.repository';
 @Injectable()
 export class BookAuthorAssignmentCrudRepository
   extends BaseRepository<BookAuthorAssignment>
-  implements IBookAuthorAssignmentCrudRepository
+  implements Omit<IBookAuthorAssignmentCrudRepository, keyof IBaseRepository<BookAuthorAssignment>>
 {
   constructor(
     @InjectRepository(BookAuthorAssignment)
@@ -78,5 +79,22 @@ export class BookAuthorAssignmentCrudRepository
         `Assignment deleted: Book ${assignment.bookId} - Author ${assignment.authorId}`,
     );
     return { id: assignmentId };
+  }
+
+  async checkAssignmentExists(
+    bookId: string,
+    authorId: string,
+    excludeId?: string,
+  ): Promise<boolean> {
+    const result = await this._findByFields(
+      {
+        bookId,
+        authorId,
+      },
+      {
+        excludeId,
+      },
+    );
+    return result !== null;
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { IBookGenreSearchService } from '../interfaces/book-genre-search.service.interface';
-import { IBookGenreSearchRepository } from '../interfaces/book-genre-search.repository.interface';
+import { IBookGenreSearchService } from '../interfaces';
+import { IBookGenreSearchRepository } from '../interfaces';
 import { BookGenre } from '../entities/book-genre.entity';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import { BookGenreFiltersDto } from '../dto/book-genre-filters.dto';

@@ -93,5 +93,6 @@ export const SUCCESS_MESSAGES = {
     EXPORT_SUCCESS: 'Datos exportados exitosamente',
     SEARCH_SUCCESS: 'Búsqueda realizada exitosamente',
     FILTER_SUCCESS: 'Filtrado realizado exitosamente',
+    RESOURCE_CREATED: 'Recurso creado exitosamente',
   },
 };

@@ -3,11 +3,11 @@ import { BookAuthorAssignment } from '../entities/book-author-assignment.entity'
 import { CreateBookAuthorAssignmentDto } from '../dto/create-book-author-assignment.dto';
 import { UpdateBookAuthorAssignmentDto } from '../dto/update-book-author-assignment.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
-import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
-import { IBookAuthorAssignmentCrudService } from '../interfaces/book-author-assignment-crud.service.interface';
-import { IBookAuthorAssignmentCrudRepository } from '../interfaces/book-author-assignment-crud.repository.interface';
-import { IValidationService } from '../interfaces/validation.service.interface';
-import { IErrorHandlerService } from '../interfaces/error-handler.service.interface';
+import { PaginatedResult } from '../interfaces';
+import { IBookAuthorAssignmentCrudService } from '../interfaces';
+import { IBookAuthorAssignmentCrudRepository } from '../interfaces';
+import { IValidationService } from '../interfaces';
+import { IErrorHandlerService } from '../interfaces';
 import { ERROR_MESSAGES } from '../../../common/constants/error-messages';
 
 const UNIQUE_CONSTRAINTS = [

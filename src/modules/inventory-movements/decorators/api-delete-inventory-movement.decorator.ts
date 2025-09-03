@@ -10,7 +10,11 @@ import {
   ApiForbiddenResponse,
 } from '@nestjs/swagger';
 import { DeleteInventoryMovementResponseDto } from '../dto/inventory-movement-response.dto';
-import { UnauthorizedResponseDto, NotFoundResponseDto, ForbiddenResponseDto } from '../../../common/dto';
+import {
+  UnauthorizedResponseDto,
+  NotFoundResponseDto,
+  ForbiddenResponseDto,
+} from '../../../common/dto';
 
 export function ApiDeleteInventoryMovement() {
   return applyDecorators(

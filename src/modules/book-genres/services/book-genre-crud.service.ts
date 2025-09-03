@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { IBookGenreCrudService } from '../interfaces/book-genre-crud.service.interface';
-import { IBookGenreCrudRepository } from '../interfaces/book-genre-crud.repository.interface';
+import { IBookGenreCrudService } from '../interfaces';
+import { IBookGenreCrudRepository } from '../interfaces';
 import { BookGenre } from '../entities/book-genre.entity';
 import { CreateBookGenreDto } from '../dto/create-book-genre.dto';
 import { UpdateBookGenreDto } from '../dto/update-book-genre.dto';

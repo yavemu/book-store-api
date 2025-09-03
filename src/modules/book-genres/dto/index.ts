@@ -6,3 +6,5 @@ export * from './book-genre-filters.dto';
 export * from './book-genre-csv-export-filters.dto';
 export * from './book-genre-search.dto';
 export * from './book-genre-response.dto';
+export * from './book-genre-param.dto';
+export * from './book-genre-query.dto';

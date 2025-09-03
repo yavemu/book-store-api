@@ -5,3 +5,5 @@ export * from './movement-advanced-filters.dto';
 export * from './movement-csv-export.dto';
 export * from './inventory-movement-exact-search.dto';
 export * from './inventory-movement-simple-filter.dto';
+export * from './inventory-movement-param.dto';
+export * from './inventory-movement-query.dto';

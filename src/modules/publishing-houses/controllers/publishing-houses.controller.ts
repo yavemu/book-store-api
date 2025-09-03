@@ -10,12 +10,11 @@ import {
   Inject,
   Request,
   Res,
-  HttpCode,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { IPublishingHouseService } from '../interfaces/publishing-house.service.interface';
-import { IPublishingHouseSearchService } from '../interfaces/publishing-house-search.service.interface';
+import { IPublishingHouseService } from '../interfaces';
+import { IPublishingHouseSearchService } from '../interfaces';
 import {
   CreatePublishingHouseDto,
   UpdatePublishingHouseDto,
@@ -24,6 +23,12 @@ import {
   PublishingHouseExactSearchDto,
   PublishingHouseSimpleFilterDto,
 } from '../dto';
+import {
+  GetByIdParamDto,
+  UpdateByIdParamDto,
+  SoftDeleteParamDto,
+} from '../../../common/dto/operation-param.dto';
+import { FilterTermQueryDto } from '../../../common/dto/operation-query.dto';
 import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
 import { PublishingHouse } from '../entities/publishing-house.entity';
 import { Auth } from '../../../common/decorators/auth.decorator';
@@ -53,83 +58,90 @@ export class PublishingHousesController {
   @Post()
   @Auth(UserRole.ADMIN)
   @ApiCreatePublishingHouse()
-  create(@Body() createPublishingHouseDto: CreatePublishingHouseDto, @Request() req: any) {
-    return this.publishingHouseService.create(createPublishingHouseDto, req.user.id);
+  async create(
+    @Body() createPublishingHouseDto: CreatePublishingHouseDto,
+    @Request() req: any,
+  ): Promise<any> {
+    return this.publishingHouseService.create(createPublishingHouseDto, req.user.userId);
   }
 
   @Get()
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetPublishingHouses()
-  findAll(@Query() pagination: PaginationInputDto) {
-    return this.publishingHouseService.findAll(pagination);
+  async getAll(@Query() pagination: PaginationInputDto, @Request() req: any): Promise<any> {
+    return this.publishingHouseService.findAll(pagination, req.user.userId);
   }
 
   @Post('search')
-  @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchPublishingHouses()
-  exactSearch(@Body() searchDto: PublishingHouseExactSearchDto, @Query() pagination: PaginationInputDto) {
-    return this.publishingHouseSearchService.exactSearch(searchDto);
+  async getBySearch(
+    @Body() searchDto: PublishingHouseExactSearchDto,
+    @Query() pagination: PaginationInputDto,
+    @Request() req: any,
+  ): Promise<any> {
+    return this.publishingHouseSearchService.exactSearch(searchDto, pagination, req.user.userId);
   }
 
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSimpleFilterPublishingHouses()
-  simpleFilter(@Query('term') term: string, @Query() pagination: PaginationInputDto) {
-    return this.publishingHouseSearchService.simpleFilter(term, pagination);
+  async getByFilterParam(
+    @Query() termQuery: FilterTermQueryDto,
+    @Query() pagination: PaginationInputDto,
+    @Request() req: any,
+  ): Promise<any> {
+    return this.publishingHouseSearchService.simpleFilter(
+      termQuery.term,
+      pagination,
+      req.user.userId,
+    );
   }
 
   @Post('advanced-filter')
-  @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterPublishingHouses()
-  advancedFilter(@Body() filters: PublishingHouseFiltersDto, @Query() pagination: PaginationInputDto) {
-    return this.publishingHouseSearchService.findWithFilters(filters, pagination);
+  async getByAdvancedFilter(
+    @Body() filters: PublishingHouseFiltersDto,
+    @Query() pagination: PaginationInputDto,
+    @Request() req: any,
+  ): Promise<any> {
+    return this.publishingHouseSearchService.findWithFilters(filters, pagination, req.user.userId);
   }
 
   @Get('export/csv')
   @Auth(UserRole.ADMIN)
   @ApiExportPublishingHousesCsv()
-  async exportToCsv(@Query() filters: PublishingHouseCsvExportFiltersDto, @Res() res: Response) {
-    const csvData = await this.publishingHouseSearchService.exportToCsv(filters);
-    const filename = `publishing_houses_${new Date().toISOString().split('T')[0]}.csv`;
-
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.send(csvData);
+  async exportToCsv(
+    @Query() filters: PublishingHouseCsvExportFiltersDto,
+    @Res() res: Response,
+    @Request() req: any,
+  ): Promise<any> {
+    return this.publishingHouseSearchService.exportToCsv(filters, res, req.user.userId);
   }
 
   @Get(':id')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetPublishingHouseById()
-  findOne(@Param('id') id: string) {
-    return this.publishingHouseService.findById(id);
+  async getById(@Param() params: GetByIdParamDto, @Request() req: any): Promise<any> {
+    return this.publishingHouseService.findById(params.id, req.user.userId);
   }
 
   @Put(':id')
   @Auth(UserRole.ADMIN)
   @ApiUpdatePublishingHouse()
-  update(
-    @Param('id') id: string,
+  async update(
+    @Param() params: UpdateByIdParamDto,
     @Body() updatePublishingHouseDto: UpdatePublishingHouseDto,
     @Request() req: any,
-  ) {
-    return this.publishingHouseService.update(id, updatePublishingHouseDto, req.user.id);
+  ): Promise<any> {
+    return this.publishingHouseService.update(params.id, updatePublishingHouseDto, req.user.userId);
   }
 
   @Delete(':id')
   @Auth(UserRole.ADMIN)
   @ApiDeletePublishingHouse()
-  remove(@Param('id') id: string, @Request() req: any) {
-    return this.publishingHouseService.softDelete(id, req.user.id);
-  }
-
-  // Legacy method names for backward compatibility with tests
-  async search(searchTerm: any, pagination: PaginationInputDto) {
-    return this.exactSearch(searchTerm, pagination);
-  }
-
-  async filter(filters: any, pagination: PaginationInputDto) {
-    return this.simpleFilter(filters.term || '', pagination);
+  async remove(@Param() params: SoftDeleteParamDto, @Request() req: any): Promise<any> {
+    return this.publishingHouseService.softDelete(params.id, req.user.userId);
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Inject } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { IAuditLoggerService } from '../../modules/audit/interfaces/audit-logger.service.interface';
+import { IAuditLoggerService } from '../interfaces';
 import { AuditAction } from '../../modules/audit/enums/audit-action.enum';
 
 @Injectable()

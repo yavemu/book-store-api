@@ -6,3 +6,8 @@ export * from './bad-request-response.dto';
 export * from './conflict-response.dto';
 export * from './forbidden-response.dto';
 export * from './not-found-response.dto';
+export * from './paginated-response.dto';
+export * from './param.dto';
+export * from './query.dto';
+export * from './operation-param.dto';
+export { FilterTermQueryDto } from './operation-query.dto';

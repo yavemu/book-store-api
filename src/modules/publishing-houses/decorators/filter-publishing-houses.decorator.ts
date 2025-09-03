@@ -3,10 +3,17 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBody,
+  ApiQuery,
   ApiUnauthorizedResponse,
+  ApiForbiddenResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { PublishingHouseFiltersDto } from '../dto';
+import { PublishingHouseFiltersDto, PublishingHouseListResponseDto } from '../dto';
+import {
+  PaginationInputDto,
+  UnauthorizedResponseDto,
+  ForbiddenResponseDto,
+} from '../../../common/dto';
 
 export function ApiFilterPublishingHouses() {
   return applyDecorators(
@@ -20,52 +27,19 @@ export function ApiFilterPublishingHouses() {
       type: PublishingHouseFiltersDto,
       description: 'Criterios de filtrado para las casas editoriales',
     }),
+    ApiQuery({ type: PaginationInputDto }),
     ApiResponse({
       status: 200,
       description: 'Casas editoriales filtradas obtenidas exitosamente',
-      schema: {
-        type: 'object',
-        properties: {
-          data: {
-            type: 'object',
-            properties: {
-              data: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    id: { type: 'string', format: 'uuid' },
-                    name: { type: 'string' },
-                    country: { type: 'string' },
-                    foundedYear: { type: 'number' },
-                    websiteUrl: { type: 'string' },
-                    description: { type: 'string' },
-                    isActive: { type: 'boolean' },
-                    createdAt: { type: 'string', format: 'date-time' },
-                    updatedAt: { type: 'string', format: 'date-time' },
-                  },
-                },
-              },
-              meta: {
-                type: 'object',
-                properties: {
-                  total: { type: 'number' },
-                  page: { type: 'number' },
-                  limit: { type: 'number' },
-                  totalPages: { type: 'number' },
-                  hasNext: { type: 'boolean' },
-                  hasPrev: { type: 'boolean' },
-                },
-              },
-            },
-          },
-          message: { type: 'string' },
-        },
-      },
+      type: PublishingHouseListResponseDto,
     }),
     ApiUnauthorizedResponse({
       description: 'No autorizado - Token JWT inválido o faltante',
+      type: UnauthorizedResponseDto,
     }),
-    ApiBearerAuth(),
+    ApiForbiddenResponse({
+      description: 'Acceso denegado - Se requieren permisos válidos',
+      type: ForbiddenResponseDto,
+    }),
   );
 }

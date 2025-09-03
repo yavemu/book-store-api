@@ -3,11 +3,11 @@ import { Role } from '../entities/role.entity';
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
-import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
-import { IRoleCrudService } from '../interfaces/role-crud.service.interface';
-import { IRoleCrudRepository } from '../interfaces/role-crud.repository.interface';
-import { IValidationService } from '../interfaces/validation.service.interface';
-import { IErrorHandlerService } from '../interfaces/error-handler.service.interface';
+import { PaginatedResult } from '../interfaces';
+import { IRoleCrudService } from '../interfaces';
+import { IRoleCrudRepository } from '../interfaces';
+import { IValidationService } from '../interfaces';
+import { IErrorHandlerService } from '../interfaces';
 import { ERROR_MESSAGES } from '../../../common/constants/error-messages';
 
 const UNIQUE_CONSTRAINTS = [

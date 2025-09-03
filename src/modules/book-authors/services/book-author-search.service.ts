@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { IBookAuthorSearchRepository } from '../interfaces/book-author-search.repository.interface';
-import { IBookAuthorSearchService } from '../interfaces/book-author-search.service.interface';
-import { IErrorHandlerService } from '../interfaces/error-handler.service.interface';
+import { IBookAuthorSearchRepository } from '../interfaces';
+import { IBookAuthorSearchService } from '../interfaces';
+import { IErrorHandlerService } from '../interfaces';
 import { BookAuthor } from '../entities/book-author.entity';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import {
@@ -26,7 +26,7 @@ export class BookAuthorSearchService implements IBookAuthorSearchService {
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>> {
     try {
-      return await this.searchRepository.searchByTerm(searchTerm, pagination);
+      return await this.searchRepository.searchAuthorsByTerm(searchTerm, pagination);
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_GET_ALL);
     }
@@ -38,7 +38,7 @@ export class BookAuthorSearchService implements IBookAuthorSearchService {
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>> {
     try {
-      return await this.searchRepository.findByFullName(firstName, lastName, pagination);
+      return await this.searchRepository.findAuthorsByFullName(firstName, lastName, pagination);
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.NOT_FOUND);
     }
@@ -49,32 +49,40 @@ export class BookAuthorSearchService implements IBookAuthorSearchService {
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>> {
     try {
-      return await this.searchRepository.findWithFilters(filters, pagination);
+      return await this.searchRepository.findAuthorsWithFilters(filters, pagination);
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_GET_ALL);
     }
   }
 
-  async exportToCsv(filters?: BookAuthorCsvExportFiltersDto): Promise<string> {
+  async exportToCsv(filters?: BookAuthorCsvExportFiltersDto, res?: any, userId?: string): Promise<string> {
     try {
-      return await this.searchRepository.exportToCsv(filters);
+      return await this.searchRepository.exportAuthorsToCsv(filters);
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_GET_ALL);
     }
   }
 
   // Standardized search methods (following book-catalog pattern)
-  async exactSearch(searchDto: BookAuthorExactSearchDto, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
+  async exactSearch(
+    searchDto: BookAuthorExactSearchDto,
+    pagination: PaginationDto,
+    userId?: string,
+  ): Promise<PaginatedResult<BookAuthor>> {
     try {
-      return await this.searchRepository.exactSearchAuthors(searchDto, pagination);
+      return await this.searchRepository.searchAuthorsExact(searchDto, pagination);
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_GET_ALL);
     }
   }
 
-  async simpleFilter(term: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
+  async simpleFilter(
+    term: string,
+    pagination: PaginationDto,
+    userId?: string,
+  ): Promise<PaginatedResult<BookAuthor>> {
     try {
-      return await this.searchRepository.simpleFilterAuthors(term, pagination);
+      return await this.searchRepository.filterAuthorsSimple(term, pagination);
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_GET_ALL);
     }
@@ -83,6 +91,7 @@ export class BookAuthorSearchService implements IBookAuthorSearchService {
   async advancedFilter(
     filters: BookAuthorFiltersDto,
     pagination: PaginationDto,
+    userId?: string,
   ): Promise<PaginatedResult<BookAuthor>> {
     // Delegate to existing method
     return await this.findWithFilters(filters, pagination);

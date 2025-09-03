@@ -1,9 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { IAuditLoggerRepository } from '../interfaces/audit-logger.repository.interface';
+import { IAuditLoggerRepository } from '../interfaces';
 import {
   IAuditLoggerService,
   EnhancedAuditData,
-} from '../interfaces/audit-logger.service.interface';
+} from '../interfaces';
 import { AuditLog } from '../entities/audit-log.entity';
 import { AuditAction } from '../enums/audit-action.enum';
 

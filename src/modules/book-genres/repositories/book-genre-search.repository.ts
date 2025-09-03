@@ -9,7 +9,7 @@ import {
   Between,
 } from 'typeorm';
 import { BookGenre } from '../entities/book-genre.entity';
-import { IBookGenreSearchRepository } from '../interfaces/book-genre-search.repository.interface';
+import { IBookGenreSearchRepository } from '../interfaces';
 import { BookGenreFiltersDto } from '../dto/book-genre-filters.dto';
 import { BookGenreCsvExportFiltersDto } from '../dto/book-genre-csv-export-filters.dto';
 import { BookGenreExactSearchDto } from '../dto/book-genre-exact-search.dto';
@@ -56,7 +56,7 @@ export class BookGenreSearchRepository
   ): Promise<PaginatedResult<BookGenre>> {
     try {
       const maxLimit = Math.min(pagination.limit || 10, 50);
-      
+
       // If no search term provided, return all genres with pagination
       if (!term || term.trim().length === 0) {
         const options: FindManyOptions<BookGenre> = {
@@ -82,8 +82,8 @@ export class BookGenreSearchRepository
         .where('genre.deletedAt IS NULL') // Soft delete filter
         .andWhere(
           '(LOWER(genre.name) LIKE LOWER(:term) OR ' +
-          'LOWER(genre.description) LIKE LOWER(:term))',
-          { term: `%${trimmedTerm}%` }
+            'LOWER(genre.description) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` },
         );
 
       // Get total count for pagination metadata

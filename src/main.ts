@@ -42,8 +42,8 @@ async function bootstrap() {
 
   // Swagger configuration
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Store API Documentation')
-    .setDescription('Store API is a simple API that allows you to manage books.')
+    .setTitle('Book Store API Documentation')
+    .setDescription('Book Store API is a simple API that allows you to manage books.')
     .setVersion('1.0')
     .addBearerAuth(
       {

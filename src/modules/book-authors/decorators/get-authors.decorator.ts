@@ -3,11 +3,16 @@ import {
   ApiOperation,
   ApiResponse,
   ApiQuery,
-  ApiExtraModels,
   ApiBearerAuth,
+  ApiUnauthorizedResponse,
+  ApiForbiddenResponse,
 } from '@nestjs/swagger';
 import { BookAuthorListResponseDto } from '../dto';
-import { PaginationDto } from '../../../common/dto/pagination.dto';
+import {
+  PaginationInputDto,
+  UnauthorizedResponseDto,
+  ForbiddenResponseDto,
+} from '../../../common/dto';
 
 export function ApiGetAuthors() {
   return applyDecorators(
@@ -17,24 +22,19 @@ export function ApiGetAuthors() {
       description:
         'Obtiene una lista paginada de todos los autores registrados con filtros opcionales. Endpoint público.',
     }),
-    ApiQuery({
-      name: 'search',
-      required: false,
-      type: String,
-      description: 'Término de búsqueda para filtrar por nombre o apellido',
-    }),
-    ApiQuery({
-      name: 'nationality',
-      required: false,
-      type: String,
-      description: 'Nacionalidad para filtrar autores',
-    }),
-    ApiExtraModels(PaginationDto),
+    ApiQuery({ type: PaginationInputDto }),
     ApiResponse({
       status: 200,
       description: 'Lista de autores obtenida exitosamente',
       type: BookAuthorListResponseDto,
     }),
-    ApiBearerAuth(),
+    ApiUnauthorizedResponse({
+      description: 'No autorizado - Token JWT inválido o faltante',
+      type: UnauthorizedResponseDto,
+    }),
+    ApiForbiddenResponse({
+      description: 'Acceso denegado - Se requieren permisos válidos',
+      type: ForbiddenResponseDto,
+    }),
   );
 }

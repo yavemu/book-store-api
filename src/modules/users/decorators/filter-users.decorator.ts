@@ -8,8 +8,12 @@ import {
   ApiForbiddenResponse,
   ApiBody,
 } from '@nestjs/swagger';
-import { UnauthorizedResponseDto, ForbiddenResponseDto } from '../../../common/dto';
-import { UserRole } from '../../../common/enums/user-role.enum';
+import { UserFiltersDto, UserListResponseDto } from '../dto';
+import {
+  PaginationInputDto,
+  UnauthorizedResponseDto,
+  ForbiddenResponseDto,
+} from '../../../common/dto';
 
 export function ApiFilterUsers() {
   return applyDecorators(
@@ -19,59 +23,19 @@ export function ApiFilterUsers() {
       description:
         'Filtro avanzado de usuarios con múltiples criterios y paginación. ACCESO: Solo administradores.',
     }),
-    ApiBearerAuth(),
-    ApiBody({
-      description: 'Criterios avanzados para filtrar usuarios',
-      schema: {
-        type: 'object',
-        properties: {
-          name: { type: 'string', example: 'Juan Pérez' },
-          email: { type: 'string', example: 'juan.perez@example.com' },
-          role: { type: 'string', enum: Object.values(UserRole), example: UserRole.USER },
-          isActive: { type: 'boolean', example: true },
-          createdAfter: { type: 'string', format: 'date-time', example: '2024-01-01T00:00:00Z' },
-          createdBefore: { type: 'string', format: 'date-time', example: '2024-12-31T23:59:59Z' },
-        },
-      },
-    }),
-    ApiQuery({
-      name: 'page',
-      description: 'Número de página',
-      required: false,
-      type: Number,
-      example: 1,
-    }),
-    ApiQuery({
-      name: 'limit',
-      description: 'Elementos por página',
-      required: false,
-      type: Number,
-      example: 10,
-    }),
-    ApiQuery({
-      name: 'sortBy',
-      description: 'Campo para ordenar',
-      required: false,
-      type: String,
-      example: 'createdAt',
-    }),
-    ApiQuery({
-      name: 'sortOrder',
-      description: 'Orden de clasificación',
-      required: false,
-      enum: ['ASC', 'DESC'],
-      example: 'DESC',
-    }),
+    ApiBody({ type: UserFiltersDto }),
+    ApiQuery({ type: PaginationInputDto }),
     ApiResponse({
       status: 200,
       description: 'Usuarios filtrados con metadata de paginación',
+      type: UserListResponseDto,
     }),
     ApiUnauthorizedResponse({
-      description: 'No autorizado - Token JWT requerido',
+      description: 'No autorizado - Token JWT inválido o faltante',
       type: UnauthorizedResponseDto,
     }),
     ApiForbiddenResponse({
-      description: 'Prohibido - Solo administradores pueden usar filtros avanzados',
+      description: 'Acceso denegado - Se requieren permisos válidos',
       type: ForbiddenResponseDto,
     }),
   );

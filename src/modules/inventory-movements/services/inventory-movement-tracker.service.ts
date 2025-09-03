@@ -6,7 +6,7 @@ import { MovementStatus } from '../enums/movement-status.enum';
 import {
   IInventoryMovementTrackerService,
   MovementTrackingData,
-} from '../interfaces/inventory-movement-tracker.service.interface';
+} from '../interfaces';
 
 @Injectable()
 export class InventoryMovementTrackerService implements IInventoryMovementTrackerService {

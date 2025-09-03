@@ -1,8 +1,8 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { promises as fs } from 'fs';
 import { join, extname } from 'path';
-import { IFileUploadService } from '../interfaces/file-upload.service.interface';
-import { IImageValidationService } from '../interfaces/image-validation.service.interface';
+import { IFileUploadService } from '../interfaces';
+import { IImageValidationService } from '../interfaces';
 
 @Injectable()
 export class FileUploadService implements IFileUploadService {

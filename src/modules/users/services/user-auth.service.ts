@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { IUserAuthService } from '../interfaces/user-auth.service.interface';
-import { IAuditLoggerService } from '../../audit/interfaces/audit-logger.service.interface';
+import { IUserAuthService } from '../interfaces';
+import { IAuditLoggerService } from '../../audit/interfaces';
 import { AuditAction } from '../../audit/enums/audit-action.enum';
 
 @Injectable()

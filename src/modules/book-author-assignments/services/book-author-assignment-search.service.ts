@@ -1,9 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { BookAuthorAssignment } from '../entities/book-author-assignment.entity';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
-import { IBookAuthorAssignmentSearchService } from '../interfaces/book-author-assignment-search.service.interface';
-import { IBookAuthorAssignmentSearchRepository } from '../interfaces/book-author-assignment-search.repository.interface';
-import { IErrorHandlerService } from '../interfaces/error-handler.service.interface';
+import { IBookAuthorAssignmentSearchService } from '../interfaces';
+import { IBookAuthorAssignmentSearchRepository } from '../interfaces';
+import { IErrorHandlerService } from '../interfaces';
 import { ERROR_MESSAGES } from '../../../common/constants/error-messages';
 import { AssignmentFiltersDto } from '../dto/assignment-filters.dto';
 import { AssignmentCsvExportFiltersDto } from '../dto/assignment-csv-export-filters.dto';
@@ -21,6 +21,8 @@ export class BookAuthorAssignmentSearchService implements IBookAuthorAssignmentS
 
   async exactSearch(
     searchDto: AssignmentExactSearchDto,
+    pagination?: PaginationDto,
+    userId?: string,
   ): Promise<PaginatedResult<BookAuthorAssignment>> {
     try {
       return await this.searchRepository.exactSearchAssignments(searchDto);
@@ -35,6 +37,7 @@ export class BookAuthorAssignmentSearchService implements IBookAuthorAssignmentS
   async simpleFilter(
     term: string,
     pagination: PaginationDto,
+    userId?: string,
   ): Promise<PaginatedResult<BookAuthorAssignment>> {
     try {
       return await this.searchRepository.simpleFilterAssignments(term, pagination);
@@ -49,6 +52,7 @@ export class BookAuthorAssignmentSearchService implements IBookAuthorAssignmentS
   async advancedFilter(
     filters: AssignmentFiltersDto,
     pagination: PaginationDto,
+    userId?: string,
   ): Promise<PaginatedResult<BookAuthorAssignment>> {
     try {
       return await this.searchRepository.findWithFilters(filters, pagination);
@@ -60,7 +64,7 @@ export class BookAuthorAssignmentSearchService implements IBookAuthorAssignmentS
     }
   }
 
-  async exportToCsv(filters: AssignmentCsvExportFiltersDto): Promise<string> {
+  async exportToCsv(filters: AssignmentCsvExportFiltersDto, res?: any, userId?: string): Promise<string> {
     try {
       return await this.searchRepository.exportToCsv(filters);
     } catch (error) {

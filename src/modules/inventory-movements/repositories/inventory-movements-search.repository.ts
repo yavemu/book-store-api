@@ -9,7 +9,7 @@ import {
   LessThanOrEqual,
 } from 'typeorm';
 import { InventoryMovement } from '../entities/inventory-movement.entity';
-import { IInventoryMovementSearchRepository } from '../interfaces/inventory-movement-search.repository.interface';
+import { IInventoryMovementSearchRepository } from '../interfaces';
 import { MovementFiltersDto } from '../dto/movement-filters.dto';
 import { MovementAdvancedFiltersDto } from '../dto/movement-advanced-filters.dto';
 import { InventoryMovementExactSearchDto } from '../dto/inventory-movement-exact-search.dto';

@@ -7,7 +7,7 @@ import { BookAuthorSearchService } from './services/book-author-search.service';
 import { ValidationService } from './services/validation.service';
 import { ErrorHandlerService } from './services/error-handler.service';
 import { UserContextService } from './services/user-context.service';
-import { BookAuthorRepository } from './repositories/book-author.repository';
+import { BookAuthorCrudRepository } from './repositories/book-authors-crud.repository';
 import { AuditModule } from '../audit/audit.module';
 
 @Module({
@@ -20,7 +20,7 @@ import { AuditModule } from '../audit/audit.module';
     ValidationService,
     ErrorHandlerService,
     UserContextService,
-    BookAuthorRepository,
+    BookAuthorCrudRepository,
 
     // Interface Providers
     {
@@ -45,17 +45,17 @@ import { AuditModule } from '../audit/audit.module';
     },
     {
       provide: 'IBookAuthorCrudRepository',
-      useClass: BookAuthorRepository,
+      useClass: BookAuthorCrudRepository,
     },
     {
       provide: 'IBookAuthorSearchRepository',
-      useClass: BookAuthorRepository,
+      useClass: BookAuthorCrudRepository,
     },
     {
       provide: 'IBookAuthorValidationRepository',
-      useClass: BookAuthorRepository,
+      useClass: BookAuthorCrudRepository,
     },
   ],
-  exports: [TypeOrmModule, BookAuthorCrudService, BookAuthorSearchService, BookAuthorRepository],
+  exports: [TypeOrmModule, BookAuthorCrudService, BookAuthorSearchService, BookAuthorCrudRepository],
 })
 export class BookAuthorsModule {}
