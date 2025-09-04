@@ -6,7 +6,7 @@ import {
   ApiBadRequestResponse,
   ApiBody,
 } from '@nestjs/swagger';
-import { LoginDto, LoginResponseDto } from '../dto';
+import { LoginDto, LoginSwaggerResponseDto } from '../dto';
 import { BadRequestResponseDto, UnauthorizedResponseDto } from '../../../common/dto';
 
 export function ApiLogin() {
@@ -22,7 +22,7 @@ export function ApiLogin() {
     ApiResponse({
       status: 200,
       description: 'Inicio de sesión exitoso',
-      type: LoginResponseDto,
+      type: LoginSwaggerResponseDto,
     }),
     ApiUnauthorizedResponse({
       description: 'Credenciales inválidas - Email no registrado o contraseña incorrecta',

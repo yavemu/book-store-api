@@ -28,7 +28,7 @@ export class UserProfileDto {
   role: string;
 }
 
-export class LoginResponseDto {
+export class LoginDataDto {
   @ApiProperty({
     description: 'Token JWT para autenticación',
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
@@ -42,13 +42,21 @@ export class LoginResponseDto {
   user: UserProfileDto;
 }
 
-export class RegisterResponseDto {
+export class LoginResponseDto {
+  @ApiProperty({
+    description: 'Datos de respuesta del login',
+    type: LoginDataDto,
+  })
+  data: LoginDataDto;
+
   @ApiProperty({
     description: 'Mensaje de confirmación',
-    example: 'Usuario creado exitosamente',
+    example: 'Login exitoso',
   })
   message: string;
+}
 
+export class RegisterDataDto {
   @ApiProperty({
     description: 'Información del usuario creado',
     type: UserProfileDto,
@@ -56,7 +64,21 @@ export class RegisterResponseDto {
   user: UserProfileDto;
 }
 
-export class UserProfileResponseDto {
+export class RegisterResponseDto {
+  @ApiProperty({
+    description: 'Datos de respuesta del registro',
+    type: RegisterDataDto,
+  })
+  data: RegisterDataDto;
+
+  @ApiProperty({
+    description: 'Mensaje de confirmación',
+    example: 'Usuario creado exitosamente',
+  })
+  message: string;
+}
+
+export class UserProfileDataDto {
   @ApiProperty({
     description: 'ID único del usuario',
     example: 'b8c4e4b2-1234-5678-9abc-def123456789',
@@ -93,4 +115,18 @@ export class UserProfileResponseDto {
     example: '2024-01-02T00:00:00.000Z',
   })
   updatedAt: Date;
+}
+
+export class UserProfileResponseDto {
+  @ApiProperty({
+    description: 'Datos del perfil del usuario',
+    type: UserProfileDataDto,
+  })
+  data: UserProfileDataDto;
+
+  @ApiProperty({
+    description: 'Mensaje de confirmación',
+    example: 'Perfil obtenido exitosamente',
+  })
+  message: string;
 }

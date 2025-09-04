@@ -22,7 +22,7 @@ async function bootstrap() {
   // Global filters
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  // Global interceptors
+  // Global interceptors (order matters - executed in order)
   app.useGlobalInterceptors(new LoggingInterceptor());
   app.useGlobalInterceptors(new ResponseFormatInterceptor());
 

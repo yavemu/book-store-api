@@ -6,4 +6,8 @@ export * from './role-query.dto';
 export * from './create-role-request.dto';
 export * from './update-role-request.dto';
 export * from './get-all-roles.dto';
+export * from './get-role-by-id.dto';
+export * from './delete-role-request.dto';
 export * from './search-roles-request.dto';
+export * from './role-data.dto';
+export * from './roles-list-data.dto';

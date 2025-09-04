@@ -8,13 +8,12 @@ import {
   Body,
   Request,
   Query,
-  Inject,
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { Request as ExpressRequest } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { IUserCrudService } from '../interfaces';
-import { IUserSearchService } from '../interfaces';
+import { UserService } from '../services/user.service';
 import {
   CreateUserRequestDto,
   GetAllUsersDto,
@@ -25,21 +24,13 @@ import {
   UpdateUserRequestDto,
   DeleteUserRequestDto,
   ExportUsersCsvRequestDto,
+  UserDataDto,
+  UsersListDataDto,
 } from '../dto';
+import { StandardResponseDto } from '../../../common/dto/paginated-response.dto';
 import { Auth } from '../../../common/decorators/auth.decorator';
 import { UserRole } from '../../../common/enums/user-role.enum';
 import { FileExportService } from '../../../common/services/file-export.service';
-import {
-  PromiseCreateUserResponse,
-  PromiseGetAllUsersResponse,
-  PromiseGetUserByIdResponse,
-  PromiseGetUsersBySearchResponse,
-  PromiseGetUsersByFilterResponse,
-  PromiseGetUsersByAdvancedFilterResponse,
-  PromiseUpdateUserResponse,
-  PromiseDeleteUserResponse,
-  PromiseExportUsersCsvResponse,
-} from '../types/users-response.types';
 import {
   ApiCreateUser,
   ApiGetUsers,
@@ -56,10 +47,7 @@ import {
 @Controller('users')
 export class UsersController {
   constructor(
-    @Inject('IUserCrudService')
-    private readonly userCrudService: IUserCrudService,
-    @Inject('IUserSearchService')
-    private readonly userSearchService: IUserSearchService,
+    private readonly userService: UserService,
     private readonly fileExportService: FileExportService,
   ) {}
 
@@ -68,76 +56,60 @@ export class UsersController {
   @ApiCreateUser()
   async create(
     @Body() requestDto: CreateUserRequestDto,
-    @Request() req,
-  ): PromiseCreateUserResponse {
-    return this.userCrudService.create(requestDto.userData, req.user.userId);
+    @Request() req: ExpressRequest,
+  ): Promise<StandardResponseDto<UserDataDto>> {
+    return this.userService.createUser(requestDto, req);
   }
 
   @Get()
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetUsers()
-  async getAll(@Query() requestDto: GetAllUsersDto, @Request() req): PromiseGetAllUsersResponse {
-    return this.userCrudService.findAll(
-      requestDto.pagination,
-      req.user?.userId,
-      req.user?.role?.name,
-    );
+  async findAll(
+    @Query() requestDto: GetAllUsersDto,
+    @Request() req: ExpressRequest,
+  ): Promise<StandardResponseDto<UsersListDataDto>> {
+    return this.userService.findAllUsers(requestDto, req);
   }
 
   @Post('search')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchUsers()
-  async getBySearch(
+  async searchUsers(
     @Body() requestDto: GetUsersBySearchDto,
-    @Request() req,
-  ): PromiseGetUsersBySearchResponse {
-    return this.userSearchService.exactSearch(
-      requestDto.searchData,
-      requestDto.pagination,
-      req.user?.userId,
-      req.user?.role?.name,
-    );
+    @Request() req: ExpressRequest,
+  ): Promise<StandardResponseDto<UsersListDataDto>> {
+    return this.userService.searchUsers(requestDto, req);
   }
 
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterUsersRealtime()
-  async getByFilterParam(
+  async filterUsers(
     @Query() requestDto: GetUsersByFilterDto,
-    @Request() req,
-  ): PromiseGetUsersByFilterResponse {
-    return this.userSearchService.simpleFilter(
-      requestDto.term,
-      requestDto.pagination,
-      req.user?.userId,
-      req.user?.role?.name,
-    );
+    @Request() req: ExpressRequest,
+  ): Promise<StandardResponseDto<UsersListDataDto>> {
+    return this.userService.filterUsers(requestDto, req);
   }
 
   @Post('advanced-filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterUsers()
-  async getByAdvancedFilter(
+  async findUsers(
     @Body() requestDto: GetUsersByAdvancedFilterDto,
-    @Request() req,
-  ): PromiseGetUsersByAdvancedFilterResponse {
-    return this.userSearchService.findWithFilters(
-      requestDto.filters,
-      requestDto.pagination,
-      req.user?.userId,
-      req.user?.role?.name,
-    );
+    @Request() req: ExpressRequest,
+  ): Promise<StandardResponseDto<UsersListDataDto>> {
+    return this.userService.findUsers(requestDto, req);
   }
 
   @Get('export/csv')
   @Auth(UserRole.ADMIN)
   @ApiExportUsersCsv()
-  async exportToCsv(
+  async exportUsersCsv(
     @Query() requestDto: ExportUsersCsvRequestDto,
     @Res() res: Response,
-    @Request() req,
-  ): PromiseExportUsersCsvResponse {
-    const csvData = await this.userSearchService.exportToCsv(requestDto.filters);
+    @Request() req: ExpressRequest,
+  ): Promise<void> {
+    const csvData = await this.userService.exportUsersCsv(requestDto, req);
     res.header('Content-Type', 'text/csv');
     res.header('Content-Disposition', 'attachment; filename="users.csv"');
     res.send(csvData);
@@ -146,8 +118,11 @@ export class UsersController {
   @Get(':id')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiGetUserById()
-  async getById(@Param() requestDto: GetUserByIdDto, @Request() req): PromiseGetUserByIdResponse {
-    return this.userCrudService.findById(requestDto.id, req.user?.userId, req.user?.role?.name);
+  async findOne(
+    @Param() requestDto: GetUserByIdDto,
+    @Request() req: ExpressRequest,
+  ): Promise<StandardResponseDto<UserDataDto>> {
+    return this.userService.findUserById(requestDto, req);
   }
 
   @Put(':id')
@@ -155,15 +130,9 @@ export class UsersController {
   @ApiUpdateUser()
   async update(
     @Body() requestDto: UpdateUserRequestDto,
-    @Request() req,
-  ): PromiseUpdateUserResponse {
-    return this.userCrudService.update(
-      requestDto.id,
-      requestDto.updateData,
-      req.user?.userId,
-      req.user?.userId,
-      req.user?.role?.name,
-    );
+    @Request() req: ExpressRequest,
+  ): Promise<StandardResponseDto<UserDataDto>> {
+    return this.userService.updateUser(requestDto, req);
   }
 
   @Delete(':id')
@@ -171,8 +140,8 @@ export class UsersController {
   @ApiDeleteUser()
   async remove(
     @Param() requestDto: DeleteUserRequestDto,
-    @Request() req,
-  ): PromiseDeleteUserResponse {
-    return this.userCrudService.softDelete(requestDto.id, req.user.userId);
+    @Request() req: ExpressRequest,
+  ): Promise<StandardResponseDto<{ id: string }>> {
+    return this.userService.deleteUser(requestDto, req);
   }
 }

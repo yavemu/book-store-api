@@ -1,6 +1,6 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiUnauthorizedResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { UserProfileResponseDto } from '../dto';
+import { UserProfileSwaggerResponseDto } from '../dto';
 import { UnauthorizedResponseDto } from '../../../common/dto';
 
 export function ApiGetProfile() {
@@ -14,7 +14,7 @@ export function ApiGetProfile() {
     ApiResponse({
       status: 200,
       description: 'Perfil de usuario obtenido exitosamente',
-      type: UserProfileResponseDto,
+      type: UserProfileSwaggerResponseDto,
     }),
     ApiUnauthorizedResponse({
       description: 'No autorizado - Token inválido o faltante',

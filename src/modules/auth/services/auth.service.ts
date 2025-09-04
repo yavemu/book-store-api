@@ -1,138 +1,142 @@
-import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { IUserCrudService, IUserSearchService, IUserAuthService } from '../../users/interfaces';
-import { IAuditLoggerService } from '../../audit/interfaces';
-import { AuditAction } from '../../../modules/audit/enums/audit-action.enum';
+import { Request as ExpressRequest } from 'express';
+import { UserService } from '../../users/services/user.service';
 import { User } from '../../users/entities/user.entity';
-import { RegisterUserDto } from '../../users/dto/register-user.dto';
 import { SUCCESS_MESSAGES, ERROR_MESSAGES } from '../../../common/constants';
+import { LoginRequestDto, RegisterRequestDto } from '../dto';
+import {
+  ILoginRequest,
+  IRegisterRequest,
+  ILoginResponse,
+  IRegisterResponse,
+  IUserProfileResponse,
+} from '../interfaces';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject('IUserCrudService')
-    private readonly userCrudService: IUserCrudService,
-    @Inject('IUserSearchService')
-    private readonly userSearchService: IUserSearchService,
-    @Inject('IUserAuthService')
-    private readonly userAuthService: IUserAuthService,
-    @Inject('IAuditLoggerService')
-    private readonly auditLogService: IAuditLoggerService,
+    private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
 
   async validateUser(email: string, password: string, ipAddress?: string): Promise<User | null> {
     try {
-      const user = await this.userSearchService.findToLoginByEmail(email);
+      const user = await this.userService.findToLoginByEmail(email);
 
       if (!user) {
-        // Usuario no encontrado
-        await this.auditLogService.logError(
-          email, // Usar email como performedBy en caso de fallo
-          AuditAction.LOGIN,
-          'User',
-          `Login failed: User not found for email ${email}`,
-          ipAddress,
-          'AuthService',
-        );
+        // Usuario no encontrado - audit log será manejado por interceptores
         return null;
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (!isPasswordValid) {
-        // Contraseña incorrecta
-        await this.auditLogService.logError(
-          user.id,
-          AuditAction.LOGIN,
-          'User',
-          `Login failed: Invalid password for user ${email}`,
-          ipAddress,
-          'AuthService',
-        );
+        // Contraseña incorrecta - audit log será manejado por interceptores
         return null;
       }
 
       return user;
     } catch (error) {
-      // Error del sistema durante validación
-      await this.auditLogService.logError(
-        email,
-        AuditAction.LOGIN,
-        'User',
-        `Login failed: System error - ${error.message}`,
-        ipAddress,
-        'AuthService',
-      );
+      // Error del sistema durante validación - audit log será manejado por interceptores
       throw error;
     }
   }
 
-  async login(email: string, password: string, ipAddress?: string) {
-    const user = await this.validateUser(email, password, ipAddress);
+  async loginUser(requestDto: LoginRequestDto, req: ExpressRequest): Promise<ILoginResponse> {
+    // Convert DTO to internal interface
+    const loginRequest: ILoginRequest = {
+      loginData: {
+        email: requestDto.loginData.email,
+        password: requestDto.loginData.password,
+      },
+    };
+
+    const ipAddress = req.ip || req.connection?.remoteAddress;
+    const user = await this.validateUser(
+      loginRequest.loginData.email,
+      loginRequest.loginData.password,
+      ipAddress,
+    );
 
     if (!user) {
       throw new UnauthorizedException(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS);
     }
 
-    // Log the login event for auditing
-    await this.userAuthService.logLogin(user.id);
+    // Login success - audit log será manejado por interceptores
 
     const payload = {
       username: user.username,
       sub: user.id,
-      role: user.role,
+      role: user.role.name,
     };
 
     return {
-      access_token: this.jwtService.sign(payload),
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
+      data: {
+        access_token: this.jwtService.sign(payload),
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          role: user.role.name,
+        },
       },
       message: SUCCESS_MESSAGES.AUTH.LOGIN_SUCCESS,
     };
   }
 
-  async register(registerUserDto: RegisterUserDto, ipAddress?: string) {
+  async registerUser(
+    requestDto: RegisterRequestDto,
+    req: ExpressRequest,
+  ): Promise<IRegisterResponse> {
     try {
-      const user = await this.userCrudService.register(registerUserDto);
-      return {
-        message: SUCCESS_MESSAGES.AUTH.REGISTER_SUCCESS,
-        user: {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          role: user.role,
+      // Convert DTO to internal interface
+      const registerRequest: IRegisterRequest = {
+        registrationData: {
+          username: requestDto.registrationData.username,
+          email: requestDto.registrationData.email,
+          password: requestDto.registrationData.password,
+          confirmPassword: requestDto.registrationData.confirmPassword,
+          roleId: requestDto.registrationData.roleId,
         },
       };
+
+      const ipAddress = req.ip || req.connection?.remoteAddress;
+      const user = await this.userService.register(registerRequest.registrationData);
+      return {
+        data: {
+          user: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            role: user.role.name,
+          },
+        },
+        message: SUCCESS_MESSAGES.AUTH.REGISTER_SUCCESS,
+      };
     } catch (error) {
-      // Log registro fallido
-      await this.auditLogService.logError(
-        registerUserDto.email, // Usar email como identifier
-        AuditAction.REGISTER,
-        'User',
-        `Registration failed: ${error.message}`,
-        ipAddress,
-        'AuthService',
-      );
+      // Registration failed - audit log será manejado por interceptores
       throw error;
     }
   }
 
-  async getProfile(userId: string) {
-    const user = await this.userCrudService.findById(userId);
+  async getUserProfile(req: ExpressRequest): Promise<IUserProfileResponse> {
+    const userId = (req as any).user?.userId;
+
+    if (!userId) {
+      throw new UnauthorizedException('Usuario no autenticado');
+    }
+
+    const userResponse = await this.userService.findUserById({ id: userId }, req);
     return {
       data: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
+        id: userResponse.data.id,
+        username: userResponse.data.username,
+        email: userResponse.data.email,
+        role: userResponse.data.role,
+        createdAt: userResponse.data.createdAt,
+        updatedAt: userResponse.data.updatedAt,
       },
       message: SUCCESS_MESSAGES.AUTH.PROFILE_FETCHED,
     };

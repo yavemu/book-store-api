@@ -19,3 +19,4 @@ export * from './get-users-by-advanced-filter.dto';
 export * from './update-user-request.dto';
 export * from './delete-user-request.dto';
 export * from './export-users-csv-request.dto';
+export * from './register-user-request.dto';

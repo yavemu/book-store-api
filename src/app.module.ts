@@ -14,11 +14,8 @@ import { BookAuthorsModule } from './modules/book-authors/book-authors.module';
 import { BookCatalogModule } from './modules/book-catalog/book-catalog.module';
 import { BookAuthorAssignmentsModule } from './modules/book-author-assignments/book-author-assignments.module';
 import { InventoryMovementsModule } from './modules/inventory-movements/inventory-movements.module';
-import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
-import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
-import { AuditInterceptor } from './common/interceptors/audit.interceptor';
-import { PostStatusOverrideInterceptor } from './common/interceptors/post-status-override.interceptor';
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -46,18 +43,6 @@ import { PostStatusOverrideInterceptor } from './common/interceptors/post-status
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: PostStatusOverrideInterceptor,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: LoggingInterceptor,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: AuditInterceptor,
     },
   ],
 })

@@ -29,7 +29,7 @@ export class AuditCrudRepository
         take: pagination.limit,
       };
 
-      return await this._findManyWithPaginationWithoutAudit(options, pagination);
+      return await this._findManyWithPagination(options, pagination);
     } catch (error) {
       throw new HttpException(
         AUDIT_ERROR_MESSAGES.FAILED_TO_GET_ALL,
@@ -40,7 +40,7 @@ export class AuditCrudRepository
 
   async getAuditLogById(id: string): Promise<AuditLog> {
     try {
-      const auditLog = await this._findByIdWithoutAudit(id);
+      const auditLog = await this._findById(id);
       if (!auditLog) {
         throw new NotFoundException(AUDIT_ERROR_MESSAGES.NOT_FOUND);
       }
@@ -59,7 +59,7 @@ export class AuditCrudRepository
   async deleteAuditLog(id: string, performedBy?: string): Promise<void> {
     try {
       await this.getAuditLogById(id);
-      await this._softDeleteWithoutAudit(id);
+      await this.softDeleteWithoutAudit(id);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -88,7 +88,7 @@ export class AuditCrudRepository
         whereConditions.performedBy = filters.performedBy;
       }
 
-      const auditLogs = await this._findManyWithoutAudit({
+      const auditLogs = await this._findMany({
         where: whereConditions,
         order: { createdAt: 'DESC' },
         take: 10000, // Limit for export

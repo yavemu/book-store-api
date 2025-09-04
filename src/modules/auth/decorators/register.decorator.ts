@@ -5,7 +5,7 @@ import {
   ApiBadRequestResponse,
   ApiConflictResponse,
 } from '@nestjs/swagger';
-import { RegisterResponseDto } from '../dto';
+import { RegisterSwaggerResponseDto } from '../dto';
 import { BadRequestResponseDto, ConflictResponseDto } from '../../../common/dto';
 
 export function ApiRegister() {
@@ -18,7 +18,7 @@ export function ApiRegister() {
     ApiResponse({
       status: 201,
       description: 'Usuario registrado exitosamente',
-      type: RegisterResponseDto,
+      type: RegisterSwaggerResponseDto,
     }),
     ApiBadRequestResponse({
       description: 'Datos de entrada inválidos',

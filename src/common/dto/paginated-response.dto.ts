@@ -66,6 +66,12 @@ export class StandardResponseDto<T> {
   data: T;
 
   @ApiProperty({
+    description: 'Metadatos adicionales (opcional)',
+    required: false,
+  })
+  meta?: any;
+
+  @ApiProperty({
     description: 'Mensaje de respuesta',
     example: 'Operación exitosa',
   })
