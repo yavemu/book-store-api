@@ -89,7 +89,7 @@ describe('UserAuthService', () => {
     it('should propagate errors from auditLogService', async () => {
       const userId = 'test-user-id';
       const error = new Error('Audit log failed');
-      
+
       mockAuditLogService.log.mockRejectedValue(error);
 
       await expect(service.logLogin(userId)).rejects.toThrow('Audit log failed');
@@ -150,7 +150,7 @@ describe('UserAuthService', () => {
 
       for (const userId of testCases) {
         mockAuditLogService.log.mockClear();
-        
+
         await service.logLogin(userId);
 
         expect(mockAuditLogService.log).toHaveBeenCalledWith(

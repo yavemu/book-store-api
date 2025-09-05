@@ -121,6 +121,14 @@ export class RoleRepository
     return await this._findManyWithPagination(options, pagination);
   }
 
+  async findForSelect(): Promise<Role[]> {
+    return await this._findMany({
+      select: ['id', 'name'],
+      where: { isActive: true },
+      order: { name: 'ASC' },
+    });
+  }
+
   async _validateUniqueConstraints(
     dto: Partial<Role>,
     entityId?: string,

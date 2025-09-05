@@ -7,3 +7,4 @@ export * from './search-users.decorator';
 export * from './filter-users.decorator';
 export * from './filter-users-realtime.decorator';
 export * from './export-users-csv.decorator';
+export * from './list-select-users.decorator';

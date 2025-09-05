@@ -3,6 +3,8 @@ import { IInventoryMovementCrudService } from '../interfaces/inventory-movement-
 import { IInventoryMovementCrudRepository } from '../interfaces/inventory-movement-crud.repository.interface';
 import { InventoryMovement } from '../entities/inventory-movement.entity';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
+import { MovementType } from '../enums/movement-type.enum';
 import {
   MovementFiltersDto,
   MovementSearchDto,
@@ -152,5 +154,28 @@ export class InventoryMovementCrudService implements IInventoryMovementCrudServi
       .join('\n');
 
     return csvContent;
+  }
+
+  async findForSelect(): Promise<ListSelectDto[]> {
+    return await this.movementCrudRepository.findForSelect();
+  }
+
+  private getMovementTypeInSpanish(movementType: MovementType): string {
+    switch (movementType) {
+      case MovementType.PURCHASE:
+        return 'COMPRA';
+      case MovementType.SALE:
+        return 'VENTA';
+      case MovementType.DISCOUNT:
+        return 'DESCUENTO';
+      case MovementType.INCREASE:
+        return 'AUMENTO';
+      case MovementType.OUT_OF_STOCK:
+        return 'SIN STOCK';
+      case MovementType.ARCHIVED:
+        return 'ARCHIVADO';
+      default:
+        return movementType;
+    }
   }
 }

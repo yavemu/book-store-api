@@ -8,3 +8,4 @@ export * from './search-authors.decorator';
 export * from './filter-authors.decorator';
 export * from './filter-authors-realtime.decorator';
 export * from './export-authors-csv.decorator';
+export * from './list-select-book-authors.decorator';

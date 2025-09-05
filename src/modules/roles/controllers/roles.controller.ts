@@ -21,6 +21,7 @@ import { RoleResponseDto } from '../dto/role-response.dto';
 import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
 import { Auth } from '../../../common/decorators/auth.decorator';
 import { UserRole } from '../../../common/enums/user-role.enum';
+import { ApiListSelectRoles } from '../decorators';
 
 @ApiTags('Roles')
 @Controller('roles')
@@ -56,6 +57,13 @@ export class RolesController {
     return this.crudService.findAll(pagination);
   }
 
+  @Get('list-select')
+  @Auth(UserRole.ADMIN, UserRole.USER)
+  @ApiListSelectRoles()
+  findForSelect() {
+    return this.crudService.findForSelect();
+  }
+
   @Get('active')
   @Auth(UserRole.ADMIN)
   @ApiOperation({ summary: 'Get all active roles with pagination' })
@@ -72,7 +80,11 @@ export class RolesController {
   @HttpCode(200)
   @Auth(UserRole.ADMIN)
   @ApiOperation({ summary: 'Buscar roles - Acceso: ADMIN' })
-  @ApiResponse({ status: 200, description: 'Resultados de búsqueda de roles obtenidos exitosamente', type: [RoleResponseDto] })
+  @ApiResponse({
+    status: 200,
+    description: 'Resultados de búsqueda de roles obtenidos exitosamente',
+    type: [RoleResponseDto],
+  })
   exactSearch(@Body() searchDto: any, @Query() pagination: PaginationInputDto) {
     return this.searchService.searchRoles(searchDto, pagination);
   }

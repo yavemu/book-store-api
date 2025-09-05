@@ -4,6 +4,7 @@ import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 import { IRoleCrudService } from '../interfaces/role-crud.service.interface';
 import { IRoleCrudRepository } from '../interfaces/role-crud.repository.interface';
 import { IValidationService } from '../interfaces/validation.service.interface';
@@ -102,6 +103,21 @@ export class RoleCrudService implements IRoleCrudService {
       throw this.errorHandler.handleError(
         error,
         ERROR_MESSAGES.ROLES?.FAILED_TO_DELETE || 'Failed to delete role',
+      );
+    }
+  }
+
+  async findForSelect(): Promise<ListSelectDto[]> {
+    try {
+      const roles = await this.crudRepository.findForSelect();
+      return roles.map((role) => ({
+        id: role.id,
+        name: role.name,
+      }));
+    } catch (error) {
+      throw this.errorHandler.handleError(
+        error,
+        ERROR_MESSAGES.ROLES?.FAILED_TO_GET_ALL || 'Failed to get roles for select',
       );
     }
   }

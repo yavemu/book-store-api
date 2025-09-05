@@ -13,4 +13,5 @@ export interface IBookGenreCrudRepository {
     performedBy: string,
   ): Promise<BookGenre>;
   deactivateGenre(genreId: string, performedBy: string): Promise<{ id: string }>;
+  findForSelect(): Promise<BookGenre[]>;
 }

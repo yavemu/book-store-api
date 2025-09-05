@@ -5,6 +5,7 @@ import { BookAuthorAssignment } from '../entities/book-author-assignment.entity'
 import { CreateBookAuthorAssignmentDto } from '../dto/create-book-author-assignment.dto';
 import { UpdateBookAuthorAssignmentDto } from '../dto/update-book-author-assignment.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 
 @Injectable()
 export class BookAuthorAssignmentService implements IBookAuthorAssignmentService {
@@ -67,5 +68,26 @@ export class BookAuthorAssignmentService implements IBookAuthorAssignmentService
       authorId,
     );
     return { exists };
+  }
+
+  async findForSelect(): Promise<ListSelectDto[]> {
+    const assignments = await this.bookAuthorAssignmentRepository.findForSelect();
+    return assignments
+      .filter(
+        (assignment) =>
+          assignment.book &&
+          assignment.author &&
+          !assignment.book.deletedAt &&
+          !assignment.author.deletedAt,
+      )
+      .sort((a, b) => {
+        const bookComparison = a.book.title.localeCompare(b.book.title);
+        if (bookComparison !== 0) return bookComparison;
+        return a.author.lastName.localeCompare(b.author.lastName);
+      })
+      .map((assignment) => ({
+        id: assignment.id,
+        name: `${assignment.book.title} by ${assignment.author.firstName} ${assignment.author.lastName}`,
+      }));
   }
 }

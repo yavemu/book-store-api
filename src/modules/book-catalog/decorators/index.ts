@@ -13,3 +13,4 @@ export * from './api-remove-book-cover.decorator';
 export * from './api-advanced-filter-books.decorator';
 export * from './api-exact-search-books.decorator';
 export * from './api-simple-filter-books.decorator';
+export * from './list-select-book-catalog.decorator';

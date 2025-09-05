@@ -83,6 +83,10 @@ describe('BookGenresController', () => {
       findById: jest.fn(),
       update: jest.fn(),
       softDelete: jest.fn(),
+      findForSelect: jest.fn().mockResolvedValue([
+        { id: mockGenre.id, display: mockGenre.name },
+        { id: mockGenres[1].id, display: mockGenres[1].name }
+      ]),
     };
 
     mockSearchService = {
@@ -249,7 +253,6 @@ describe('BookGenresController', () => {
       expect(mockSearchService.exactSearch).toHaveBeenCalledWith(searchDto, expect.any(Object));
     });
     */
-
     // TODO: Fix after search architecture changes
     /*
     it('should return empty results for no matches', async () => {

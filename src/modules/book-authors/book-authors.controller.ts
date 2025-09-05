@@ -40,6 +40,7 @@ import {
   ApiFilterAuthors,
   ApiFilterAuthorsRealtime,
   ApiExportAuthorsCsv,
+  ApiListSelectBookAuthors,
 } from './decorators';
 
 @ApiTags('Book Authors')
@@ -69,10 +70,20 @@ export class BookAuthorsController {
     return this.crudService.findAll(pagination);
   }
 
+  @Get('list-select')
+  @Auth(UserRole.ADMIN, UserRole.USER)
+  @ApiListSelectBookAuthors()
+  findForSelect() {
+    return this.crudService.findForSelect();
+  }
+
   @Post('search')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchAuthors()
-  exactSearch(@Body() searchDto: BookAuthorExactSearchDto, @Query() pagination: PaginationInputDto) {
+  exactSearch(
+    @Body() searchDto: BookAuthorExactSearchDto,
+    @Query() pagination: PaginationInputDto,
+  ) {
     const paginationDto: PaginationDto = {
       page: pagination.page || 1,
       limit: pagination.limit || 10,

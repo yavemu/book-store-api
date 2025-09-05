@@ -17,7 +17,8 @@ export class BookGenreExactSearchDto {
   @IsOptional()
   @ApiPropertyOptional({
     description: 'Detailed description of the book genre',
-    example: 'Fiction that deals with futuristic concepts, advanced science and technology, space exploration, time travel, parallel universes, and extraterrestrial life.',
+    example:
+      'Fiction that deals with futuristic concepts, advanced science and technology, space exploration, time travel, parallel universes, and extraterrestrial life.',
     required: false,
   })
   description?: string;

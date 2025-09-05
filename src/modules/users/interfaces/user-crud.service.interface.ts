@@ -3,6 +3,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import { RegisterUserDto } from '../dto';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 
 export interface IUserCrudService {
   create(createUserDto: CreateUserDto, createdBy?: string): Promise<User>;
@@ -21,4 +22,5 @@ export interface IUserCrudService {
     requestingUserRole?: string,
   ): Promise<User>;
   softDelete(id: string, deletedBy?: string): Promise<{ id: string }>;
+  findForSelect(): Promise<ListSelectDto[]>;
 }

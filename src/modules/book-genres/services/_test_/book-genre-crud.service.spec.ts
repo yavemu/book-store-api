@@ -69,6 +69,7 @@ describe('BookGenreCrudService', () => {
       getGenreProfile: jest.fn(),
       updateGenreProfile: jest.fn(),
       deactivateGenre: jest.fn(),
+      findForSelect: jest.fn().mockResolvedValue(mockGenres),
     };
 
     const module: TestingModule = await Test.createTestingModule({

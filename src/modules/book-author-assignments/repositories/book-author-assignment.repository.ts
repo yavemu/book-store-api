@@ -19,6 +19,7 @@ import { AssignmentFiltersDto } from '../dto/assignment-filters.dto';
 import { AssignmentCsvExportFiltersDto } from '../dto/assignment-csv-export-filters.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 import { BaseRepository } from '../../../common/repositories/base.repository';
 import { IAuditLoggerService } from '../../../modules/audit/interfaces/audit-logger.service.interface';
 
@@ -218,6 +219,14 @@ export class BookAuthorAssignmentRepository
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async findForSelect(): Promise<BookAuthorAssignment[]> {
+    return await this._findMany({
+      select: ['id', 'bookId', 'authorId'],
+      relations: ['book', 'author'],
+      order: { createdAt: 'ASC' },
+    });
   }
 
   async findByBookAndAuthor(bookId: string, authorId: string): Promise<BookAuthorAssignment> {

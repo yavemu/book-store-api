@@ -7,3 +7,4 @@ export * from './search-genres.decorator';
 export * from './export-genres-csv.decorator';
 export * from './api-filter-genres.decorator';
 export * from './api-advanced-filter-genres.decorator';
+export * from './list-select-book-genres.decorator';

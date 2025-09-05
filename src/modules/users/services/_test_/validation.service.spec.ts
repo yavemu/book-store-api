@@ -30,9 +30,7 @@ describe('ValidationService', () => {
 
     it('should return early when repository is not provided', async () => {
       const dto = { email: 'test@example.com' };
-      const constraints = [
-        { field: 'email', message: 'Email must be unique' },
-      ];
+      const constraints = [{ field: 'email', message: 'Email must be unique' }];
 
       // Should not throw any error
       await expect(
@@ -52,9 +50,7 @@ describe('ValidationService', () => {
     it('should call repository._validateUniqueConstraints when repository has the method', async () => {
       const dto = { email: 'test@example.com' };
       const entityId = 'test-id';
-      const constraints = [
-        { field: 'email', message: 'Email must be unique' },
-      ];
+      const constraints = [{ field: 'email', message: 'Email must be unique' }];
       const mockRepository = {
         _validateUniqueConstraints: jest.fn().mockResolvedValue(undefined),
       };
@@ -72,9 +68,7 @@ describe('ValidationService', () => {
     it('should not call _validateUniqueConstraints when repository does not have the method', async () => {
       const dto = { email: 'test@example.com' };
       const entityId = 'test-id';
-      const constraints = [
-        { field: 'email', message: 'Email must be unique' },
-      ];
+      const constraints = [{ field: 'email', message: 'Email must be unique' }];
       const mockRepository = {
         someOtherMethod: jest.fn(),
       };
@@ -91,8 +85,8 @@ describe('ValidationService', () => {
       const constraints = [
         { field: 'email', message: 'Email must be unique' },
         { field: ['username', 'email'], message: 'Username and email combination must be unique' },
-        { 
-          field: 'email', 
+        {
+          field: 'email',
           message: 'Transformed email must be unique',
           transform: (value: string) => value.toLowerCase(),
         },
@@ -112,9 +106,7 @@ describe('ValidationService', () => {
 
     it('should work without entityId parameter', async () => {
       const dto = { email: 'test@example.com' };
-      const constraints = [
-        { field: 'email', message: 'Email must be unique' },
-      ];
+      const constraints = [{ field: 'email', message: 'Email must be unique' }];
       const mockRepository = {
         _validateUniqueConstraints: jest.fn().mockResolvedValue(undefined),
       };
@@ -131,9 +123,7 @@ describe('ValidationService', () => {
     it('should handle repository method throwing an error', async () => {
       const dto = { email: 'test@example.com' };
       const entityId = 'test-id';
-      const constraints = [
-        { field: 'email', message: 'Email must be unique' },
-      ];
+      const constraints = [{ field: 'email', message: 'Email must be unique' }];
       const mockRepository = {
         _validateUniqueConstraints: jest.fn().mockRejectedValue(new Error('Validation failed')),
       };
@@ -152,9 +142,7 @@ describe('ValidationService', () => {
     it('should handle empty dto', async () => {
       const dto = {};
       const entityId = 'test-id';
-      const constraints = [
-        { field: 'email', message: 'Email must be unique' },
-      ];
+      const constraints = [{ field: 'email', message: 'Email must be unique' }];
       const mockRepository = {
         _validateUniqueConstraints: jest.fn().mockResolvedValue(undefined),
       };

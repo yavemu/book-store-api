@@ -12,6 +12,7 @@ import { UpdateBookAuthorDto } from '../dto/update-book-author.dto';
 import { BookAuthorFiltersDto } from '../dto/book-author-filters.dto';
 import { BookAuthorCsvExportFiltersDto } from '../dto/book-author-csv-export-filters.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 import { ERROR_MESSAGES } from '../../../common/constants/error-messages';
 
 @Injectable()
@@ -173,5 +174,17 @@ export class BookAuthorService implements IBookAuthorCrudService, IBookAuthorSea
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthor>> {
     return this.findWithFilters(filters, pagination);
+  }
+
+  async findForSelect(): Promise<ListSelectDto[]> {
+    try {
+      const authors = await this.crudRepository.findForSelect();
+      return authors.map((author) => ({
+        id: author.id,
+        name: `${author.firstName} ${author.lastName}`,
+      }));
+    } catch (error) {
+      this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_GET_ALL);
+    }
   }
 }

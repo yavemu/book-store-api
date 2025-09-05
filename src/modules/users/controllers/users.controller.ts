@@ -39,6 +39,7 @@ import {
   ApiFilterUsers,
   ApiFilterUsersRealtime,
   ApiExportUsersCsv,
+  ApiListSelectUsers,
 } from '../decorators';
 
 @ApiTags('Users')
@@ -66,10 +67,21 @@ export class UsersController {
     return this.userCrudService.findAll(pagination, req.user?.userId, req.user?.role?.name);
   }
 
+  @Get('list-select')
+  @Auth(UserRole.ADMIN, UserRole.USER)
+  @ApiListSelectUsers()
+  async findForSelect() {
+    return this.userCrudService.findForSelect();
+  }
+
   @Post('search')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchUsers()
-  async exactSearch(@Body() searchDto: UserExactSearchDto, @Query() pagination: PaginationInputDto, @Request() req) {
+  async exactSearch(
+    @Body() searchDto: UserExactSearchDto,
+    @Query() pagination: PaginationInputDto,
+    @Request() req,
+  ) {
     const paginationDto: PaginationDto = {
       page: pagination.page || 1,
       limit: pagination.limit || 10,
@@ -77,22 +89,29 @@ export class UsersController {
       sortOrder: pagination.sortOrder || 'DESC',
       offset: pagination.offset,
     };
-    return this.userSearchService.exactSearch(searchDto, paginationDto, req.user?.userId, req.user?.role?.name);
+    return this.userSearchService.exactSearch(
+      searchDto,
+      paginationDto,
+      req.user?.userId,
+      req.user?.role?.name,
+    );
   }
 
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterUsersRealtime()
-  async filter(
-    @Query() filterDto: UserSimpleFilterDto,
-    @Request() req,
-  ) {
+  async filter(@Query() filterDto: UserSimpleFilterDto, @Request() req) {
     const pagination = new PaginationDto();
     pagination.page = filterDto.page;
     pagination.limit = filterDto.limit;
     pagination.sortBy = filterDto.sortBy;
     pagination.sortOrder = filterDto.sortOrder;
-    return this.userSearchService.simpleFilter(filterDto.term, pagination, req.user?.userId, req.user?.role?.name);
+    return this.userSearchService.simpleFilter(
+      filterDto.term,
+      pagination,
+      req.user?.userId,
+      req.user?.role?.name,
+    );
   }
 
   @Post('advanced-filter')

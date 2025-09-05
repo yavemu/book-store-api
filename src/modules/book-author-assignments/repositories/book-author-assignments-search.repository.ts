@@ -60,7 +60,7 @@ export class BookAuthorAssignmentSearchRepository
   ): Promise<PaginatedResult<BookAuthorAssignment>> {
     try {
       const maxLimit = Math.min(pagination.limit || 10, 50);
-      
+
       // If no search term provided, return all assignments with pagination
       if (!term || term.trim().length === 0) {
         const options: FindManyOptions<BookAuthorAssignment> = {
@@ -89,11 +89,11 @@ export class BookAuthorAssignmentSearchRepository
         .where('assignment.deletedAt IS NULL') // Soft delete filter
         .andWhere(
           '(LOWER(book.title) LIKE LOWER(:term) OR ' +
-          'LOWER(book.isbnCode) LIKE LOWER(:term) OR ' +
-          'LOWER(author.firstName) LIKE LOWER(:term) OR ' +
-          'LOWER(author.lastName) LIKE LOWER(:term) OR ' +
-          'LOWER(author.email) LIKE LOWER(:term))',
-          { term: `%${trimmedTerm}%` }
+            'LOWER(book.isbnCode) LIKE LOWER(:term) OR ' +
+            'LOWER(author.firstName) LIKE LOWER(:term) OR ' +
+            'LOWER(author.lastName) LIKE LOWER(:term) OR ' +
+            'LOWER(author.email) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` },
         );
 
       // Get total count for pagination metadata

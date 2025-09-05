@@ -111,7 +111,10 @@ describe('UserSearchService', () => {
 
     it('should handle empty search term', async () => {
       const searchTerm = '';
-      repository.searchUsers.mockResolvedValue({ data: [], meta: { ...mockPaginatedResult.meta, total: 0 } });
+      repository.searchUsers.mockResolvedValue({
+        data: [],
+        meta: { ...mockPaginatedResult.meta, total: 0 },
+      });
 
       const result = await service.search(searchTerm, paginationDto);
 
@@ -199,7 +202,9 @@ describe('UserSearchService', () => {
       const error = new Error('Filter failed');
       repository.filterUsers.mockRejectedValue(error);
 
-      await expect(service.filterSearch(filterTerm, paginationDto)).rejects.toThrow('Filter failed');
+      await expect(service.filterSearch(filterTerm, paginationDto)).rejects.toThrow(
+        'Filter failed',
+      );
       expect(repository.filterUsers).toHaveBeenCalledWith('test filter', paginationDto);
     });
   });
@@ -289,7 +294,8 @@ describe('UserSearchService', () => {
         createdDateFrom: '2023-01-01',
         createdDateTo: '2023-12-31',
       };
-      const csvContent = 'id,username,email,firstName,lastName\n123,testuser,test@example.com,Test,User';
+      const csvContent =
+        'id,username,email,firstName,lastName\n123,testuser,test@example.com,Test,User';
       repository.exportUsersToCsv.mockResolvedValue(csvContent);
 
       const result = await service.exportToCsv(filters);
@@ -369,7 +375,12 @@ describe('UserSearchService', () => {
       const result = await service.exactSearch(searchDto, paginationDto);
 
       expect(result).toEqual(mockPaginatedResult);
-      expect(repository.exactSearchUsers).toHaveBeenCalledWith(searchDto, paginationDto, undefined, undefined);
+      expect(repository.exactSearchUsers).toHaveBeenCalledWith(
+        searchDto,
+        paginationDto,
+        undefined,
+        undefined,
+      );
       expect(repository.exactSearchUsers).toHaveBeenCalledTimes(1);
     });
 
@@ -379,7 +390,12 @@ describe('UserSearchService', () => {
       const result = await service.exactSearch(searchDto, paginationDto, 'user123', 'admin');
 
       expect(result).toEqual(mockPaginatedResult);
-      expect(repository.exactSearchUsers).toHaveBeenCalledWith(searchDto, paginationDto, 'user123', 'admin');
+      expect(repository.exactSearchUsers).toHaveBeenCalledWith(
+        searchDto,
+        paginationDto,
+        'user123',
+        'admin',
+      );
       expect(repository.exactSearchUsers).toHaveBeenCalledTimes(1);
     });
 
@@ -387,8 +403,15 @@ describe('UserSearchService', () => {
       const error = new Error('Exact search failed');
       repository.exactSearchUsers.mockRejectedValue(error);
 
-      await expect(service.exactSearch(searchDto, paginationDto)).rejects.toThrow('Exact search failed');
-      expect(repository.exactSearchUsers).toHaveBeenCalledWith(searchDto, paginationDto, undefined, undefined);
+      await expect(service.exactSearch(searchDto, paginationDto)).rejects.toThrow(
+        'Exact search failed',
+      );
+      expect(repository.exactSearchUsers).toHaveBeenCalledWith(
+        searchDto,
+        paginationDto,
+        undefined,
+        undefined,
+      );
     });
   });
 
@@ -404,7 +427,12 @@ describe('UserSearchService', () => {
       const result = await service.simpleFilter(term, paginationDto, userId, userRole);
 
       expect(result).toEqual(mockPaginatedResult);
-      expect(repository.simpleFilterUsers).toHaveBeenCalledWith(term, paginationDto, userId, userRole);
+      expect(repository.simpleFilterUsers).toHaveBeenCalledWith(
+        term,
+        paginationDto,
+        userId,
+        userRole,
+      );
       expect(repository.simpleFilterUsers).toHaveBeenCalledTimes(1);
     });
 
@@ -415,18 +443,31 @@ describe('UserSearchService', () => {
       const result = await service.simpleFilter(term, paginationDto);
 
       expect(result).toEqual(mockPaginatedResult);
-      expect(repository.simpleFilterUsers).toHaveBeenCalledWith(term, paginationDto, undefined, undefined);
+      expect(repository.simpleFilterUsers).toHaveBeenCalledWith(
+        term,
+        paginationDto,
+        undefined,
+        undefined,
+      );
       expect(repository.simpleFilterUsers).toHaveBeenCalledTimes(1);
     });
 
     it('should handle empty filter term', async () => {
       const term = '';
-      repository.simpleFilterUsers.mockResolvedValue({ data: [], meta: { ...mockPaginatedResult.meta, total: 0 } });
+      repository.simpleFilterUsers.mockResolvedValue({
+        data: [],
+        meta: { ...mockPaginatedResult.meta, total: 0 },
+      });
 
       const result = await service.simpleFilter(term, paginationDto);
 
       expect(result).toEqual({ data: [], meta: { ...mockPaginatedResult.meta, total: 0 } });
-      expect(repository.simpleFilterUsers).toHaveBeenCalledWith(term, paginationDto, undefined, undefined);
+      expect(repository.simpleFilterUsers).toHaveBeenCalledWith(
+        term,
+        paginationDto,
+        undefined,
+        undefined,
+      );
       expect(repository.simpleFilterUsers).toHaveBeenCalledTimes(1);
     });
 
@@ -435,8 +476,15 @@ describe('UserSearchService', () => {
       const error = new Error('Simple filter failed');
       repository.simpleFilterUsers.mockRejectedValue(error);
 
-      await expect(service.simpleFilter(term, paginationDto)).rejects.toThrow('Simple filter failed');
-      expect(repository.simpleFilterUsers).toHaveBeenCalledWith(term, paginationDto, undefined, undefined);
+      await expect(service.simpleFilter(term, paginationDto)).rejects.toThrow(
+        'Simple filter failed',
+      );
+      expect(repository.simpleFilterUsers).toHaveBeenCalledWith(
+        term,
+        paginationDto,
+        undefined,
+        undefined,
+      );
     });
   });
 });

@@ -16,7 +16,8 @@ export function ApiSearchInventoryMovements() {
     }),
     ApiQuery({
       name: 'term',
-      description: 'Término parcial para buscar en múltiples campos (notas, tipo de movimiento, tipo de entidad)',
+      description:
+        'Término parcial para buscar en múltiples campos (notas, tipo de movimiento, tipo de entidad)',
       required: false,
       type: 'string',
       example: 'libro',

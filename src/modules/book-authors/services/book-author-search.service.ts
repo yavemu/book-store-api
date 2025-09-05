@@ -64,7 +64,10 @@ export class BookAuthorSearchService implements IBookAuthorSearchService {
   }
 
   // Standardized search methods (following book-catalog pattern)
-  async exactSearch(searchDto: BookAuthorExactSearchDto, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
+  async exactSearch(
+    searchDto: BookAuthorExactSearchDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthor>> {
     try {
       return await this.searchRepository.exactSearchAuthors(searchDto, pagination);
     } catch (error) {
@@ -72,7 +75,10 @@ export class BookAuthorSearchService implements IBookAuthorSearchService {
     }
   }
 
-  async simpleFilter(term: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>> {
+  async simpleFilter(
+    term: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthor>> {
     try {
       return await this.searchRepository.simpleFilterAuthors(term, pagination);
     } catch (error) {

@@ -128,6 +128,10 @@ describe('UsersController', () => {
       findById: jest.fn(),
       update: jest.fn(),
       softDelete: jest.fn(),
+      findForSelect: jest.fn().mockResolvedValue([
+        { id: mockUser.id, display: `${mockUser.firstName} ${mockUser.lastName} (${mockUser.username})` },
+        { id: mockUsers[1].id, display: `${mockUsers[1].firstName} ${mockUsers[1].lastName} (${mockUsers[1].username})` }
+      ]),
     };
 
     mockSearchService = {
@@ -232,8 +236,8 @@ describe('UsersController', () => {
 
   describe('update()', () => {
     it('should update a user', async () => {
-      const updatedUser = { 
-        ...mockUser, 
+      const updatedUser = {
+        ...mockUser,
         ...updateDto,
         hashPassword: jest.fn(),
         normalizeEmail: jest.fn(),
@@ -374,7 +378,8 @@ describe('UsersController', () => {
       const csvFilters: UserCsvExportFiltersDto = {
         name: 'test',
       };
-      const mockCsvData = 'ID,Username,Email,First Name,Last Name\nuser-1,test,test@example.com,Test,User';
+      const mockCsvData =
+        'ID,Username,Email,First Name,Last Name\nuser-1,test,test@example.com,Test,User';
       const mockResponse = {
         setHeader: jest.fn(),
         send: jest.fn(),
@@ -386,7 +391,10 @@ describe('UsersController', () => {
       await controller.exportToCsv(csvFilters, mockResponse);
 
       expect(mockSearchService.exportToCsv).toHaveBeenCalledWith(csvFilters);
-      expect(mockFileExportService.generateDateBasedFilename).toHaveBeenCalledWith('usuarios', 'csv');
+      expect(mockFileExportService.generateDateBasedFilename).toHaveBeenCalledWith(
+        'usuarios',
+        'csv',
+      );
       expect(mockFileExportService.exportToCsv).toHaveBeenCalledWith(mockResponse, {
         content: mockCsvData,
         filename: 'usuarios_2023-12-01.csv',
@@ -430,14 +438,14 @@ describe('UsersController', () => {
     });
 
     it('should maintain data consistency across operations', async () => {
-      const originalUser = { 
+      const originalUser = {
         ...mockUser,
         hashPassword: jest.fn(),
         normalizeEmail: jest.fn(),
         normalizeUsername: jest.fn(),
       };
-      const updatedUser = { 
-        ...mockUser, 
+      const updatedUser = {
+        ...mockUser,
         ...updateDto,
         hashPassword: jest.fn(),
         normalizeEmail: jest.fn(),

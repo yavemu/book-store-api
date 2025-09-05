@@ -41,6 +41,7 @@ import {
   ApiAdvancedFilterBooks,
   ApiExactSearchBooks,
   ApiSimpleFilterBooks,
+  ApiListSelectBookCatalog,
 } from '../decorators';
 import { UserRole } from '../../../common/enums/user-role.enum';
 import { Auth } from '../../../common/decorators/auth.decorator';
@@ -73,6 +74,13 @@ export class BookCatalogController {
     return this.bookCatalogCrudService.findAll(pagination);
   }
 
+  @Get('list-select')
+  @Auth(UserRole.ADMIN, UserRole.USER)
+  @ApiListSelectBookCatalog()
+  findForSelect() {
+    return this.bookCatalogCrudService.findForSelect();
+  }
+
   @Post('search')
   @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
@@ -91,9 +99,7 @@ export class BookCatalogController {
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSimpleFilterBooks()
-  filter(
-    @Query() filterDto: BookSimpleFilterDto,
-  ) {
+  filter(@Query() filterDto: BookSimpleFilterDto) {
     const pagination = new PaginationDto();
     pagination.page = filterDto.page;
     pagination.limit = filterDto.limit;

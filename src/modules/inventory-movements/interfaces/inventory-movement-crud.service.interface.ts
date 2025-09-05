@@ -1,5 +1,6 @@
 import { InventoryMovement } from '../entities/inventory-movement.entity';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 import {
   MovementFiltersDto,
   MovementSearchDto,
@@ -52,4 +53,5 @@ export interface IInventoryMovementCrudService {
     requestingUserId?: string,
     requestingUserRole?: string,
   ): Promise<string>;
+  findForSelect(): Promise<ListSelectDto[]>;
 }

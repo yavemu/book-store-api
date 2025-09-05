@@ -6,11 +6,11 @@ import { PublishingHouseSimpleFilterDto } from '../dto/publishing-house-simple-f
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 export interface IPublishingHouseSearchService {
-  exactSearch(searchDto: PublishingHouseExactSearchDto, pagination?: PaginationDto): Promise<PaginatedResult<PublishingHouse>>;
-  simpleFilter(
-    term: string,
-    pagination: PaginationDto,
+  exactSearch(
+    searchDto: PublishingHouseExactSearchDto,
+    pagination?: PaginationDto,
   ): Promise<PaginatedResult<PublishingHouse>>;
+  simpleFilter(term: string, pagination: PaginationDto): Promise<PaginatedResult<PublishingHouse>>;
   findWithFilters(
     filters: PublishingHouseFiltersDto,
     pagination: PaginationDto,

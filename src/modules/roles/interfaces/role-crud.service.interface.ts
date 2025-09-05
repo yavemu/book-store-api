@@ -3,6 +3,7 @@ import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 
 export interface IRoleCrudService {
   create(createRoleDto: CreateRoleDto, performedBy?: string): Promise<Role>;
@@ -10,4 +11,5 @@ export interface IRoleCrudService {
   findOne(id: string): Promise<Role>;
   update(id: string, updateRoleDto: UpdateRoleDto, performedBy?: string): Promise<Role>;
   remove(id: string, performedBy?: string): Promise<void>;
+  findForSelect(): Promise<ListSelectDto[]>;
 }

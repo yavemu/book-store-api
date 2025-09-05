@@ -16,4 +16,5 @@ export interface IPublishingHouseCrudRepository {
     performedBy: string,
   ): Promise<PublishingHouse>;
   deactivatePublisher(publisherId: string, performedBy: string): Promise<{ id: string }>;
+  findForSelect(): Promise<PublishingHouse[]>;
 }

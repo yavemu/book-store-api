@@ -25,4 +25,5 @@ export interface IBookAuthorAssignmentRepository {
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthorAssignment>>;
   checkAssignmentExists(bookId: string, authorId: string): Promise<boolean>;
+  findForSelect(): Promise<BookAuthorAssignment[]>;
 }

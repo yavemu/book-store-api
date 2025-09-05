@@ -20,4 +20,5 @@ export interface IBookCatalogCrudRepository {
     userRole?: string,
   ): Promise<BookCatalog>;
   deactivateBook(bookId: string, performedBy: string): Promise<{ id: string }>;
+  findForSelect(): Promise<BookCatalog[]>;
 }

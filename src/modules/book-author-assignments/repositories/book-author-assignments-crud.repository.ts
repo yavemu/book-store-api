@@ -79,4 +79,12 @@ export class BookAuthorAssignmentCrudRepository
     );
     return { id: assignmentId };
   }
+
+  async findForSelect(): Promise<BookAuthorAssignment[]> {
+    return await this._findMany({
+      select: ['id', 'bookId', 'authorId'],
+      relations: ['book', 'author'],
+      order: { createdAt: 'ASC' },
+    });
+  }
 }

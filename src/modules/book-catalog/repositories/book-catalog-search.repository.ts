@@ -21,16 +21,20 @@ export class BookCatalogSearchRepository
     super(bookRepository);
   }
 
-  async exactSearchBooks(searchDto: BookExactSearchDto, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>> {
+  async exactSearchBooks(
+    searchDto: BookExactSearchDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookCatalog>> {
     try {
       const whereCondition: any = {};
-      
+
       // Build where condition based on provided fields
       if (searchDto.title) whereCondition.title = searchDto.title;
       if (searchDto.isbnCode) whereCondition.isbnCode = searchDto.isbnCode;
       if (searchDto.price !== undefined) whereCondition.price = searchDto.price;
       if (searchDto.isAvailable !== undefined) whereCondition.isAvailable = searchDto.isAvailable;
-      if (searchDto.stockQuantity !== undefined) whereCondition.stockQuantity = searchDto.stockQuantity;
+      if (searchDto.stockQuantity !== undefined)
+        whereCondition.stockQuantity = searchDto.stockQuantity;
       if (searchDto.publicationDate) whereCondition.publicationDate = searchDto.publicationDate;
       if (searchDto.pageCount !== undefined) whereCondition.pageCount = searchDto.pageCount;
       if (searchDto.summary) whereCondition.summary = searchDto.summary;
@@ -54,10 +58,13 @@ export class BookCatalogSearchRepository
     }
   }
 
-  async simpleFilterBooks(term: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>> {
+  async simpleFilterBooks(
+    term: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookCatalog>> {
     try {
       const maxLimit = Math.min(pagination.limit || 10, 50);
-      
+
       // If no search term provided, return all books with pagination using BaseRepository
       if (!term || term.trim().length === 0) {
         const options: FindManyOptions<BookCatalog> = {
@@ -86,13 +93,13 @@ export class BookCatalogSearchRepository
         .where('book.deletedAt IS NULL') // Soft delete filter
         .andWhere(
           '(LOWER(book.title) LIKE LOWER(:term) OR ' +
-          'LOWER(book.isbnCode) LIKE LOWER(:term) OR ' +
-          'LOWER(book.summary) LIKE LOWER(:term) OR ' +
-          'CAST(book.stockQuantity AS VARCHAR) LIKE :term OR ' +
-          'CAST(book.price AS VARCHAR) LIKE :term OR ' +
-          'LOWER(genre.name) LIKE LOWER(:term) OR ' +
-          'LOWER(publisher.name) LIKE LOWER(:term))',
-          { term: `%${trimmedTerm}%` }
+            'LOWER(book.isbnCode) LIKE LOWER(:term) OR ' +
+            'LOWER(book.summary) LIKE LOWER(:term) OR ' +
+            'CAST(book.stockQuantity AS VARCHAR) LIKE :term OR ' +
+            'CAST(book.price AS VARCHAR) LIKE :term OR ' +
+            'LOWER(genre.name) LIKE LOWER(:term) OR ' +
+            'LOWER(publisher.name) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` },
         );
 
       // Get total count for pagination metadata

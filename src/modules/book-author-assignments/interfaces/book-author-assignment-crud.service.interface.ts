@@ -3,6 +3,7 @@ import { CreateBookAuthorAssignmentDto } from '../dto/create-book-author-assignm
 import { UpdateBookAuthorAssignmentDto } from '../dto/update-book-author-assignment.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 
 export interface IBookAuthorAssignmentCrudService {
   create(
@@ -17,4 +18,5 @@ export interface IBookAuthorAssignmentCrudService {
     performedBy?: string,
   ): Promise<BookAuthorAssignment>;
   remove(id: string, performedBy?: string): Promise<void>;
+  findForSelect(): Promise<ListSelectDto[]>;
 }

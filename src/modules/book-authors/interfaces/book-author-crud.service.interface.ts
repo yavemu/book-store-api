@@ -2,6 +2,7 @@ import { BookAuthor } from '../entities/book-author.entity';
 import { CreateBookAuthorDto } from '../dto/create-book-author.dto';
 import { UpdateBookAuthorDto } from '../dto/update-book-author.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 
 export interface IBookAuthorCrudService {
   create(createBookAuthorDto: CreateBookAuthorDto, performedBy: string): Promise<BookAuthor>;
@@ -13,4 +14,5 @@ export interface IBookAuthorCrudService {
     performedBy: string,
   ): Promise<BookAuthor>;
   softDelete(id: string, performedBy: string): Promise<void>;
+  findForSelect(): Promise<ListSelectDto[]>;
 }

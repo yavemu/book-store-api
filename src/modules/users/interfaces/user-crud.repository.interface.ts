@@ -13,4 +13,5 @@ export interface IUserCrudRepository {
     performedBy?: string,
   ): Promise<User>;
   deactivateUser(userId: string, performedBy?: string): Promise<{ id: string }>;
+  findForSelect(): Promise<User[]>;
 }

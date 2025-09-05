@@ -10,4 +10,5 @@ export interface IRoleCrudRepository {
   findOne(id: string): Promise<Role>;
   update(id: string, updateRoleDto: UpdateRoleDto, performedBy?: string): Promise<Role>;
   remove(id: string, performedBy?: string): Promise<void>;
+  findForSelect(): Promise<Role[]>;
 }

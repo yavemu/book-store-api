@@ -38,6 +38,7 @@ import {
   ApiExportGenresCsv,
   ApiFilterGenres,
   ApiAdvancedFilterGenres,
+  ApiListSelectBookGenres,
 } from '../decorators';
 
 @ApiTags('Book Genres')
@@ -62,6 +63,13 @@ export class BookGenresController {
   @ApiGetGenres()
   async findAll(@Query() pagination: PaginationInputDto) {
     return this.genreCrudService.findAll(pagination);
+  }
+
+  @Get('list-select')
+  @Auth(UserRole.ADMIN, UserRole.USER)
+  @ApiListSelectBookGenres()
+  async findForSelect() {
+    return this.genreCrudService.findForSelect();
   }
 
   @Post('search')

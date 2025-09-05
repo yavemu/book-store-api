@@ -96,6 +96,10 @@ describe('BookAuthorsController', () => {
       findById: jest.fn(),
       update: jest.fn(),
       softDelete: jest.fn(),
+      findForSelect: jest.fn().mockResolvedValue([
+        { id: mockAuthor.id, display: `${mockAuthor.firstName} ${mockAuthor.lastName}` },
+        { id: mockAuthors[1].id, display: `${mockAuthors[1].firstName} ${mockAuthors[1].lastName}` }
+      ]),
     };
 
     mockSearchService = {

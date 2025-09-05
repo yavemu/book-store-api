@@ -29,10 +29,13 @@ export class BookGenreSearchRepository
     super(genreRepository);
   }
 
-  async exactSearchGenres(searchDto: BookGenreExactSearchDto, pagination?: PaginationDto): Promise<PaginatedResult<BookGenre>> {
+  async exactSearchGenres(
+    searchDto: BookGenreExactSearchDto,
+    pagination?: PaginationDto,
+  ): Promise<PaginatedResult<BookGenre>> {
     try {
       const whereCondition: any = {};
-      
+
       // Build WHERE conditions for all provided fields (WHERE AND exact match)
       if (searchDto.name) {
         whereCondition.name = searchDto.name;
@@ -63,7 +66,7 @@ export class BookGenreSearchRepository
         sortOrder: 'DESC' as 'DESC' | 'ASC',
         get offset(): number {
           return (this.page - 1) * this.limit;
-        }
+        },
       };
       const options: FindManyOptions<BookGenre> = {
         where: whereCondition,
@@ -87,7 +90,7 @@ export class BookGenreSearchRepository
   ): Promise<PaginatedResult<BookGenre>> {
     try {
       const maxLimit = Math.min(pagination.limit || 10, 50);
-      
+
       // If no search term provided, return all genres with pagination
       if (!term || term.trim().length === 0) {
         const options: FindManyOptions<BookGenre> = {
@@ -113,8 +116,8 @@ export class BookGenreSearchRepository
         .where('genre.deletedAt IS NULL') // Soft delete filter
         .andWhere(
           '(LOWER(genre.name) LIKE LOWER(:term) OR ' +
-          'LOWER(genre.description) LIKE LOWER(:term))',
-          { term: `%${trimmedTerm}%` }
+            'LOWER(genre.description) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` },
         );
 
       // Get total count for pagination metadata

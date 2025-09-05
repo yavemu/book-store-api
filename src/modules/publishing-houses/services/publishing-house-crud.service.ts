@@ -5,6 +5,7 @@ import { PublishingHouse } from '../entities/publishing-house.entity';
 import { CreatePublishingHouseDto } from '../dto/create-publishing-house.dto';
 import { UpdatePublishingHouseDto } from '../dto/update-publishing-house.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 
 @Injectable()
 export class PublishingHouseCrudService implements IPublishingHouseCrudService {
@@ -45,5 +46,13 @@ export class PublishingHouseCrudService implements IPublishingHouseCrudService {
 
   async softDelete(id: string, performedBy: string): Promise<{ id: string }> {
     return this.publishingHouseCrudRepository.deactivatePublisher(id, performedBy);
+  }
+
+  async findForSelect(): Promise<ListSelectDto[]> {
+    const publishers = await this.publishingHouseCrudRepository.findForSelect();
+    return publishers.map((publisher) => ({
+      id: publisher.id,
+      name: publisher.name,
+    }));
   }
 }

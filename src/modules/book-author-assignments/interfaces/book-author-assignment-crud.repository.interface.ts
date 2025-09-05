@@ -17,4 +17,5 @@ export interface IBookAuthorAssignmentCrudRepository {
     performedBy?: string,
   ): Promise<BookAuthorAssignment>;
   deactivateAssignment(id: string, performedBy?: string): Promise<{ id: string }>;
+  findForSelect(): Promise<BookAuthorAssignment[]>;
 }

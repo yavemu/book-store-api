@@ -197,6 +197,10 @@ export class ServiceMockFactory {
       findById: jest.fn(),
       update: jest.fn(),
       softDelete: jest.fn(),
+      findForSelect: jest.fn().mockResolvedValue([
+        { id: 'test-book-id-1', display: 'Test Book Title 1' },
+        { id: 'test-book-id-2', display: 'Test Book Title 2' }
+      ]),
     };
   }
 
@@ -232,6 +236,7 @@ export class RepositoryMockFactory {
       getBookProfile: jest.fn(),
       updateBookProfile: jest.fn(),
       deactivateBook: jest.fn(),
+      findForSelect: jest.fn().mockResolvedValue(BookCatalogMockFactory.createMockBookCatalogArray(2)),
     };
   }
 

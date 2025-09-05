@@ -76,6 +76,7 @@ describe('BookAuthorAssignmentCrudService', () => {
       getAssignmentProfile: jest.fn(),
       updateAssignment: jest.fn(),
       deactivateAssignment: jest.fn(),
+      findForSelect: jest.fn().mockResolvedValue(mockAssignments),
     };
 
     mockErrorHandler = {

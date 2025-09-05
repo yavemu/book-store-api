@@ -13,4 +13,5 @@ export interface IBookAuthorCrudRepository {
     performedBy: string,
   ): Promise<BookAuthor>;
   softDelete(authorId: string, performedBy: string): Promise<{ id: string }>;
+  findForSelect(): Promise<BookAuthor[]>;
 }

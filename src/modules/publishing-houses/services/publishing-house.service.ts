@@ -8,6 +8,7 @@ import { UpdatePublishingHouseDto } from '../dto/update-publishing-house.dto';
 import { PublishingHouseFiltersDto } from '../dto/publishing-house-filters.dto';
 import { PublishingHouseCsvExportFiltersDto } from '../dto/publishing-house-csv-export-filters.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 
 @Injectable()
 export class PublishingHouseService implements IPublishingHouseService {
@@ -68,5 +69,9 @@ export class PublishingHouseService implements IPublishingHouseService {
 
   async exportToCsv(filters: PublishingHouseCsvExportFiltersDto): Promise<string> {
     return this.searchService.exportToCsv(filters);
+  }
+
+  async findForSelect(): Promise<ListSelectDto[]> {
+    return this.crudService.findForSelect();
   }
 }

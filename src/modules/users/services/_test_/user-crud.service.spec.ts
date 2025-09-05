@@ -64,12 +64,41 @@ describe('UserCrudService', () => {
   };
 
   beforeEach(async () => {
+    const mockUsers = [
+      mockUser,
+      {
+        id: '123e4567-e89b-12d3-a456-426614174001',
+        username: 'testuser2',
+        email: 'test2@example.com',
+        password: '$2b$10$hashedpassword2',
+        firstName: 'Test2',
+        lastName: 'User2',
+        roleId: 'role-456',
+        role: {
+          id: 'role-456',
+          name: 'admin',
+          description: 'Administrator role',
+          isActive: true,
+          users: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          normalizeRoleName: jest.fn(),
+        },
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        hashPassword: jest.fn(),
+        normalizeEmail: jest.fn(),
+        normalizeUsername: jest.fn(),
+      },
+    ];
+
     const mockRepository: jest.Mocked<IUserCrudRepository> = {
       registerUser: jest.fn(),
       getAllUsers: jest.fn(),
       getUserProfile: jest.fn(),
       updateUserProfile: jest.fn(),
       deactivateUser: jest.fn(),
+      findForSelect: jest.fn().mockResolvedValue(mockUsers),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -226,13 +255,13 @@ describe('UserCrudService', () => {
     it('should throw ForbiddenException when regular user tries to access another user profile', async () => {
       const requestingUserId = 'different-user-id';
 
-      await expect(
-        service.findById(userId, requestingUserId, UserRole.USER),
-      ).rejects.toThrow(ForbiddenException);
-      
-      await expect(
-        service.findById(userId, requestingUserId, UserRole.USER),
-      ).rejects.toThrow('Solo puedes acceder a tu propio perfil');
+      await expect(service.findById(userId, requestingUserId, UserRole.USER)).rejects.toThrow(
+        ForbiddenException,
+      );
+
+      await expect(service.findById(userId, requestingUserId, UserRole.USER)).rejects.toThrow(
+        'Solo puedes acceder a tu propio perfil',
+      );
 
       expect(repository.getUserProfile).not.toHaveBeenCalled();
     });
@@ -259,7 +288,11 @@ describe('UserCrudService', () => {
       const result = await service.update(userId, updateUserDto, 'updater-id');
 
       expect(result).toEqual(mockUser);
-      expect(repository.updateUserProfile).toHaveBeenCalledWith(userId, updateUserDto, 'updater-id');
+      expect(repository.updateUserProfile).toHaveBeenCalledWith(
+        userId,
+        updateUserDto,
+        'updater-id',
+      );
       expect(repository.updateUserProfile).toHaveBeenCalledTimes(1);
     });
 
@@ -275,7 +308,11 @@ describe('UserCrudService', () => {
       );
 
       expect(result).toEqual(mockUser);
-      expect(repository.updateUserProfile).toHaveBeenCalledWith(userId, updateUserDto, 'updater-id');
+      expect(repository.updateUserProfile).toHaveBeenCalledWith(
+        userId,
+        updateUserDto,
+        'updater-id',
+      );
       expect(repository.updateUserProfile).toHaveBeenCalledTimes(1);
     });
 
@@ -291,7 +328,11 @@ describe('UserCrudService', () => {
       );
 
       expect(result).toEqual(mockUser);
-      expect(repository.updateUserProfile).toHaveBeenCalledWith(userId, updateUserDto, 'updater-id');
+      expect(repository.updateUserProfile).toHaveBeenCalledWith(
+        userId,
+        updateUserDto,
+        'updater-id',
+      );
       expect(repository.updateUserProfile).toHaveBeenCalledTimes(1);
     });
 
@@ -301,7 +342,7 @@ describe('UserCrudService', () => {
       await expect(
         service.update(userId, updateUserDto, 'updater-id', requestingUserId, UserRole.USER),
       ).rejects.toThrow(ForbiddenException);
-      
+
       await expect(
         service.update(userId, updateUserDto, 'updater-id', requestingUserId, UserRole.USER),
       ).rejects.toThrow('Solo puedes actualizar tu propio perfil');

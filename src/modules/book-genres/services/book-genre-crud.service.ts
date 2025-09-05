@@ -5,6 +5,7 @@ import { BookGenre } from '../entities/book-genre.entity';
 import { CreateBookGenreDto } from '../dto/create-book-genre.dto';
 import { UpdateBookGenreDto } from '../dto/update-book-genre.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 
 @Injectable()
 export class BookGenreCrudService implements IBookGenreCrudService {
@@ -35,5 +36,13 @@ export class BookGenreCrudService implements IBookGenreCrudService {
 
   async softDelete(id: string, performedBy: string): Promise<{ id: string }> {
     return await this.genreCrudRepository.deactivateGenre(id, performedBy);
+  }
+
+  async findForSelect(): Promise<ListSelectDto[]> {
+    const genres = await this.genreCrudRepository.findForSelect();
+    return genres.map((genre) => ({
+      id: genre.id,
+      name: genre.name,
+    }));
   }
 }

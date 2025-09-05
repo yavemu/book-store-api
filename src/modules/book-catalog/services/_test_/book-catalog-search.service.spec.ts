@@ -84,7 +84,7 @@ describe('BookCatalogSearchService', () => {
       const searchResult = BookCatalogMockFactory.createMockPaginatedResult([mockBook]);
       mockSearchRepository.exactSearchBooks.mockResolvedValue(searchResult);
 
-      // Act  
+      // Act
       const pagination = BookCatalogMockFactory.createMockPaginationDto();
       const result = await service.exactSearch(searchDto, pagination);
 
@@ -679,7 +679,8 @@ describe('BookCatalogSearchService', () => {
 
       // Act & Assert
       await AssertionHelper.expectAsyncToThrow(
-        () => service.exactSearch(invalidSearchDto, BookCatalogMockFactory.createMockPaginationDto()),
+        () =>
+          service.exactSearch(invalidSearchDto, BookCatalogMockFactory.createMockPaginationDto()),
         'Invalid search parameters',
       );
     });

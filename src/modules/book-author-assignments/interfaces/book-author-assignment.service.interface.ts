@@ -2,6 +2,7 @@ import { BookAuthorAssignment } from '../entities/book-author-assignment.entity'
 import { CreateBookAuthorAssignmentDto } from '../dto/create-book-author-assignment.dto';
 import { UpdateBookAuthorAssignmentDto } from '../dto/update-book-author-assignment.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 
 export interface IBookAuthorAssignmentService {
   create(
@@ -25,4 +26,5 @@ export interface IBookAuthorAssignmentService {
     pagination: PaginationDto,
   ): Promise<PaginatedResult<BookAuthorAssignment>>;
   checkAssignmentExists(bookId: string, authorId: string): Promise<{ exists: boolean }>;
+  findForSelect(): Promise<ListSelectDto[]>;
 }

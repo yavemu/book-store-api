@@ -8,3 +8,4 @@ export * from './get-publishing-houses-by-country.decorator';
 export * from './filter-publishing-houses.decorator';
 export * from './simple-filter-publishing-houses.decorator';
 export * from './export-publishing-houses-csv.decorator';
+export * from './list-select-publishing-houses.decorator';

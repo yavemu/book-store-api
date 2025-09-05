@@ -20,6 +20,7 @@ import { PaginatedResult } from '../../../common/interfaces/paginated-result.int
 import { BaseRepository } from '../../../common/repositories/base.repository';
 import { IAuditLoggerService } from '../../audit/interfaces/audit-logger.service.interface';
 import { AuditAction } from '../../audit/enums/audit-action.enum';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 
 @Injectable()
 export class UserCrudRepository
@@ -174,6 +175,13 @@ export class UserCrudRepository
     } catch (error) {
       throw new HttpException('Failed to get all users', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  async findForSelect(): Promise<User[]> {
+    return await this._findMany({
+      select: ['id', 'username', 'firstName', 'lastName'],
+      order: { username: 'ASC' },
+    });
   }
 
   // Validation methods

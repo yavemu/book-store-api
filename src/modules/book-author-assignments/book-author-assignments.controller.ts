@@ -40,6 +40,7 @@ import {
   ApiFilterAssignmentsRealtime,
   ApiExportAssignmentsCsv,
   ApiSearchAssignments,
+  ApiListSelectBookAuthorAssignments,
 } from './decorators';
 
 @ApiTags('Book Author Assignments')
@@ -69,10 +70,20 @@ export class BookAuthorAssignmentsController {
     return this.bookAuthorAssignmentService.findAll(pagination);
   }
 
+  @Get('list-select')
+  @Auth(UserRole.ADMIN, UserRole.USER)
+  @ApiListSelectBookAuthorAssignments()
+  findForSelect() {
+    return this.bookAuthorAssignmentService.findForSelect();
+  }
+
   @Post('search')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchAssignments()
-  exactSearch(@Body() searchDto: AssignmentExactSearchDto, @Query() pagination: PaginationInputDto) {
+  exactSearch(
+    @Body() searchDto: AssignmentExactSearchDto,
+    @Query() pagination: PaginationInputDto,
+  ) {
     return this.bookAuthorAssignmentSearchService.exactSearch(searchDto);
   }
 

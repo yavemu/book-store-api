@@ -39,6 +39,7 @@ import {
   ApiFilterPublishingHouses,
   ApiSimpleFilterPublishingHouses,
   ApiExportPublishingHousesCsv,
+  ApiListSelectPublishingHouses,
 } from '../decorators';
 
 @ApiTags('Publishing Houses')
@@ -65,11 +66,21 @@ export class PublishingHousesController {
     return this.publishingHouseService.findAll(pagination);
   }
 
+  @Get('list-select')
+  @Auth(UserRole.ADMIN, UserRole.USER)
+  @ApiListSelectPublishingHouses()
+  findForSelect() {
+    return this.publishingHouseService.findForSelect();
+  }
+
   @Post('search')
   @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchPublishingHouses()
-  exactSearch(@Body() searchDto: PublishingHouseExactSearchDto, @Query() pagination: PaginationInputDto) {
+  exactSearch(
+    @Body() searchDto: PublishingHouseExactSearchDto,
+    @Query() pagination: PaginationInputDto,
+  ) {
     const paginationDto: PaginationDto = {
       page: pagination.page || 1,
       limit: pagination.limit || 10,
@@ -96,7 +107,10 @@ export class PublishingHousesController {
   @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterPublishingHouses()
-  advancedFilter(@Body() filters: PublishingHouseFiltersDto, @Query() pagination: PaginationInputDto) {
+  advancedFilter(
+    @Body() filters: PublishingHouseFiltersDto,
+    @Query() pagination: PaginationInputDto,
+  ) {
     return this.publishingHouseSearchService.findWithFilters(filters, pagination);
   }
 

@@ -5,7 +5,10 @@ import { CsvExportFiltersDto } from '../dto/csv-export-filters.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 
 export interface IBookCatalogSearchRepository {
-  exactSearchBooks(searchDto: BookExactSearchDto, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
+  exactSearchBooks(
+    searchDto: BookExactSearchDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookCatalog>>;
   simpleFilterBooks(term: string, pagination: PaginationDto): Promise<PaginatedResult<BookCatalog>>;
   advancedFilterBooks(
     filters: BookFiltersDto,

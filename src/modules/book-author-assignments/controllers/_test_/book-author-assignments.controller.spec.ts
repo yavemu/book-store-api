@@ -90,6 +90,10 @@ describe('BookAuthorAssignmentsController', () => {
       findByBook: jest.fn(),
       findByAuthor: jest.fn(),
       checkAssignmentExists: jest.fn(),
+      findForSelect: jest.fn().mockResolvedValue([
+        { id: mockAssignment.id, display: `Book ${mockAssignment.bookId} - Author ${mockAssignment.authorId}` },
+        { id: mockAssignments[1].id, display: `Book ${mockAssignments[1].bookId} - Author ${mockAssignments[1].authorId}` }
+      ]),
     };
 
     mockSearchService = {
@@ -176,9 +180,7 @@ describe('BookAuthorAssignmentsController', () => {
       const error = new Error('Assignment not found');
       mockCrudService.findById.mockRejectedValue(error);
 
-      await expect(controller.findOne('non-existent-id')).rejects.toThrow(
-        'Assignment not found',
-      );
+      await expect(controller.findOne('non-existent-id')).rejects.toThrow('Assignment not found');
     });
   });
 
@@ -190,20 +192,16 @@ describe('BookAuthorAssignmentsController', () => {
       const result = await controller.update(mockAssignment.id, updateDto, mockRequest);
 
       // TODO: expect(result).toEqual(updatedAssignment);
-      expect(mockCrudService.update).toHaveBeenCalledWith(
-        mockAssignment.id,
-        updateDto,
-        'user123',
-      );
+      expect(mockCrudService.update).toHaveBeenCalledWith(mockAssignment.id, updateDto, 'user123');
     });
 
     it('should handle update errors', async () => {
       const error = new Error('Update failed');
       mockCrudService.update.mockRejectedValue(error);
 
-      await expect(
-        controller.update(mockAssignment.id, updateDto, mockRequest),
-      ).rejects.toThrow('Update failed');
+      await expect(controller.update(mockAssignment.id, updateDto, mockRequest)).rejects.toThrow(
+        'Update failed',
+      );
     });
   });
 

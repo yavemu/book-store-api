@@ -69,14 +69,14 @@ export class InventoryMovementSearchRepository
   ): Promise<PaginatedResult<InventoryMovement>> {
     try {
       const maxLimit = Math.min(filterDto.limit || 10, 50);
-      
+
       // If no search term provided, return all movements with pagination
       if (!filterDto.term || filterDto.term.trim().length === 0) {
         const whereConditions: any = {};
         if (userRole !== 'ADMIN' && userId) {
           whereConditions.userId = userId;
         }
-        
+
         const options: FindManyOptions<InventoryMovement> = {
           where: whereConditions,
           relations: ['user'],
@@ -103,13 +103,13 @@ export class InventoryMovementSearchRepository
         .where('movement.isActive = :isActive', { isActive: true }) // Active filter
         .andWhere(
           '(LOWER(movement.notes) LIKE LOWER(:term) OR ' +
-          'LOWER(CAST(movement.movementType AS VARCHAR)) LIKE LOWER(:term) OR ' +
-          'LOWER(movement.entityType) LIKE LOWER(:term) OR ' +
-          'CAST(movement.quantityBefore AS VARCHAR) LIKE :term OR ' +
-          'CAST(movement.quantityAfter AS VARCHAR) LIKE :term OR ' +
-          'LOWER(user.username) LIKE LOWER(:term) OR ' +
-          'LOWER(user.email) LIKE LOWER(:term))',
-          { term: `%${trimmedTerm}%` }
+            'LOWER(CAST(movement.movementType AS VARCHAR)) LIKE LOWER(:term) OR ' +
+            'LOWER(movement.entityType) LIKE LOWER(:term) OR ' +
+            'CAST(movement.quantityBefore AS VARCHAR) LIKE :term OR ' +
+            'CAST(movement.quantityAfter AS VARCHAR) LIKE :term OR ' +
+            'LOWER(user.username) LIKE LOWER(:term) OR ' +
+            'LOWER(user.email) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` },
         );
 
       // Add user filter if not admin

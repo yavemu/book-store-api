@@ -450,4 +450,12 @@ export class BookCatalogCrudRepository
       }
     }
   }
+
+  async findForSelect(): Promise<BookCatalog[]> {
+    return await this._findMany({
+      select: ['id', 'title'],
+      where: { isAvailable: true },
+      order: { title: 'ASC' },
+    });
+  }
 }

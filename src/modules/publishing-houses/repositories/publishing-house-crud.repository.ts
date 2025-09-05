@@ -129,4 +129,11 @@ export class PublishingHouseCrudRepository
       throw new HttpException('Failed to get all publishers', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async findForSelect(): Promise<PublishingHouse[]> {
+    return await this._findMany({
+      select: ['id', 'name'],
+      order: { name: 'ASC' },
+    });
+  }
 }

@@ -91,4 +91,11 @@ export class BookAuthorCrudRepository
       where: whereCondition,
     });
   }
+
+  async findForSelect(): Promise<BookAuthor[]> {
+    return await this._findMany({
+      select: ['id', 'firstName', 'lastName'],
+      order: { lastName: 'ASC', firstName: 'ASC' },
+    });
+  }
 }

@@ -86,6 +86,7 @@ describe('BookAuthorCrudService', () => {
       findById: jest.fn(),
       update: jest.fn(),
       softDelete: jest.fn(),
+      findForSelect: jest.fn().mockResolvedValue(mockAuthors),
     };
 
     mockValidationRepository = {

@@ -129,4 +129,11 @@ export class BookGenreCrudRepository
       throw new HttpException('Failed to get all genres', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async findForSelect(): Promise<BookGenre[]> {
+    return await this._findMany({
+      select: ['id', 'name'],
+      order: { name: 'ASC' },
+    });
+  }
 }

@@ -4,6 +4,7 @@ import { CreateBookAuthorAssignmentDto } from '../dto/create-book-author-assignm
 import { UpdateBookAuthorAssignmentDto } from '../dto/update-book-author-assignment.dto';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 import { IBookAuthorAssignmentCrudService } from '../interfaces/book-author-assignment-crud.service.interface';
 import { IBookAuthorAssignmentCrudRepository } from '../interfaces/book-author-assignment-crud.repository.interface';
 import { IValidationService } from '../interfaces/validation.service.interface';
@@ -110,6 +111,35 @@ export class BookAuthorAssignmentCrudService implements IBookAuthorAssignmentCru
       this.errorHandler.handleError(
         error,
         ERROR_MESSAGES.BOOK_AUTHOR_ASSIGNMENTS?.FAILED_TO_DELETE || 'Failed to delete assignment',
+      );
+    }
+  }
+
+  async findForSelect(): Promise<ListSelectDto[]> {
+    try {
+      const assignments = await this.crudRepository.findForSelect();
+      return assignments
+        .filter(
+          (assignment) =>
+            assignment.book &&
+            assignment.author &&
+            !assignment.book.deletedAt &&
+            !assignment.author.deletedAt,
+        )
+        .sort((a, b) => {
+          const bookComparison = a.book.title.localeCompare(b.book.title);
+          if (bookComparison !== 0) return bookComparison;
+          return a.author.lastName.localeCompare(b.author.lastName);
+        })
+        .map((assignment) => ({
+          id: assignment.id,
+          name: `${assignment.book.title} by ${assignment.author.firstName} ${assignment.author.lastName}`,
+        }));
+    } catch (error) {
+      this.errorHandler.handleError(
+        error,
+        ERROR_MESSAGES.BOOK_AUTHOR_ASSIGNMENTS?.FAILED_TO_GET_ALL ||
+          'Failed to get assignments for select',
       );
     }
   }

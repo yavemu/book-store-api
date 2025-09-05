@@ -37,7 +37,7 @@ export class BookAuthorSearchRepository
   ): Promise<PaginatedResult<BookAuthor>> {
     try {
       const whereCondition: any = {};
-      
+
       // Build where condition based on provided fields
       if (searchDto.firstName) whereCondition.firstName = searchDto.firstName;
       if (searchDto.lastName) whereCondition.lastName = searchDto.lastName;
@@ -67,9 +67,12 @@ export class BookAuthorSearchRepository
   ): Promise<PaginatedResult<BookAuthor>> {
     try {
       // Sanitizar parámetros de paginación
-      const sanitizedPagination = SqlSanitizer.sanitizePaginationParams(pagination.page, pagination.limit);
+      const sanitizedPagination = SqlSanitizer.sanitizePaginationParams(
+        pagination.page,
+        pagination.limit,
+      );
       const maxLimit = Math.min(sanitizedPagination.limit, 50);
-      
+
       // Si no se proporciona término de búsqueda, retornar error (ahora es obligatorio)
       if (!term || term.trim().length === 0) {
         throw new HttpException('Filter term is required', HttpStatus.BAD_REQUEST);
@@ -85,7 +88,10 @@ export class BookAuthorSearchRepository
       }
 
       // Sanitizar parámetros de ordenamiento
-      const { sortBy, sortOrder } = SqlSanitizer.sanitizeSortParams(pagination.sortBy, pagination.sortOrder);
+      const { sortBy, sortOrder } = SqlSanitizer.sanitizeSortParams(
+        pagination.sortBy,
+        pagination.sortOrder,
+      );
 
       // Use TypeORM QueryBuilder for efficient LIKE queries across all fields
       const queryBuilder = this.repository
@@ -93,13 +99,12 @@ export class BookAuthorSearchRepository
         .where('author.deletedAt IS NULL') // Soft delete filter
         .andWhere(
           '(LOWER(author.firstName) LIKE LOWER(:term) OR ' +
-          'LOWER(author.lastName) LIKE LOWER(:term) OR ' +
-          'LOWER(author.email) LIKE LOWER(:term) OR ' +
-          'LOWER(author.biography) LIKE LOWER(:term) OR ' +
-          'LOWER(author.nationality) LIKE LOWER(:term))',
-          { term: `%${sanitizedTerm}%` }
+            'LOWER(author.lastName) LIKE LOWER(:term) OR ' +
+            'LOWER(author.email) LIKE LOWER(:term) OR ' +
+            'LOWER(author.biography) LIKE LOWER(:term) OR ' +
+            'LOWER(author.nationality) LIKE LOWER(:term))',
+          { term: `%${sanitizedTerm}%` },
         );
-
 
       // Get total count for pagination metadata
       const totalCount = await queryBuilder.getCount();
@@ -168,8 +173,14 @@ export class BookAuthorSearchRepository
     try {
       // Sanitizar filtros
       const sanitizedFilters = SqlSanitizer.sanitizeFilters(filters);
-      const sanitizedPagination = SqlSanitizer.sanitizePaginationParams(pagination.page, pagination.limit);
-      const { sortBy, sortOrder } = SqlSanitizer.sanitizeSortParams(pagination.sortBy, pagination.sortOrder);
+      const sanitizedPagination = SqlSanitizer.sanitizePaginationParams(
+        pagination.page,
+        pagination.limit,
+      );
+      const { sortBy, sortOrder } = SqlSanitizer.sanitizeSortParams(
+        pagination.sortBy,
+        pagination.sortOrder,
+      );
 
       const whereConditions: any = {};
 

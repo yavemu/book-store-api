@@ -8,6 +8,7 @@ import { BookAuthor } from '../entities/book-author.entity';
 import { CreateBookAuthorDto } from '../dto/create-book-author.dto';
 import { UpdateBookAuthorDto } from '../dto/update-book-author.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 import { ERROR_MESSAGES } from '../../../common/constants/error-messages';
 
 @Injectable()
@@ -108,6 +109,18 @@ export class BookAuthorCrudService implements IBookAuthorCrudService {
       await this.crudRepository.softDelete(id, performedBy);
     } catch (error) {
       this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_DELETE);
+    }
+  }
+
+  async findForSelect(): Promise<ListSelectDto[]> {
+    try {
+      const authors = await this.crudRepository.findForSelect();
+      return authors.map((author) => ({
+        id: author.id,
+        name: `${author.firstName} ${author.lastName}`,
+      }));
+    } catch (error) {
+      this.errorHandler.handleError(error, ERROR_MESSAGES.BOOK_AUTHORS.FAILED_TO_GET_ALL);
     }
   }
 }

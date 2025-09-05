@@ -90,6 +90,10 @@ describe('PublishingHousesController', () => {
       findByCountry: jest.fn(),
       findWithFilters: jest.fn(),
       exportToCsv: jest.fn(),
+      findForSelect: jest.fn().mockResolvedValue([
+        { id: mockPublishingHouse.id, display: mockPublishingHouse.name },
+        { id: mockPublishingHouses[1].id, display: mockPublishingHouses[1].name }
+      ]),
     };
 
     mockSearchService = {
@@ -258,7 +262,6 @@ describe('PublishingHousesController', () => {
       expect(mockSearchService.exactSearch).toHaveBeenCalledWith(searchDto, expect.any(Object));
     });
     */
-
     // TODO: Fix after search architecture changes
     /*
     it('should return empty results for no matches', async () => {

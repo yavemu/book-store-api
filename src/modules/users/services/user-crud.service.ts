@@ -7,6 +7,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
 import { RegisterUserDto } from '../dto';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 
 @Injectable()
 export class UserCrudService implements IUserCrudService {
@@ -59,5 +60,16 @@ export class UserCrudService implements IUserCrudService {
 
   async softDelete(id: string, deletedBy?: string): Promise<{ id: string }> {
     return this.userCrudRepository.deactivateUser(id, deletedBy);
+  }
+
+  async findForSelect(): Promise<ListSelectDto[]> {
+    const users = await this.userCrudRepository.findForSelect();
+    return users.map((user) => ({
+      id: user.id,
+      name:
+        user.firstName && user.lastName
+          ? `${user.firstName} ${user.lastName} (${user.username})`
+          : user.username,
+    }));
   }
 }

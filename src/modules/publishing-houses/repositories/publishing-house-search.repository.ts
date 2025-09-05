@@ -28,7 +28,7 @@ export class PublishingHouseSearchRepository
   ): Promise<PaginatedResult<PublishingHouse>> {
     try {
       const whereCondition: any = {};
-      
+
       // Build WHERE conditions for all provided fields (WHERE AND exact match)
       if (searchDto.name) {
         whereCondition.name = searchDto.name;
@@ -62,7 +62,7 @@ export class PublishingHouseSearchRepository
         sortOrder: 'DESC' as 'DESC' | 'ASC',
         get offset(): number {
           return (this.page - 1) * this.limit;
-        }
+        },
       };
       const options: FindManyOptions<PublishingHouse> = {
         where: whereCondition,
@@ -89,7 +89,7 @@ export class PublishingHouseSearchRepository
   ): Promise<PaginatedResult<PublishingHouse>> {
     try {
       const maxLimit = Math.min(pagination.limit || 10, 50);
-      
+
       // If no search term provided, return all publishing houses with pagination
       if (!term || term.trim().length === 0) {
         const options: FindManyOptions<PublishingHouse> = {
@@ -115,9 +115,9 @@ export class PublishingHouseSearchRepository
         .where('publisher.deletedAt IS NULL') // Soft delete filter
         .andWhere(
           '(LOWER(publisher.name) LIKE LOWER(:term) OR ' +
-          'LOWER(publisher.country) LIKE LOWER(:term) OR ' +
-          'LOWER(publisher.websiteUrl) LIKE LOWER(:term))',
-          { term: `%${trimmedTerm}%` }
+            'LOWER(publisher.country) LIKE LOWER(:term) OR ' +
+            'LOWER(publisher.websiteUrl) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` },
         );
 
       // Get total count for pagination metadata

@@ -5,6 +5,7 @@ import { BookCatalog } from '../entities/book-catalog.entity';
 import { CreateBookCatalogDto } from '../dto/create-book-catalog.dto';
 import { UpdateBookCatalogDto } from '../dto/update-book-catalog.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 
 @Injectable()
 export class BookCatalogCrudService implements IBookCatalogCrudService {
@@ -42,7 +43,7 @@ export class BookCatalogCrudService implements IBookCatalogCrudService {
     const userId = req.user?.userId || req.user?.id || req.id;
     const userFullName = req.user?.username || 'Unknown User';
     const userRole = req.user?.role?.name || 'user';
-    
+
     return await this.bookCatalogCrudRepository.updateBookProfile(
       id,
       updateBookCatalogDto,
@@ -54,5 +55,13 @@ export class BookCatalogCrudService implements IBookCatalogCrudService {
 
   async softDelete(id: string, performedBy: string): Promise<void> {
     await this.bookCatalogCrudRepository.deactivateBook(id, performedBy);
+  }
+
+  async findForSelect(): Promise<ListSelectDto[]> {
+    const books = await this.bookCatalogCrudRepository.findForSelect();
+    return books.map((book) => ({
+      id: book.id,
+      name: book.title,
+    }));
   }
 }

@@ -1,4 +1,17 @@
-import { Controller, Get, Param, Query, Request, Post, Body, Res, HttpCode, HttpException, HttpStatus, Inject } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  Request,
+  Post,
+  Body,
+  Res,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Inject,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { InventoryMovementCrudService } from './services/inventory-movement-crud.service';
@@ -13,6 +26,7 @@ import {
   ApiGetInventoryMovementById,
   ApiSearchInventoryMovements,
   ApiExportInventoryMovementsCsv,
+  ApiListSelectInventoryMovements,
 } from './decorators';
 import {
   MovementFiltersDto,
@@ -47,11 +61,22 @@ export class InventoryMovementsController {
     };
   }
 
+  @Get('list-select')
+  @Auth(UserRole.ADMIN, UserRole.USER)
+  @ApiListSelectInventoryMovements()
+  async findForSelect() {
+    return await this.inventoryMovementCrudService.findForSelect();
+  }
+
   @Post('search')
   @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchInventoryMovements()
-  async exactSearch(@Body() searchDto: InventoryMovementExactSearchDto, @Query() pagination: PaginationInputDto, @Request() req) {
+  async exactSearch(
+    @Body() searchDto: InventoryMovementExactSearchDto,
+    @Query() pagination: PaginationInputDto,
+    @Request() req,
+  ) {
     return {
       data: await this.inventoryMovementCrudService.exactSearchMovements(
         searchDto,
@@ -70,7 +95,7 @@ export class InventoryMovementsController {
     if (!filterDto.term || filterDto.term.trim().length === 0) {
       throw new HttpException('Filter term is required', HttpStatus.BAD_REQUEST);
     }
-    
+
     return {
       data: await this.searchRepository.simpleFilterMovements(
         filterDto,

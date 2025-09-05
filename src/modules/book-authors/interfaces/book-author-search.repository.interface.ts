@@ -22,6 +22,12 @@ export interface IBookAuthorSearchRepository {
   exportToCsv(filters: BookAuthorCsvExportFiltersDto): Promise<string>;
 
   // Methods needed by services
-  exactSearchAuthors(searchDto: BookAuthorExactSearchDto, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>>;
-  simpleFilterAuthors(term: string, pagination: PaginationDto): Promise<PaginatedResult<BookAuthor>>;
+  exactSearchAuthors(
+    searchDto: BookAuthorExactSearchDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthor>>;
+  simpleFilterAuthors(
+    term: string,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<BookAuthor>>;
 }

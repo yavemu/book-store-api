@@ -6,10 +6,17 @@ import { InventoryMovement } from '../entities/inventory-movement.entity';
 import { IInventoryMovementCrudRepository } from '../interfaces/inventory-movement-crud.repository.interface';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 import { BaseRepository } from '../../../common/repositories/base.repository';
 import { IAuditLoggerService } from '../../audit/interfaces/audit-logger.service.interface';
 import { AuditAction } from '../../audit/enums/audit-action.enum';
-import { MovementFiltersDto, MovementSearchDto, MovementAdvancedFiltersDto, InventoryMovementExactSearchDto } from '../dto';
+import { MovementType } from '../enums/movement-type.enum';
+import {
+  MovementFiltersDto,
+  MovementSearchDto,
+  MovementAdvancedFiltersDto,
+  InventoryMovementExactSearchDto,
+} from '../dto';
 
 @Injectable()
 export class InventoryMovementCrudRepository
@@ -372,5 +379,60 @@ export class InventoryMovementCrudRepository
       requestingUserId,
       requestingUserRole,
     );
+  }
+
+  async findForSelect(): Promise<ListSelectDto[]> {
+    try {
+      const results = await this.movementRepository
+        .createQueryBuilder('movement')
+        .leftJoin(
+          'book_catalog',
+          'book',
+          'movement.entityId = book.id AND movement.entityType = :bookType',
+          { bookType: 'Book' },
+        )
+        .select([
+          'movement.id as id',
+          'movement.movementType as movementType',
+          'book.title as bookTitle',
+        ])
+        .where('movement.isActive = :isActive', { isActive: true })
+        .orderBy('movement.createdAt', 'DESC')
+        .getRawMany();
+
+      return results.map((row) => {
+        const bookTitle = row.bookTitle || 'Sin título';
+        const movementTypeSpanish = this.getMovementTypeInSpanish(row.movementType);
+
+        return {
+          id: row.id,
+          name: `${movementTypeSpanish} - ${bookTitle}`,
+        };
+      });
+    } catch (error) {
+      throw new HttpException(
+        'Failed to get movements for select',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  private getMovementTypeInSpanish(movementType: MovementType): string {
+    switch (movementType) {
+      case MovementType.PURCHASE:
+        return 'COMPRA';
+      case MovementType.SALE:
+        return 'VENTA';
+      case MovementType.DISCOUNT:
+        return 'DESCUENTO';
+      case MovementType.INCREASE:
+        return 'AUMENTO';
+      case MovementType.OUT_OF_STOCK:
+        return 'SIN STOCK';
+      case MovementType.ARCHIVED:
+        return 'ARCHIVADO';
+      default:
+        return movementType;
+    }
   }
 }

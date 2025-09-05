@@ -15,7 +15,10 @@ export class BookGenreSearchService implements IBookGenreSearchService {
     private readonly genreSearchRepository: IBookGenreSearchRepository,
   ) {}
 
-  async exactSearch(searchDto: BookGenreExactSearchDto, pagination?: PaginationDto): Promise<PaginatedResult<BookGenre>> {
+  async exactSearch(
+    searchDto: BookGenreExactSearchDto,
+    pagination?: PaginationDto,
+  ): Promise<PaginatedResult<BookGenre>> {
     return await this.genreSearchRepository.exactSearchGenres(searchDto, pagination);
   }
 

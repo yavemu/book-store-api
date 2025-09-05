@@ -81,7 +81,7 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
   ): Promise<PaginatedResult<User>> {
     try {
       const maxLimit = Math.min(pagination.limit || 10, 50);
-      
+
       // If no search term provided, return all users with pagination
       if (!term || term.trim().length === 0) {
         const options: FindManyOptions<User> = {
@@ -109,11 +109,11 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
         .where('user.deletedAt IS NULL') // Soft delete filter
         .andWhere(
           '(LOWER(user.username) LIKE LOWER(:term) OR ' +
-          'LOWER(user.email) LIKE LOWER(:term) OR ' +
-          'LOWER(user.firstName) LIKE LOWER(:term) OR ' +
-          'LOWER(user.lastName) LIKE LOWER(:term) OR ' +
-          'LOWER(role.name) LIKE LOWER(:term))',
-          { term: `%${trimmedTerm}%` }
+            'LOWER(user.email) LIKE LOWER(:term) OR ' +
+            'LOWER(user.firstName) LIKE LOWER(:term) OR ' +
+            'LOWER(user.lastName) LIKE LOWER(:term) OR ' +
+            'LOWER(role.name) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` },
         );
 
       // Get total count for pagination metadata
@@ -271,7 +271,7 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
   ): Promise<PaginatedResult<User>> {
     try {
       const whereCondition: any = {};
-      
+
       // Build where condition based on provided fields
       if (searchDto.username) whereCondition.username = searchDto.username;
       if (searchDto.email) whereCondition.email = searchDto.email;

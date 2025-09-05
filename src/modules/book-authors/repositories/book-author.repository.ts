@@ -17,6 +17,7 @@ import { UpdateBookAuthorDto } from '../dto/update-book-author.dto';
 import { BookAuthorFiltersDto } from '../dto/book-author-filters.dto';
 import { BookAuthorCsvExportFiltersDto } from '../dto/book-author-csv-export-filters.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 import { BaseRepository } from '../../../common/repositories/base.repository';
 
 @Injectable()
@@ -292,5 +293,12 @@ export class BookAuthorRepository
     };
 
     return await this._findManyWithPagination(options, filterDto);
+  }
+
+  async findForSelect(): Promise<BookAuthor[]> {
+    return await this._findMany({
+      select: ['id', 'firstName', 'lastName'],
+      order: { lastName: 'ASC', firstName: 'ASC' },
+    });
   }
 }

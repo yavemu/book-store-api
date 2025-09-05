@@ -4,6 +4,7 @@ import { UpdatePublishingHouseDto } from '../dto/update-publishing-house.dto';
 import { PublishingHouseFiltersDto } from '../dto/publishing-house-filters.dto';
 import { PublishingHouseCsvExportFiltersDto } from '../dto/publishing-house-csv-export-filters.dto';
 import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.dto';
+import { ListSelectDto } from '../../../common/dto/list-select.dto';
 
 export interface IPublishingHouseService {
   create(
@@ -28,4 +29,5 @@ export interface IPublishingHouseService {
     pagination: PaginationDto,
   ): Promise<PaginatedResult<PublishingHouse>>;
   exportToCsv(filters: PublishingHouseCsvExportFiltersDto): Promise<string>;
+  findForSelect(): Promise<ListSelectDto[]>;
 }

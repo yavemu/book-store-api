@@ -72,6 +72,7 @@ describe('PublishingHouseCrudService', () => {
       getPublisherProfile: jest.fn(),
       updatePublisherProfile: jest.fn(),
       deactivatePublisher: jest.fn(),
+      findForSelect: jest.fn().mockResolvedValue(mockPublishingHouses),
     };
 
     const module: TestingModule = await Test.createTestingModule({
