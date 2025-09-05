@@ -88,7 +88,6 @@ export class BookCatalogSearchRepository
           '(LOWER(book.title) LIKE LOWER(:term) OR ' +
           'LOWER(book.isbnCode) LIKE LOWER(:term) OR ' +
           'LOWER(book.summary) LIKE LOWER(:term) OR ' +
-          'CAST(book.publicationYear AS VARCHAR) LIKE :term OR ' +
           'CAST(book.stockQuantity AS VARCHAR) LIKE :term OR ' +
           'CAST(book.price AS VARCHAR) LIKE :term OR ' +
           'LOWER(genre.name) LIKE LOWER(:term) OR ' +

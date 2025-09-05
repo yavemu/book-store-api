@@ -29,9 +29,10 @@ export class UserSearchRepository extends BaseRepository<User> implements IUserS
     try {
       return await this._findOne({
         where: { email: email.toLowerCase().trim() },
+        relations: ['role'], // Include role relation for authentication
       });
     } catch (error) {
-      console.error(error);
+      console.error('Authentication error:', error);
       throw new HttpException('Authentication failed', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

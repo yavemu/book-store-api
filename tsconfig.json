@@ -19,5 +19,6 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
     }
-  }
+  },
+  "exclude": ["test/**/*", "node_modules", "dist"]
 }

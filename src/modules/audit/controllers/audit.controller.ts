@@ -5,6 +5,7 @@ import { IAuditSearchService } from '../interfaces/audit-search.service.interfac
 import { Auth } from '../../../common/decorators/auth.decorator';
 import { UserRole } from '../../../common/enums/user-role.enum';
 import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 import {
   AuditFiltersDto,
   AuditExactSearchDto,
@@ -48,12 +49,17 @@ export class AuditController {
   @Get('filter')
   @Auth(UserRole.ADMIN)
   @ApiFilterAuditRealtime()
-  async simpleFilter(@Query('term') term: string, @Query() pagination: PaginationInputDto) {
+  async simpleFilter(@Query() filterDto: AuditSimpleFilterDto) {
     // Validar que el término sea obligatorio
-    if (!term || term.trim().length === 0) {
+    if (!filterDto.term || filterDto.term.trim().length === 0) {
       throw new HttpException('Filter term is required', HttpStatus.BAD_REQUEST);
     }
-    return this.auditSearchService.simpleFilter(term, pagination);
+    const pagination = new PaginationDto();
+    pagination.page = filterDto.page;
+    pagination.limit = filterDto.limit;
+    pagination.sortBy = filterDto.sortBy;
+    pagination.sortOrder = filterDto.sortOrder;
+    return this.auditSearchService.simpleFilter(filterDto.term, pagination);
   }
 
   @Get(':id')
@@ -77,7 +83,13 @@ export class AuditController {
   }
 
   async filter(filterTerm: any, pagination: PaginationInputDto) {
-    return this.simpleFilter(filterTerm.term, pagination);
+    const filterDto = new AuditSimpleFilterDto();
+    filterDto.term = filterTerm.term || '';
+    filterDto.page = pagination.page;
+    filterDto.limit = pagination.limit;
+    filterDto.sortBy = pagination.sortBy;
+    filterDto.sortOrder = pagination.sortOrder;
+    return this.simpleFilter(filterDto);
   }
 
   @Get('export/csv')

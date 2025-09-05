@@ -68,45 +68,78 @@ export class InventoryMovementSearchRepository
     userRole?: string,
   ): Promise<PaginatedResult<InventoryMovement>> {
     try {
-      const whereConditions: any = {};
-
-      if (userRole !== 'ADMIN' && userId) {
-        whereConditions.userId = userId;
-      }
-
-      if (!filterDto.term || filterDto.term.trim() === '') {
+      const maxLimit = Math.min(filterDto.limit || 10, 50);
+      
+      // If no search term provided, return all movements with pagination
+      if (!filterDto.term || filterDto.term.trim().length === 0) {
+        const whereConditions: any = {};
+        if (userRole !== 'ADMIN' && userId) {
+          whereConditions.userId = userId;
+        }
+        
         const options: FindManyOptions<InventoryMovement> = {
           where: whereConditions,
-          order: { [filterDto.sortBy]: filterDto.sortOrder },
-          skip: filterDto.offset,
-          take: filterDto.limit,
           relations: ['user'],
+          order: { [filterDto.sortBy || 'createdAt']: filterDto.sortOrder || 'DESC' },
+          skip: filterDto.offset,
+          take: maxLimit,
         };
         return await this._findManyWithPagination(options, filterDto);
       }
 
-      const allMovementsOptions: FindManyOptions<InventoryMovement> = {
-        where: whereConditions,
-        order: { [filterDto.sortBy]: filterDto.sortOrder },
-        relations: ['user'],
+      // Validate minimum search term length
+      const trimmedTerm = filterDto.term.trim();
+      if (trimmedTerm.length < 3) {
+        throw new HttpException(
+          'Search term must be at least 3 characters long',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // Use TypeORM QueryBuilder for efficient LIKE queries across all fields
+      const queryBuilder = this.repository
+        .createQueryBuilder('movement')
+        .leftJoinAndSelect('movement.user', 'user')
+        .where('movement.isActive = :isActive', { isActive: true }) // Active filter
+        .andWhere(
+          '(LOWER(movement.notes) LIKE LOWER(:term) OR ' +
+          'LOWER(CAST(movement.movementType AS VARCHAR)) LIKE LOWER(:term) OR ' +
+          'LOWER(movement.entityType) LIKE LOWER(:term) OR ' +
+          'CAST(movement.quantityBefore AS VARCHAR) LIKE :term OR ' +
+          'CAST(movement.quantityAfter AS VARCHAR) LIKE :term OR ' +
+          'LOWER(user.username) LIKE LOWER(:term) OR ' +
+          'LOWER(user.email) LIKE LOWER(:term))',
+          { term: `%${trimmedTerm}%` }
+        );
+
+      // Add user filter if not admin
+      if (userRole !== 'ADMIN' && userId) {
+        queryBuilder.andWhere('movement.userId = :userId', { userId });
+      }
+
+      // Get total count for pagination metadata
+      const totalCount = await queryBuilder.getCount();
+
+      // Apply sorting and pagination
+      queryBuilder
+        .orderBy(`movement.${filterDto.sortBy || 'createdAt'}`, filterDto.sortOrder || 'DESC')
+        .skip(filterDto.offset)
+        .take(maxLimit);
+
+      const movements = await queryBuilder.getMany();
+
+      // Return using standard pagination format
+      return {
+        data: movements,
+        meta: {
+          total: totalCount,
+          page: filterDto.page,
+          limit: maxLimit,
+          totalPages: Math.ceil(totalCount / maxLimit),
+          hasNext: filterDto.offset + maxLimit < totalCount,
+          hasPrev: filterDto.page > 1,
+        },
       };
-
-      const allMovements = await this._findMany(allMovementsOptions);
-      const trimmedTerm = filterDto.term.trim().toLowerCase();
-
-      const filteredMovements = allMovements.filter(
-        (movement) =>
-          (movement.notes && movement.notes.toLowerCase().includes(trimmedTerm)) ||
-          (movement.movementType && movement.movementType.toLowerCase().includes(trimmedTerm)) ||
-          (movement.entityType && movement.entityType.toLowerCase().includes(trimmedTerm)),
-      );
-
-      const total = filteredMovements.length;
-      const startIndex = filterDto.offset || 0;
-      const endIndex = startIndex + (filterDto.limit || 10);
-      const paginatedData = filteredMovements.slice(startIndex, endIndex);
-
-      return this._buildPaginatedResult(paginatedData, total, filterDto);
     } catch (error) {
       throw new HttpException(
         'Failed to filter inventory movements',

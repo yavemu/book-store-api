@@ -1,25 +1,37 @@
-import { IsString, IsNotEmpty, IsIn } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
+import { IsString, IsOptional, IsUrl, Length } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
-export class PublishingHouseExactSearchDto extends PaginationInputDto {
+export class PublishingHouseExactSearchDto {
   @IsString()
-  @IsNotEmpty()
-  @IsIn(['name', 'country'])
-  @ApiProperty({
-    description: 'Field to search exactly in',
-    example: 'name',
-    enum: ['name', 'country'],
-    required: true,
-  })
-  searchField: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty({
-    description: 'Exact value to search for',
+  @IsOptional()
+  @Length(2, 100)
+  @ApiPropertyOptional({
+    description: 'Name of the publishing house',
     example: 'Penguin Random House',
-    required: true,
+    minLength: 2,
+    maxLength: 100,
   })
-  searchValue: string;
+  name?: string;
+
+  @IsString()
+  @IsOptional()
+  @Length(2, 50)
+  @ApiPropertyOptional({
+    description: 'Country where the publishing house is located',
+    example: 'United States',
+    minLength: 2,
+    maxLength: 50,
+    required: false,
+  })
+  country?: string;
+
+  @IsUrl()
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'Official website URL of the publishing house',
+    example: 'https://www.penguinrandomhouse.com',
+    format: 'url',
+    required: false,
+  })
+  websiteUrl?: string;
 }

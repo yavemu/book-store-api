@@ -47,20 +47,6 @@ export class InventoryMovementsController {
     };
   }
 
-  @Get(':id')
-  @Auth(UserRole.ADMIN, UserRole.USER)
-  @ApiGetInventoryMovementById()
-  async getInventoryMovementById(@Param('id') id: string, @Request() req) {
-    return {
-      data: await this.inventoryMovementCrudService.findById(
-        id,
-        req.user?.userId,
-        req.user?.role?.name,
-      ),
-      message: SUCCESS_MESSAGES.INVENTORY_MOVEMENTS.FOUND_ONE,
-    };
-  }
-
   @Post('search')
   @HttpCode(200)
   @Auth(UserRole.ADMIN, UserRole.USER)
@@ -79,15 +65,15 @@ export class InventoryMovementsController {
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchInventoryMovements()
-  async simpleFilter(@Query('term') term: string, @Query() pagination: PaginationInputDto, @Request() req) {
+  async simpleFilter(@Query() filterDto: InventoryMovementSimpleFilterDto, @Request() req) {
     // Validar que el término sea obligatorio
-    if (!term || term.trim().length === 0) {
+    if (!filterDto.term || filterDto.term.trim().length === 0) {
       throw new HttpException('Filter term is required', HttpStatus.BAD_REQUEST);
     }
     
     return {
       data: await this.searchRepository.simpleFilterMovements(
-        { term, page: pagination.page, limit: pagination.limit, sortBy: pagination.sortBy, sortOrder: pagination.sortOrder, offset: pagination.offset },
+        filterDto,
         req.user?.userId,
         req.user?.role?.name,
       ),
@@ -112,6 +98,20 @@ export class InventoryMovementsController {
         req.user?.role?.name,
       ),
       message: SUCCESS_MESSAGES.GENERAL.SEARCH_SUCCESS,
+    };
+  }
+
+  @Get(':id')
+  @Auth(UserRole.ADMIN, UserRole.USER)
+  @ApiGetInventoryMovementById()
+  async getInventoryMovementById(@Param('id') id: string, @Request() req) {
+    return {
+      data: await this.inventoryMovementCrudService.findById(
+        id,
+        req.user?.userId,
+        req.user?.role?.name,
+      ),
+      message: SUCCESS_MESSAGES.INVENTORY_MOVEMENTS.FOUND_ONE,
     };
   }
 

@@ -27,6 +27,7 @@ import {
 import { Auth } from '../../../common/decorators/auth.decorator';
 import { UserRole } from '../../../common/enums/user-role.enum';
 import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 import {
   ApiCreateBookGenre,
   ApiGetGenres,
@@ -68,14 +69,26 @@ export class BookGenresController {
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchGenres()
   exactSearch(@Body() searchDto: BookGenreExactSearchDto, @Query() pagination: PaginationInputDto) {
-    return this.genreSearchService.exactSearch(searchDto);
+    const paginationDto: PaginationDto = {
+      page: pagination.page || 1,
+      limit: pagination.limit || 10,
+      sortBy: pagination.sortBy || 'createdAt',
+      sortOrder: pagination.sortOrder || 'DESC',
+      offset: pagination.offset,
+    };
+    return this.genreSearchService.exactSearch(searchDto, paginationDto);
   }
 
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterGenres()
-  simpleFilter(@Query('term') term: string, @Query() pagination: PaginationInputDto) {
-    return this.genreSearchService.simpleFilter(term, pagination);
+  simpleFilter(@Query() filterDto: BookGenreSimpleFilterDto) {
+    const pagination = new PaginationDto();
+    pagination.page = filterDto.page;
+    pagination.limit = filterDto.limit;
+    pagination.sortBy = filterDto.sortBy;
+    pagination.sortOrder = filterDto.sortOrder;
+    return this.genreSearchService.simpleFilter(filterDto.term, pagination);
   }
 
   @Post('advanced-filter')

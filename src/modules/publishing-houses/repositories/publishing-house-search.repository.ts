@@ -24,19 +24,54 @@ export class PublishingHouseSearchRepository
 
   async exactSearchPublishingHouses(
     searchDto: PublishingHouseExactSearchDto,
+    pagination?: PaginationDto,
   ): Promise<PaginatedResult<PublishingHouse>> {
     try {
       const whereCondition: any = {};
-      whereCondition[searchDto.searchField] = searchDto.searchValue;
+      
+      // Build WHERE conditions for all provided fields (WHERE AND exact match)
+      if (searchDto.name) {
+        whereCondition.name = searchDto.name;
+      }
+      if (searchDto.country) {
+        whereCondition.country = searchDto.country;
+      }
+      if (searchDto.websiteUrl) {
+        whereCondition.websiteUrl = searchDto.websiteUrl;
+      }
 
+      // If no search criteria provided, return empty result
+      if (Object.keys(whereCondition).length === 0) {
+        return {
+          data: [],
+          meta: {
+            total: 0,
+            page: pagination?.page || 1,
+            limit: pagination?.limit || 10,
+            totalPages: 0,
+            hasNext: false,
+            hasPrev: false,
+          },
+        };
+      }
+
+      const paginationData = pagination || {
+        page: 1,
+        limit: 10,
+        sortBy: 'createdAt',
+        sortOrder: 'DESC' as 'DESC' | 'ASC',
+        get offset(): number {
+          return (this.page - 1) * this.limit;
+        }
+      };
       const options: FindManyOptions<PublishingHouse> = {
         where: whereCondition,
-        order: { [searchDto.sortBy]: searchDto.sortOrder },
-        skip: searchDto.offset,
-        take: searchDto.limit,
+        order: { [paginationData.sortBy || 'createdAt']: paginationData.sortOrder || 'DESC' },
+        skip: paginationData.offset,
+        take: paginationData.limit,
       };
 
-      return await this._findManyWithPagination(options, searchDto);
+      return await this._findManyWithPagination(options, paginationData);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -81,8 +116,7 @@ export class PublishingHouseSearchRepository
         .andWhere(
           '(LOWER(publisher.name) LIKE LOWER(:term) OR ' +
           'LOWER(publisher.country) LIKE LOWER(:term) OR ' +
-          'LOWER(publisher.websiteUrl) LIKE LOWER(:term) OR ' +
-          'LOWER(publisher.contactEmail) LIKE LOWER(:term))',
+          'LOWER(publisher.websiteUrl) LIKE LOWER(:term))',
           { term: `%${trimmedTerm}%` }
         );
 

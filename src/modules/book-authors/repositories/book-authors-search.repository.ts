@@ -100,6 +100,7 @@ export class BookAuthorSearchRepository
           { term: `%${sanitizedTerm}%` }
         );
 
+
       // Get total count for pagination metadata
       const totalCount = await queryBuilder.getCount();
 

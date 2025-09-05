@@ -17,8 +17,9 @@ export class PublishingHouseSearchService implements IPublishingHouseSearchServi
 
   async exactSearch(
     searchDto: PublishingHouseExactSearchDto,
+    pagination?: PaginationDto,
   ): Promise<PaginatedResult<PublishingHouse>> {
-    return this.publishingHouseSearchRepository.exactSearchPublishingHouses(searchDto);
+    return this.publishingHouseSearchRepository.exactSearchPublishingHouses(searchDto, pagination);
   }
 
   async simpleFilter(
@@ -45,15 +46,9 @@ export class PublishingHouseSearchService implements IPublishingHouseSearchServi
     pagination: PaginationDto,
   ): Promise<PaginatedResult<PublishingHouse>> {
     const searchDto = {
-      searchField: 'name',
-      searchValue: searchTerm,
-      sortBy: pagination.sortBy,
-      sortOrder: pagination.sortOrder,
-      offset: pagination.offset,
-      limit: pagination.limit,
-      page: pagination.page,
+      name: searchTerm,
     };
-    return this.exactSearch(searchDto);
+    return this.exactSearch(searchDto, pagination);
   }
 
   async findByCountry(

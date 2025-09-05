@@ -84,11 +84,15 @@ export class UsersController {
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterUsersRealtime()
   async filter(
-    @Query('term') term: string,
-    @Query() pagination: PaginationInputDto,
+    @Query() filterDto: UserSimpleFilterDto,
     @Request() req,
   ) {
-    return this.userSearchService.simpleFilter(term, pagination, req.user?.userId, req.user?.role?.name);
+    const pagination = new PaginationDto();
+    pagination.page = filterDto.page;
+    pagination.limit = filterDto.limit;
+    pagination.sortBy = filterDto.sortBy;
+    pagination.sortOrder = filterDto.sortOrder;
+    return this.userSearchService.simpleFilter(filterDto.term, pagination, req.user?.userId, req.user?.role?.name);
   }
 
   @Post('advanced-filter')

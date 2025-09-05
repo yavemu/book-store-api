@@ -8,6 +8,7 @@ import { ValidationService } from './services/validation.service';
 import { ErrorHandlerService } from './services/error-handler.service';
 import { UserContextService } from './services/user-context.service';
 import { BookAuthorRepository } from './repositories/book-author.repository';
+import { BookAuthorSearchRepository } from './repositories/book-authors-search.repository';
 import { AuditModule } from '../audit/audit.module';
 
 @Module({
@@ -21,6 +22,7 @@ import { AuditModule } from '../audit/audit.module';
     ErrorHandlerService,
     UserContextService,
     BookAuthorRepository,
+    BookAuthorSearchRepository,
 
     // Interface Providers
     {
@@ -49,7 +51,7 @@ import { AuditModule } from '../audit/audit.module';
     },
     {
       provide: 'IBookAuthorSearchRepository',
-      useClass: BookAuthorRepository,
+      useClass: BookAuthorSearchRepository,
     },
     {
       provide: 'IBookAuthorValidationRepository',

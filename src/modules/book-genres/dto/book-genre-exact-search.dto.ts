@@ -1,25 +1,24 @@
-import { IsString, IsNotEmpty, IsIn } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
+import { IsString, IsOptional, Length } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
-export class BookGenreExactSearchDto extends PaginationInputDto {
+export class BookGenreExactSearchDto {
   @IsString()
-  @IsNotEmpty()
-  @IsIn(['name'])
-  @ApiProperty({
-    description: 'Field to search exactly in',
-    example: 'name',
-    enum: ['name'],
-    required: true,
+  @IsOptional()
+  @Length(2, 50)
+  @ApiPropertyOptional({
+    description: 'Name of the book genre',
+    example: 'Science Fiction',
+    minLength: 2,
+    maxLength: 50,
   })
-  searchField: string;
+  name?: string;
 
   @IsString()
-  @IsNotEmpty()
-  @ApiProperty({
-    description: 'Exact value to search for',
-    example: 'Fiction',
-    required: true,
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'Detailed description of the book genre',
+    example: 'Fiction that deals with futuristic concepts, advanced science and technology, space exploration, time travel, parallel universes, and extraterrestrial life.',
+    required: false,
   })
-  searchValue: string;
+  description?: string;
 }

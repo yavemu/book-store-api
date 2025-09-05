@@ -79,12 +79,17 @@ export class BookAuthorAssignmentsController {
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiFilterAssignmentsRealtime()
-  simpleFilter(@Query('term') term: string, @Query() pagination: PaginationInputDto) {
+  simpleFilter(@Query() filterDto: AssignmentSimpleFilterDto) {
     // Validar que el término sea obligatorio
-    if (!term || term.trim().length === 0) {
+    if (!filterDto.term || filterDto.term.trim().length === 0) {
       throw new HttpException('Filter term is required', HttpStatus.BAD_REQUEST);
     }
-    return this.bookAuthorAssignmentSearchService.simpleFilter(term, pagination);
+    const pagination = new PaginationDto();
+    pagination.page = filterDto.page;
+    pagination.limit = filterDto.limit;
+    pagination.sortBy = filterDto.sortBy;
+    pagination.sortOrder = filterDto.sortOrder;
+    return this.bookAuthorAssignmentSearchService.simpleFilter(filterDto.term, pagination);
   }
 
   @Post('advanced-filter')
@@ -138,7 +143,13 @@ export class BookAuthorAssignmentsController {
   }
 
   async filter(filters: any, pagination: PaginationDto) {
-    return this.simpleFilter(filters.term || '', pagination);
+    const filterDto = new AssignmentSimpleFilterDto();
+    filterDto.term = filters.term || '';
+    filterDto.page = pagination.page;
+    filterDto.limit = pagination.limit;
+    filterDto.sortBy = pagination.sortBy;
+    filterDto.sortOrder = pagination.sortOrder;
+    return this.simpleFilter(filterDto);
   }
 
   async checkAssignment(bookId: string, authorId: string) {

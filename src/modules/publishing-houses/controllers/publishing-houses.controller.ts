@@ -25,6 +25,7 @@ import {
   PublishingHouseSimpleFilterDto,
 } from '../dto';
 import { PaginationInputDto } from '../../../common/dto/pagination-input.dto';
+import { PaginationDto } from '../../../common/dto/pagination.dto';
 import { PublishingHouse } from '../entities/publishing-house.entity';
 import { Auth } from '../../../common/decorators/auth.decorator';
 import { UserRole } from '../../../common/enums/user-role.enum';
@@ -69,14 +70,26 @@ export class PublishingHousesController {
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSearchPublishingHouses()
   exactSearch(@Body() searchDto: PublishingHouseExactSearchDto, @Query() pagination: PaginationInputDto) {
-    return this.publishingHouseSearchService.exactSearch(searchDto);
+    const paginationDto: PaginationDto = {
+      page: pagination.page || 1,
+      limit: pagination.limit || 10,
+      sortBy: pagination.sortBy || 'createdAt',
+      sortOrder: pagination.sortOrder || 'DESC',
+      offset: pagination.offset,
+    };
+    return this.publishingHouseSearchService.exactSearch(searchDto, paginationDto);
   }
 
   @Get('filter')
   @Auth(UserRole.ADMIN, UserRole.USER)
   @ApiSimpleFilterPublishingHouses()
-  simpleFilter(@Query('term') term: string, @Query() pagination: PaginationInputDto) {
-    return this.publishingHouseSearchService.simpleFilter(term, pagination);
+  simpleFilter(@Query() filterDto: PublishingHouseSimpleFilterDto) {
+    const pagination = new PaginationDto();
+    pagination.page = filterDto.page;
+    pagination.limit = filterDto.limit;
+    pagination.sortBy = filterDto.sortBy;
+    pagination.sortOrder = filterDto.sortOrder;
+    return this.publishingHouseSearchService.simpleFilter(filterDto.term, pagination);
   }
 
   @Post('advanced-filter')
@@ -130,6 +143,12 @@ export class PublishingHousesController {
   }
 
   async filter(filters: any, pagination: PaginationInputDto) {
-    return this.simpleFilter(filters.term || '', pagination);
+    const filterDto = new PublishingHouseSimpleFilterDto();
+    filterDto.term = filters.term || '';
+    filterDto.page = pagination.page;
+    filterDto.limit = pagination.limit;
+    filterDto.sortBy = pagination.sortBy;
+    filterDto.sortOrder = pagination.sortOrder;
+    return this.simpleFilter(filterDto);
   }
 }

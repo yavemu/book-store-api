@@ -8,6 +8,7 @@ import { PaginationDto, PaginatedResult } from '../../../common/dto/pagination.d
 export interface IPublishingHouseSearchRepository {
   exactSearchPublishingHouses(
     searchDto: PublishingHouseExactSearchDto,
+    pagination?: PaginationDto,
   ): Promise<PaginatedResult<PublishingHouse>>;
   simpleFilterPublishingHouses(
     term: string,

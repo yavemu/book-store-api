@@ -29,19 +29,50 @@ export class BookGenreSearchRepository
     super(genreRepository);
   }
 
-  async exactSearchGenres(searchDto: BookGenreExactSearchDto): Promise<PaginatedResult<BookGenre>> {
+  async exactSearchGenres(searchDto: BookGenreExactSearchDto, pagination?: PaginationDto): Promise<PaginatedResult<BookGenre>> {
     try {
       const whereCondition: any = {};
-      whereCondition[searchDto.searchField] = searchDto.searchValue;
+      
+      // Build WHERE conditions for all provided fields (WHERE AND exact match)
+      if (searchDto.name) {
+        whereCondition.name = searchDto.name;
+      }
+      if (searchDto.description) {
+        whereCondition.description = searchDto.description;
+      }
 
+      // If no search criteria provided, return empty result
+      if (Object.keys(whereCondition).length === 0) {
+        return {
+          data: [],
+          meta: {
+            total: 0,
+            page: pagination?.page || 1,
+            limit: pagination?.limit || 10,
+            totalPages: 0,
+            hasNext: false,
+            hasPrev: false,
+          },
+        };
+      }
+
+      const paginationData = pagination || {
+        page: 1,
+        limit: 10,
+        sortBy: 'createdAt',
+        sortOrder: 'DESC' as 'DESC' | 'ASC',
+        get offset(): number {
+          return (this.page - 1) * this.limit;
+        }
+      };
       const options: FindManyOptions<BookGenre> = {
         where: whereCondition,
-        order: { [searchDto.sortBy]: searchDto.sortOrder },
-        skip: searchDto.offset,
-        take: searchDto.limit,
+        order: { [paginationData.sortBy || 'createdAt']: paginationData.sortOrder || 'DESC' },
+        skip: paginationData.offset,
+        take: paginationData.limit,
       };
 
-      return await this._findManyWithPagination(options, searchDto);
+      return await this._findManyWithPagination(options, paginationData);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
